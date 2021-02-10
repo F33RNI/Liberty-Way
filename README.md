@@ -19,6 +19,7 @@ This application processes the frame received from the camera located on the pla
 - Flak (Web framework): https://github.com/pcdv/flak
 - Log4j (Logback): https://logging.apache.org/log4j/2.x/
 - OpenCV (Computer vision): https://github.com/opencv/opencv
+- OpenCV-contib (Extra OpenCV modules): https://github.com/opencv/opencv_contrib
 - Commons-CLI (Arguments parser): https://commons.apache.org/proper/commons-cli/
 - jSerialComm (Serial communication): https://github.com/Fazecast/jSerialComm
 - GSon (JSON implementation): https://github.com/google/gson
