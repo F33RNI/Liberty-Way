@@ -55,17 +55,16 @@ public class VideoStream {
      * @param stream output stream of the serverSocket
      */
     private void writeHeader(OutputStream stream) throws IOException {
-        stream.write(("""
-                HTTP/1.0 200 OK\r
-                Connection: close\r
-                Max-Age: 0\r
-                Expires: 0\r
-                Cache-Control: no-store, no-cache, must-revalidate, pre-check=0, post-check=0, max-age=0\r
-                Pragma: no-cache\r
-                Content-Type: multipart/x-mixed-replace; boundary=stream\r
-                \r
-                --stream\r
-                """).getBytes());
+        stream.write(("HTTP/1.0 200 OK\r\n" +
+                "Connection: close\r\n" +
+                "Max-Age: 0\r\n" +
+                "Expires: 0\r\n" +
+                "Cache-Control: no-store, no-cache, must-revalidate, pre-check=0, post-check=0, max-age=0\r\n" +
+                "Pragma: no-cache\r\n" +
+                "Content-Type: multipart/x-mixed-replace; " +
+                "boundary=" + "stream" + "\r\n" +
+                "\r\n" +
+                "--" + "stream" + "\r\n").getBytes());
     }
 
     /**

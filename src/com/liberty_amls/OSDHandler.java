@@ -146,30 +146,42 @@ public class OSDHandler implements Runnable {
 
                 // Top green data (status)
                 switch (status) {
-                    // STAB
-                    case 1 -> Imgproc.putText(destFrame, "STAB",
-                            new Point(setpoint.x - 20, setpoint.y - 174),
-                            Imgproc.FONT_HERSHEY_PLAIN, 1, new Scalar(0, 255, 0), 2);
-                    // LAND
-                    case 2 -> Imgproc.putText(destFrame, "LAND",
-                            new Point(setpoint.x - 20, setpoint.y - 174),
-                            Imgproc.FONT_HERSHEY_PLAIN, 1, new Scalar(0, 255, 127), 2);
-                    // PRED
-                    case 3 -> Imgproc.putText(destFrame, "PRED",
-                            new Point(setpoint.x - 20, setpoint.y - 174),
-                            Imgproc.FONT_HERSHEY_PLAIN, 1, new Scalar(0, 127, 255), 2);
-                    // LOST
-                    case 4 -> Imgproc.putText(destFrame, "LOST",
-                            new Point(setpoint.x - 20, setpoint.y - 174),
-                            Imgproc.FONT_HERSHEY_PLAIN, 1, new Scalar(0, 0, 255), 2);
-                    // DONE
-                    case 5 -> Imgproc.putText(destFrame, "DONE",
-                            new Point(setpoint.x - 20, setpoint.y - 174),
-                            Imgproc.FONT_HERSHEY_PLAIN, 1, new Scalar(255, 200, 0), 2);
-                    // IDLE
-                    default -> Imgproc.putText(destFrame, "IDLE",
-                            new Point(setpoint.x - 20, setpoint.y - 174),
-                            Imgproc.FONT_HERSHEY_PLAIN, 1, new Scalar(255, 200, 0), 2);
+                    case 1:
+                        // STAB
+                        Imgproc.putText(destFrame, "STAB",
+                                new Point(setpoint.x - 20, setpoint.y - 174),
+                                Imgproc.FONT_HERSHEY_PLAIN, 1, new Scalar(0, 255, 0), 2);
+                        break;
+                    case 2:
+                        // LAND
+                        Imgproc.putText(destFrame, "LAND",
+                                new Point(setpoint.x - 20, setpoint.y - 174),
+                                Imgproc.FONT_HERSHEY_PLAIN, 1, new Scalar(0, 255, 127), 2);
+                        break;
+                    case 3:
+                        // PRED
+                        Imgproc.putText(destFrame, "PRED",
+                                new Point(setpoint.x - 20, setpoint.y - 174),
+                                Imgproc.FONT_HERSHEY_PLAIN, 1, new Scalar(0, 127, 255), 2);
+                        break;
+                    case 4:
+                        // LOST
+                        Imgproc.putText(destFrame, "LOST",
+                                new Point(setpoint.x - 20, setpoint.y - 174),
+                                Imgproc.FONT_HERSHEY_PLAIN, 1, new Scalar(0, 0, 255), 2);
+                        break;
+                    case 5:
+                        // DONE
+                        Imgproc.putText(destFrame, "DONE",
+                                new Point(setpoint.x - 20, setpoint.y - 174),
+                                Imgproc.FONT_HERSHEY_PLAIN, 1, new Scalar(255, 200, 0), 2);
+                        break;
+                    default:
+                        // IDLE
+                        Imgproc.putText(destFrame, "IDLE",
+                                new Point(setpoint.x - 20, setpoint.y - 174),
+                                Imgproc.FONT_HERSHEY_PLAIN, 1, new Scalar(255, 200, 0), 2);
+                        break;
                 }
 
                 // Yaw progress bars (Bottom)
