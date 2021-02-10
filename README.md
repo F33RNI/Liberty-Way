@@ -11,6 +11,7 @@ All the code excluding the dependencies block, was written by Pavel Neshumov (Fr
 ### Description
 This application is part of the AMLS project (Autonomous Multi-rotor Landing System).
 The task of the project is to automatically land the drone on a platform in motion.
+
 This application processes the frame received from the camera located on the platform (the camera is looking up). On the bottom of the drone, there is an ARUco tag. The application detects the marker, estimates its position. Then passes through the PID controller and sends the correction values to the drone.
 
 ------------
