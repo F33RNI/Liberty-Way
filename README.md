@@ -18,7 +18,7 @@ This application processes the frame received from the camera located on the pla
 
 ### Dependencies
 - Flak (Web framework): https://github.com/pcdv/flak
-- Log4j (Logback): https://logging.apache.org/log4j/2.x/
+- Log4j (Logback): https://github.com/apache/log4j
 - OpenCV (Computer vision): https://github.com/opencv/opencv
 - OpenCV-contib (Extra OpenCV modules): https://github.com/opencv/opencv_contrib
 - Commons-CLI (Arguments parser): https://commons.apache.org/proper/commons-cli/
