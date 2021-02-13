@@ -105,7 +105,8 @@ public class Main {
             logger.error("Error parsing command-line arguments!", e);
             HelpFormatter formatter = new HelpFormatter();
             // Print help message if wrong arguments provided
-            formatter.printHelp("java -jar app.jar [-i <ip>] [-sp <server_port>] [-vp <video_port>] [-c]"
+            formatter.printHelp(
+                    "java -jar Liberty-Way.jar [-i <ip>] [-sp <server_port>] [-vp <video_port>] [-c]"
                     , options);
             // Exit because no correct arguments provided
             System.exit(1);
