@@ -84,7 +84,7 @@ These are the parameters that are set by default and can be changed depending on
 "setpoint_x",              absolute value of pid regulation (x)
 "setpoint_y",              absolute value of pid regulation (y)
 "setpoint_yaw",              absolute value of pid regulation (angle)
-"data_suffix_1",          first unique ASCII symbol that shows the end of the package
-"data_suffix_2",          second unique ASCII symbol that shows the end of the package
+"data_suffix_1",          first of the unique ASCII pair symbols that show the end of the package
+"data_suffix_2",          second of the unique ASCII pair symbols that show the end of the package
 "push_osd_after_frames",           after how many frames the image is being sent to the web-page
 ```
