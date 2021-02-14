@@ -48,7 +48,7 @@ When starting the application, you can specify the arguments:
  -sp,--server_port <arg>   web server port (0 - 65535)
  -vp,--video_port <arg>    video stream port (0 - 65535)
 ```
-Also, the server address and ports can be specified in the settings file (settings.json)
+Also, the server address and ports can be specified in the configuration (settings.json)
 
 -------
 
