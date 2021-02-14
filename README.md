@@ -97,10 +97,10 @@ This is the structure of a package that is being sent to the drone for execution
 ![Package](https://github.com/XxOinvizioNxX/Liberty-Way/blob/main/git_images/Data_structure.png "Data package")
 
 Bytes description:
-- **Roll bytes** - 
-- **Pitch bytes** -
-- **Yaw bytes** -
-- **Altitude bytes** -
+- **Roll bytes** - Roll correction values 
+- **Pitch bytes** - Pitch correction values 
+- **Yaw bytes** - Yaw correction values
+- **Altitude bytes** - Altitude correction values
 - **Service info** - sets the drone state (0 - Nothing to do, 1 - Stabilization, 2 - Landing (command not implemented), 3 - Disable motors)
-- **Check byte** -
+- **Check byte** - XOR summ of all previous bytes that is compared via transmittion in order to verify the data
 - **Data suffix** - unique pair of ASCII symbols that is not represented in the package in any form and that shows the end of the package 
