@@ -88,3 +88,19 @@ These are the parameters presented in settings.json file that are used by the pr
 "data_suffix_2",          second of the unique ASCII pair symbols that show the end of the package
 "push_osd_after_frames",           after how many frames the image is being sent to the web-page
 ```
+
+--------
+
+### Data package structure
+This is the structure of a package that is being sent to the drone for execution of a PID controller arguments:
+
+![Package](https://github.com/XxOinvizioNxX/Liberty-Way/blob/main/git_images/Data_structure.png "Data package")
+
+Bytes description:
+- **Roll bytes** - 
+- **Pitch bytes** -
+- **Yaw bytes** -
+- **Altitude bytes** -
+- **Service info** - byte that sets the drone state (0 - Nothing to do, 1 - Stabilization, 2 - Landing (command not implemented), 3 - Disable motors)
+- **Check byte** -
+- **Data suffix** - unique pair of ASCII symbols that is not represented in any packages in any bytes and that shows the end of the package 
