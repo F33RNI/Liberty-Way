@@ -18,7 +18,7 @@
   "video_enabled_by_default": true,
   "fps_measure_period": 2000,
   "adaptive_thresh_constant": 10,
-  "allowed_ids": [9, 69],
+  "allowed_ids": [9, 69, 113, 228],
   "input_filter": 0.90,
   "allowed_lost_frames": 10,
   "lost_filter": 0.85,
