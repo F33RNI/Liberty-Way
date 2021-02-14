@@ -71,7 +71,9 @@ These are the parameters presented in settings.json file that are used by the pr
 "default_server_host",              server host which can be overridden by cmd argument
 "default_server_port",              server port which can be overridden by cmd argument
 "default_video_port",              video port which can be overridden by cmd argument
-"video_enabled_by_default",              should the video be enabled from the start
+"video_stream_enabled_by_default": true,              should the video stream be enabled from the start
+"video_on_page_enabled_by_default": true,              should the video be enabled on the page from the start
+"video_enabled_by_default",             
 "fps_measure_period",              period of measurements of fps (milliseconds)
 "adaptive_thresh_constant",              detector of parameters (ARUCO)
 "allowed_ids",              array of allowed tracking markers ARUCO ids
