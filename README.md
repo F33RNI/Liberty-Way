@@ -53,7 +53,7 @@ Also, the server address and ports can be specified in the configuration (settin
 -------
 
 ###  Configuration
-These are the parameters that are set by default and can be changed depending on the application of the program:
+These are the parameters presented in settings.json file that are used by the program and can be changed depending of its application:
 ```
 "marker_size",             size of the tracking marker (cm)
 "landing_alt",              altitude of landing allowance
