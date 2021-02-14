@@ -103,7 +103,11 @@ public class OpenCVHandler implements Runnable {
             videoCapture.read(frame);
 
             // Enable or disable stream by settings
-            positionHandler.osdHandler.streamEnabled = Main.settings.get("video_enabled_by_default").getAsBoolean();
+            positionHandler.osdHandler.streamEnabled =
+                    Main.settings.get("video_stream_enabled_by_default").getAsBoolean();
+            // Enable or disable video stream on page by settings
+            positionHandler.osdHandler.streamOnPageEnabled =
+                    Main.settings.get("video_on_page_enabled_by_default").getAsBoolean();
             logger.info("Camera " + cameraID + " opened!");
 
         } catch (Exception e) {

@@ -136,9 +136,13 @@ public class WebServer {
             content = content.replace("{{ holding_drone }}", positionHandler.stabEnabled ? "checked" : "");
             content = content.replace("{{ landing_drone }}", positionHandler.landingEnabled ? "checked" : "");
 
-            // Check 'Enable video' checkbox on html if video stream is enabled
-            content = content.replace("{{ debug_info.v }}",
+            // Check 'Video Stream' checkbox on html if video stream is enabled
+            content = content.replace("{{ debug_info.v_stream }}",
                     positionHandler.osdHandler.streamEnabled ? "checked" : "");
+
+            // Check 'Video on page' checkbox on html if video on page is enabled
+            content = content.replace("{{ debug_info.v_page }}",
+                    positionHandler.osdHandler.streamOnPageEnabled ? "checked" : "");
         }
         return content;
     }
@@ -261,8 +265,9 @@ public class WebServer {
         positionHandler.setPIDFromJson(pidsNew);
         FileWorkers.saveJsonObject(pidsNew, Main.settings.get("pid_file").getAsString());
 
-        // Enable or disable video stream checkbox
-        positionHandler.osdHandler.streamEnabled = query.get("video").equals("true");
+        // Enable or disable video stream and page background by checkboxes
+        positionHandler.osdHandler.streamEnabled = query.get("video_stream").equals("true");
+        positionHandler.osdHandler.streamOnPageEnabled = query.get("video_on_page").equals("true");
 
         // Redirect to the home page
         resp.redirect("/");

@@ -30,7 +30,7 @@ public class OSDHandler implements Runnable {
     private final VideoStream videoStream;
     private boolean handlerRunning = true;
     private boolean streamEnabledLast = false;
-    public boolean streamEnabled = true;
+    public boolean streamEnabled = true, streamOnPageEnabled = true;
     public boolean newPositionFlag = false;
     public Point setpoint;
     public Point current = new Point(0, 0);
