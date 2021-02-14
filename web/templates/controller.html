@@ -7,7 +7,7 @@
 		<title>Liberty-Way AMLS</title>
 		<style>
 			body {
-				background-image: url('video_feed'), url('background.jpg');
+				background-image: url('background.jpg');
 				background-repeat: no-repeat, no-repeat;
 				background-attachment: fixed, fixed;
 				background-size: contain, cover;
@@ -20,6 +20,16 @@
 			}
 		</style>
 		<script type="text/javascript">
+			window.addEventListener("load", function(){
+				var video_on_page_enabled = document.getElementById('video_on_page_enabled').checked;
+				if (video_on_page_enabled) {
+					document.body.style.backgroundImage = "url('video_feed'), url('background.jpg')";
+					document.body.style.backgroundSize = "contain, cover";
+				} else {
+					document.body.style.backgroundImage = "url('background.jpg')";
+					document.body.style.backgroundSize = "cover";
+				}
+			});
 			function submit_values() {
 				var pid_roll_p = parseFloat(document.getElementById('pid_roll_p').value);
 				var pid_roll_i = parseFloat(document.getElementById('pid_roll_i').value);
@@ -27,8 +37,9 @@
 				var pid_alt_p = parseFloat(document.getElementById('pid_alt_p').value);
 				var pid_alt_i = parseFloat(document.getElementById('pid_alt_i').value);
 				var pid_alt_d = parseFloat(document.getElementById('pid_alt_d').value);
-				var video_enabled = document.getElementById('video_enabled').checked;
-				window.location.href = '/setup?pid_roll_p=' + pid_roll_p + '&pid_roll_i=' + pid_roll_i + '&pid_roll_d=' + pid_roll_d + '&pid_alt_p=' + pid_alt_p + '&pid_alt_i=' + pid_alt_i + '&pid_alt_d=' + pid_alt_d + '&video=' + video_enabled;
+				var video_stream_enabled = document.getElementById('video_stream_enabled').checked;
+				var video_on_page_enabled = document.getElementById('video_on_page_enabled').checked;
+				window.location.href = '/setup?pid_roll_p=' + pid_roll_p + '&pid_roll_i=' + pid_roll_i + '&pid_roll_d=' + pid_roll_d + '&pid_alt_p=' + pid_alt_p + '&pid_alt_i=' + pid_alt_i + '&pid_alt_d=' + pid_alt_d + '&video_stream=' + video_stream_enabled + '&video_on_page=' + video_on_page_enabled;
 			}
 			function holding_changed(cb) {
 				if (!cb.checked)
@@ -149,8 +160,10 @@
 		<label for="debug_enabled"> DEBUG</label>
 		<a>&nbsp;&nbsp;</a>
 		-->
-		<input type="checkbox" id="video_enabled" {{ debug_info.v }}>
-		<label for="video_enabled"> VIDEO</label>
+		<input type="checkbox" id="video_stream_enabled" {{ debug_info.v_stream }}>
+		<label for="video_stream_enabled"> Video Stream</label>
+		<input type="checkbox" id="video_on_page_enabled" {{ debug_info.v_page }}>
+		<label for="video_on_page_enabled"> Video on page</label>
 		<!--
 		<a>&nbsp;&nbsp;</a>
 		<input type="checkbox" id="opencv_enabled" {{ debug_info.o }}>
