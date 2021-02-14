@@ -5,6 +5,9 @@
 
 [![Liberty-Way_beta_0.0.3](https://img.shields.io/badge/Latest_version-beta_0.0.3-informational?logo=Github&style=flat-square "Liberty-Way_beta_0.0.3")](https://github.com/XxOinvizioNxX/Liberty-Way/releases/tag/beta_0.0.3 "Liberty-Way_beta_0.0.3")
 [![Our_channel](https://img.shields.io/badge/Our_channel-YouTube-red?logo=Youtube&style=flat-square "Our_channel")](https://www.youtube.com/channel/UCqN12Jzy-1eJLkcA32R0jdg "Our_channel")
+![GitHub All Releases](https://img.shields.io/github/downloads/XxOinvizioNxX/Liberty-Way/total?style=flat-square "GitHub All Releases")
+
+
 
 This project was created as a part of project activities subject of Moscow Polytech University by the 181-311 group.
 It also participates in the CopterHack 2021 hackathon from Copter Express.
