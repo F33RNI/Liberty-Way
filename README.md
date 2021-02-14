@@ -56,7 +56,7 @@ Also, the server address and ports can be specified in the configuration (settin
 These are the parameters presented in settings.json file that are used by the program and can be changed depending of its application:
 ```
 "marker_size",             length of one side of the tracking marker (cm)
-"landing_alt",             altitude of sending a package to turn off the motors (service info = 3)
+"landing_alt",             altitude of sending a packet to turn off the motors (service info = 3)
 "pid_file",              file of PID configuration
 "camera_matrix_file",              camera calibration (matrix)
 "camera_distortions_file",     camera calibration (distortions)
@@ -84,17 +84,17 @@ These are the parameters presented in settings.json file that are used by the pr
 "setpoint_x",              setpoint of PID controller (absolute estimated x)
 "setpoint_y",              setpoint of PID controller (absolute estimated y)
 "setpoint_yaw",            angle setpoint of PID controller (absolute estimated degrees)
-"data_suffix_1",          first of the unique ASCII pair symbols that show the end of the package
-"data_suffix_2",          second of the unique ASCII pair symbols that show the end of the package
+"data_suffix_1",          first of the unique ASCII pair symbols that show the end of the packet
+"data_suffix_2",          second of the unique ASCII pair symbols that show the end of the packet
 "push_osd_after_frames",           after how many frames the image is being sent to the web-page
 ```
 
 --------
 
-### Data package structure
-This is the structure of a package that is being sent to the drone for execution of a PID controller arguments:
+### Data packet structure
+This is the structure of a packet that is being sent to the drone for execution of a PID controller arguments:
 
-![Package](https://github.com/XxOinvizioNxX/Liberty-Way/blob/main/git_images/Data_structure.png "Data package")
+![Packet](https://github.com/XxOinvizioNxX/Liberty-Way/blob/main/git_images/Data_structure.png "Data packet")
 
 Bytes description:
 - **Roll bytes** - Roll correction values 
@@ -103,4 +103,4 @@ Bytes description:
 - **Altitude bytes** - Altitude correction values
 - **Service info** - sets the drone state (0 - Nothing to do, 1 - Stabilization, 2 - Landing (command not implemented), 3 - Disable motors)
 - **Check byte** - XOR sum of all previous bytes that is compared via transmittion in order to verify the data
-- **Data suffix** - unique pair of ASCII symbols that is not represented in the package in any form and that shows the end of the package 
+- **Data suffix** - unique pair of ASCII symbols that is not represented in the packet in any form and that shows the end of the packet 
