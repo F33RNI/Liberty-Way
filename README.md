@@ -3,7 +3,7 @@
 
 ![Logo](https://github.com/XxOinvizioNxX/Liberty-Way/blob/main/git_images/logo_book.png "Logo")
 
-image:https://img.shields.io/badge/Latest_version-beta_0.0.3-informational?logo=Github&style=flat-square[title="Github", link="https://github.com/XxOinvizioNxX/Liberty-Way/releases/tag/beta_0.0.3"]
+[![Liberty-Way_beta_0.0.3](https://img.shields.io/badge/Latest_version-beta_0.0.3-informational?logo=Github&style=flat-square "Liberty-Way_beta_0.0.3")](https://github.com/XxOinvizioNxX/Liberty-Way/releases/tag/beta_0.0.3 "Liberty-Way_beta_0.0.3")
 
 This project was created as a part of project activities subject of Moscow Polytech University by the 181-311 group.
 It also participates in the CopterHack 2021 hackathon from Copter Express.
