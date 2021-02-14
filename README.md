@@ -55,16 +55,16 @@ Also, the server address and ports can be specified in the configuration (settin
 ###  Configuration
 These are the parameters presented in settings.json file that are used by the program and can be changed depending of its application:
 ```
-"marker_size",             size of the tracking marker (cm)
-"landing_alt",              altitude of landing allowance
+"marker_size",             length of one side of the tracking marker (cm)
+"landing_alt",             altitude of sending a package to turn off the motors (service info = 3)
 "pid_file",              file of PID configuration
 "camera_matrix_file",              camera calibration (matrix)
 "camera_distortions_file",     camera calibration (distortions)
-"watermark_file",              image of a watermark
+"watermark_file",              image of a watermark (top-right corner)
 "web_resources_folder",              folder of web resources
 "web_templates_folder",              folder of templates for a web-page
-"frame_width",              resolution of an input frame - width
-"frame_height",              resolution of an input frame - height
+"frame_width",              resolution that is set to web-camera (width)
+"frame_height",              resolution that is set to web-camera (height)
 "disable_auto_exposure",              disabling/enabling auto exposure feature
 "disable_auto_wb",              disabling/enabling auto white balance feature
 "disable_auto_focus",              disabling/enabling auto focus feature
@@ -73,17 +73,17 @@ These are the parameters presented in settings.json file that are used by the pr
 "default_video_port",              video port which can be overridden by cmd argument
 "video_enabled_by_default",              should the video be enabled from the start
 "fps_measure_period",              period of measurements of fps (milliseconds)
-"adaptive_thresh_constant",              detector of parameters
-"allowed_ids",              array of tracking markers ids
+"adaptive_thresh_constant",              detector of parameters (ARUCO)
+"allowed_ids",              array of allowed tracking markers ARUCO ids
 "input_filter",              Kalman filter coefficient
 "allowed_lost_frames",              frames where the marker is not in the input frame
 "lost_filter",              coefficient of the predicted marker point
 "landing_decrement",              constant latitude decrement (cm)
 "allowed_landing_range_xy",              range of the landing allowance (cm)
 "allowed_landing_range_yaw",              range of the landing allowance (degrees)
-"setpoint_x",              absolute value of pid regulation (x)
-"setpoint_y",              absolute value of pid regulation (y)
-"setpoint_yaw",              absolute value of pid regulation (angle)
+"setpoint_x",              setpoint of PID controller (absolute estimated x)
+"setpoint_y",              setpoint of PID controller (absolute estimated y)
+"setpoint_yaw",            angle setpoint of PID controller (absolute estimated degrees)
 "data_suffix_1",          first of the unique ASCII pair symbols that show the end of the package
 "data_suffix_2",          second of the unique ASCII pair symbols that show the end of the package
 "push_osd_after_frames",           after how many frames the image is being sent to the web-page
