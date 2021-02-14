@@ -101,6 +101,6 @@ Bytes description:
 - **Pitch bytes** -
 - **Yaw bytes** -
 - **Altitude bytes** -
-- **Service info** - byte that sets the drone state (0 - Nothing to do, 1 - Stabilization, 2 - Landing (command not implemented), 3 - Disable motors)
+- **Service info** - sets the drone state (0 - Nothing to do, 1 - Stabilization, 2 - Landing (command not implemented), 3 - Disable motors)
 - **Check byte** -
-- **Data suffix** - unique pair of ASCII symbols that is not represented in any packages in any bytes and that shows the end of the package 
+- **Data suffix** - unique pair of ASCII symbols that is not represented in the package in any form and that shows the end of the package 
