@@ -37,7 +37,7 @@ This application processes the frame received from the camera located on the pla
 ### Building and running
 Liberty Way is a cross-platform application and has been tested on Linux and Windows. 
 You can try running the application on any other operating system. But you first need to build the OpenCV-contrib library (**The releases include libraries for Windows and Linux**).
-Builded binary JAR-file can be found in releases as well as in the main branch (Liberty-Way.jar file)
+Builded binary JAR-file can be found in releases.
 
 
 All of the controls is performed only from the browser.
