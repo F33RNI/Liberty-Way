@@ -40,8 +40,18 @@ This application processes the frame received from the camera located on the pla
 
 ------------
 
+### License
+Liberty-Way is licensed under AGPLv3, you can find it’s contents in the main branch.
+
+------------
+
+### Logotype
+AMLS and Liberty-X logo was designed by Pavel Neshumov (Frey Hertz)
+
+------------
+
 ### Building and running
-Liberty Way is a cross-platform application and has been tested on Linux and Windows. 
+Liberty-Way is a cross-platform application and has been tested on Linux and Windows. 
 You can try running the application on any other operating system. But you first need to build the OpenCV-contrib library (**The releases include libraries for Windows and Linux**).
 Builded binary JAR-file can be found in releases.
 
