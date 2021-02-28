@@ -45,8 +45,16 @@ Liberty-Way is licensed under AGPLv3, you can find it’s contents in the main b
 
 ------------
 
+### Feedback
+Our E-Mails:
+- xxoinvizionxx@gmail.com (Pavel Neshumov)
+- astik452@gmail.com (Andrey Kabalin)
+- vlad.yasn@gmail.com (Vladislav Yasnetsky)
+ 
+------------
+
 ### Logotype
-AMLS and Liberty-X logo was designed by Pavel Neshumov (Frey Hertz)
+AMLS and Liberty-X logo was designed by Pavel Neshumov
 
 ------------
 
