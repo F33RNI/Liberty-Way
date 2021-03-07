@@ -39,7 +39,8 @@
 				var pid_alt_d = parseFloat(document.getElementById('pid_alt_d').value);
 				var video_stream_enabled = document.getElementById('video_stream_enabled').checked;
 				var video_on_page_enabled = document.getElementById('video_on_page_enabled').checked;
-				window.location.href = '/setup?pid_roll_p=' + pid_roll_p + '&pid_roll_i=' + pid_roll_i + '&pid_roll_d=' + pid_roll_d + '&pid_alt_p=' + pid_alt_p + '&pid_alt_i=' + pid_alt_i + '&pid_alt_d=' + pid_alt_d + '&video_stream=' + video_stream_enabled + '&video_on_page=' + video_on_page_enabled;
+				var blackbox_enabled = document.getElementById('blackbox_enabled').checked;
+				window.location.href = '/setup?pid_roll_p=' + pid_roll_p + '&pid_roll_i=' + pid_roll_i + '&pid_roll_d=' + pid_roll_d + '&pid_alt_p=' + pid_alt_p + '&pid_alt_i=' + pid_alt_i + '&pid_alt_d=' + pid_alt_d + '&video_stream=' + video_stream_enabled + '&video_on_page=' + video_on_page_enabled + '&blackbox=' + blackbox_enabled;
 			}
 			function holding_changed(cb) {
 				if (!cb.checked)
@@ -161,9 +162,11 @@
 		<a>&nbsp;&nbsp;</a>
 		-->
 		<input type="checkbox" id="video_stream_enabled" {{ debug_info.v_stream }}>
-		<label for="video_stream_enabled"> Video Stream</label>
+		<label for="video_stream_enabled"> Stream</label>
 		<input type="checkbox" id="video_on_page_enabled" {{ debug_info.v_page }}>
-		<label for="video_on_page_enabled"> Video on page</label>
+		<label for="video_on_page_enabled"> On page</label>
+		<input type="checkbox" id="blackbox_enabled" {{ debug_info.blackbox }}>
+		<label for="blackbox_enabled"> Blackbox</label>
 		<!--
 		<a>&nbsp;&nbsp;</a>
 		<input type="checkbox" id="opencv_enabled" {{ debug_info.o }}>

@@ -9,18 +9,17 @@
 			function start_loop() {
 				document.getElementById("btn_start").disabled = true;
 				var camera_id = document.getElementById("camera_id").value;
-				var camera_exp = document.getElementById("camera_exp").value;
 				
-				var start_location = "/start?camera_id=" + camera_id + "&camera_exp=" + camera_exp;
+				var start_location = "/start?camera_id=" + camera_id;
 				
-				if (document.getElementById("cnc_port_enabled").checked) {
-					start_location += "&cnc_port=" + document.getElementById("cnc_ports").value;
-					start_location += "&cnc_baudrate=" + document.getElementById("cnc_baudrate").value;
+				if (document.getElementById("platform_port_enabled").checked) {
+					start_location += "&platform_port=" + document.getElementById("platform_ports").value;
+					start_location += "&platform_baudrate=" + document.getElementById("platform_baudrate").value;
 				}
 					
-				if (document.getElementById("rf_port_enabled").checked) {
-					start_location += "&rf_port=" + document.getElementById("rf_ports").value;
-					start_location += "&rf_baudrate=" + document.getElementById("rf_baudrate").value;
+				if (document.getElementById("link_port_enabled").checked) {
+					start_location += "&link_port=" + document.getElementById("link_ports").value;
+					start_location += "&link_baudrate=" + document.getElementById("link_baudrate").value;
 				}
 					
 				if (document.getElementById("udp_ip_port_enabled").checked)
@@ -40,14 +39,14 @@
 
 			<div id="container">
 				<div>
-					<input type="checkbox" id="cnc_port_enabled">
-					<label for="cnc_port_enabled"> CNC Port: </label>
+					<input type="checkbox" id="platform_port_enabled">
+					<label for="platform_port_enabled"> Platform Port: </label>
 				</div>
 				<div>
-					<select id="cnc_ports" name="cnc_ports">
-						{{ cnc_ports }}
+					<select id="platform_ports" name="platform_ports">
+						{{ platform_ports }}
 					</select>
-					<select id="cnc_baudrate" name="cnc_baudrate">
+					<select id="platform_baudrate" name="platform_baudrate">
 						<option value="57600">57600</option>
 						<option value="9600">9600</option>
 						<option value="14400">14400</option>
@@ -62,14 +61,14 @@
 
 			<div id="container">
 				<div>
-					<input type="checkbox" id="rf_port_enabled" checked>
-					<label for="rf_port_enabled"> RF Port: </label>
+					<input type="checkbox" id="link_port_enabled" checked>
+					<label for="link_port_enabled"> Liberty-Link: </label>
 				</div>
 				<div>
-					<select id="rf_ports" name="rf_ports">
-						{{ rf_ports }}
+					<select id="link_ports" name="link_ports">
+						{{ link_ports }}
 					</select>
-					<select id="rf_baudrate" name="rf_baudrate">
+					<select id="link_baudrate" name="link_baudrate">
 						<option value="57600">57600</option>
 						<option value="9600">9600</option>
 						<option value="14400">14400</option>
@@ -95,11 +94,6 @@
 			<div id="container">
 				<div><label for="camera_id">Camera ID: </label></div>
 				<div><input id="camera_id" type="number" style="width: 3em;" value="0"></div>
-			</div>
-			
-			<div id="container">
-				<div><label for="camera_exp">Exposure: </label></div>
-				<div><input id="camera_exp" type="number" style="width: 3em;" value="-8"></div>
 			</div>
 			
 			<p><button id="btn_start" class="w3-button" onclick="start_loop()">Start</button>
