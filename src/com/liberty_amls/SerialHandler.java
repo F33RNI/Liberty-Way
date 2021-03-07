@@ -24,13 +24,13 @@ import java.util.List;
 
 public class SerialHandler {
     private final Logger logger = Logger.getLogger(this.getClass().getSimpleName());
-    private final String cncPortName, rfPortName;
-    private int cncBaudrate, rfBaudrate;
-    private SerialPort cncPort, rfPort;
-    public boolean cncPortOpened;
-    public boolean rfPortOpened;
-    public byte[] cncData;
-    public byte[] rfData;
+    private final String platformPortName, linkPortName;
+    private int platformBaudrate, linkBaudrate;
+    private SerialPort platformPort, linkPort;
+    public boolean platformPortOpened;
+    public boolean linkPortOpened;
+    public byte[] platformData;
+    public byte[] linkData;
 
     /**
      * Discovers available Serial ports
@@ -47,58 +47,62 @@ public class SerialHandler {
     }
 
     /**
-     * This class takes an array of bytes (rfData and cncData) and sends it over a Serial Port
-     * @param cncPortName name of CNC Port (ex. 'COM1' on Windows or '/dev/ttyS0' on Linux)
-     * @param cncBaudrate baudrate of CNC Port (ex. '57600')
-     * @param rfPortName name of drone communication port port (ex. 'COM1' on Windows or '/dev/ttyS0' on Linux)
-     * @param rfBaudrate baudrate drone communication port port (ex. '57600')
+     * This class takes an array of bytes (linkData and platformData) and sends it over a Serial Port
+     * @param platformPortName name of Platform Port (ex. 'COM1' on Windows or '/dev/ttyS0' on Linux)
+     * @param platformBaudrate baudrate of Platform Port (ex. '57600')
+     * @param linkPortName name of drone communication port (Liberty-Link) (ex. 'COM1' on Windows or '/dev/ttyS0' on Linux)
+     * @param linkBaudrate baudrate drone communication port (Liberty-Link) (ex. '57600')
      */
-    public SerialHandler(String cncPortName, String cncBaudrate, String rfPortName, String rfBaudrate) {
-        this.cncPortName = cncPortName;
-        this.rfPortName = rfPortName;
-        if (cncPortName != null)
-            this.cncBaudrate = Integer.parseInt(cncBaudrate);
-        if (rfPortName != null)
-            this.rfBaudrate = Integer.parseInt(rfBaudrate);
+    public SerialHandler(String platformPortName, String platformBaudrate, String linkPortName, String linkBaudrate) {
+        this.platformPortName = platformPortName;
+        this.linkPortName = linkPortName;
+        if (platformPortName != null)
+            this.platformBaudrate = Integer.parseInt(platformBaudrate);
+        if (linkPortName != null)
+            this.linkBaudrate = Integer.parseInt(linkBaudrate);
     }
 
     /**
      * Opens provided ports
      */
     public void openPorts() {
-        cncPortOpened = false;
-        rfPortOpened = false;
-        if (cncPortName == null && rfPortName == null)
+        platformPortOpened = false;
+        linkPortOpened = false;
+        if (platformPortName == null && linkPortName == null)
             // If no ports provided
             logger.warn("No serial ports presented. Nothing to open");
         else {
             try {
-                if (cncPortName != null) {
-                    // If CNC port provided
-                    cncPort = SerialPort.getCommPort(cncPortName);
+                if (platformPortName != null) {
+                    // If Platform port provided
+                    platformPort = SerialPort.getCommPort(platformPortName);
                     // Set baudrate
-                    cncPort.setBaudRate(cncBaudrate);
+                    platformPort.setBaudRate(platformBaudrate);
                     // Open it
-                    cncPort.openPort();
+                    platformPort.openPort();
+                    // Wait some time for correct opening
+                    Thread.sleep(500);
 
                     // Check if port is open
-                    if (cncPort.isOpen()) {
-                        cncPortOpened = true;
-                        logger.info("CNC Port opened successfully.");
+                    if (platformPort.isOpen()) {
+                        platformPortOpened = true;
+                        logger.info("Platform Port opened successfully.");
                     }
                 }
-                if (rfPortName != null) {
+                if (linkPortName != null) {
                     // If drone communication port (RF) provided
-                    rfPort = SerialPort.getCommPort(rfPortName);
+                    linkPort = SerialPort.getCommPort(linkPortName);
                     // Set baudrate
-                    rfPort.setBaudRate(rfBaudrate);
+                    linkPort.setBaudRate(linkBaudrate);
                     // Open it
-                    rfPort.openPort();
+                    linkPort.openPort();
+                    // Wait some time for correct opening
+                    Thread.sleep(500);
 
                     // Check if port is open
-                    if (rfPort.isOpen()) {
-                        rfPortOpened = true;
-                        logger.info("RF Port opened successfully.");
+                    if (linkPort.isOpen()) {
+                        linkPortOpened = true;
+                        logger.info("Liberty-Link Port opened successfully.");
                     }
                 }
             } catch (Exception e) {
@@ -110,21 +114,15 @@ public class SerialHandler {
     }
 
     /**
-     * Pushes byte arrays to serial ports
+     * Pushes byte arrays to Liberty-Link port
      */
-    public void pushData() {
+    public void pushLinkData() {
         try {
-            if (cncPortOpened && cncData != null && cncData.length > 0) {
-                // CNC Port
-                cncPort.writeBytes(cncData, cncData.length);
-                // Flush port for safe
-                cncPort.getOutputStream().flush();
-            }
-            if (rfPortOpened && rfData != null && rfData.length > 0) {
+            if (linkPortOpened && linkData != null && linkData.length > 0) {
                 // RF Port
-                rfPort.writeBytes(rfData, rfData.length);
+                linkPort.writeBytes(linkData, linkData.length);
                 // Flush port for safe
-                rfPort.getOutputStream().flush();
+                linkPort.getOutputStream().flush();
             }
         } catch (Exception e) {
             logger.error("Error pushing data over serial!", e);
@@ -132,22 +130,49 @@ public class SerialHandler {
     }
 
     /**
+     * Pushes byte arrays to Platform controller port
+     */
+    public void pushPlatformData() {
+        try {
+            if (platformPortOpened && platformData != null && platformData.length > 0) {
+                // Platform Port
+                platformPort.writeBytes(platformData, platformData.length);
+                // Flush port for safe
+                platformPort.getOutputStream().flush();
+            }
+        } catch (Exception e) {
+            logger.error("Error pushing data over serial!", e);
+        }
+    }
+
+    /**
+     * Reads all available bytes from platform port
+     * @return bytes array from platform port
+     */
+    public byte[] readDataFromPlatform() {
+        int bytesAvailable = platformPort.bytesAvailable();
+        byte[] buffer = new byte[bytesAvailable];
+        platformPort.readBytes(buffer, bytesAvailable);
+        return buffer;
+    }
+
+    /**
      * Closes ports
      */
     public void closePorts() {
         logger.info("Closing ports.");
-        if (cncPortOpened) {
-            cncPortOpened = false;
+        if (platformPortOpened) {
+            platformPortOpened = false;
             try {
-                cncPort.closePort();
+                platformPort.closePort();
             } catch (Exception e) {
-                logger.error("Error closing CNC Port", e);
+                logger.error("Error closing Platform Port", e);
             }
         }
-        if (rfPortOpened) {
-            rfPortOpened = false;
+        if (linkPortOpened) {
+            linkPortOpened = false;
             try {
-                rfPort.closePort();
+                linkPort.closePort();
             } catch (Exception e) {
                 logger.error("Error closing RF Port", e);
             }

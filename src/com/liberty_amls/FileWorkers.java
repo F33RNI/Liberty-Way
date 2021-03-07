@@ -26,6 +26,8 @@ import org.opencv.core.Mat;
 import org.opencv.imgcodecs.Imgcodecs;
 
 import java.io.*;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class FileWorkers {
     /**
@@ -145,5 +147,20 @@ public class FileWorkers {
         } catch (Exception e) {
             Main.logger.error("Error saving " + file, e);
         }
+    }
+
+    /**
+     * Creates parent directories and opens blackbox .csv file with timestamp name
+     * @param blackboxDirectory folder with logs
+     */
+    @SuppressWarnings("ResultOfMethodCallIgnored")
+    public static File createBlackboxFile(String blackboxDirectory) throws IOException {
+        // File path
+        File file = new File(blackboxDirectory + "/liberty-way_"
+                + new SimpleDateFormat("dd_MM_yyyy_HH_mm_ss").format(new Date()) + ".csv");
+        // Create directories and file if not exist
+        file.getParentFile().mkdirs();
+        file.createNewFile();
+        return file;
     }
 }

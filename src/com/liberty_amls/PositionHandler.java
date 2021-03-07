@@ -25,20 +25,19 @@ public class PositionHandler {
     private final Logger logger = Logger.getLogger(this.getClass().getSimpleName());
     private final SerialHandler serialHandler;
     private final UDPHandler udpHandler;
+    private final PlatformHandler platformHandler;
     private final MiniPID miniPIDX, miniPIDY, miniPIDZ, miniPIDYaw;
-    private double ddcX, ddcY, ddcZ, ddcYaw;
+    private final PositionContainer positionContainer;
+    private final BlackboxHandler blackboxHandler;
     private final byte[] directControlData;
     private int lostFrames;
-    private double x = 0, y = 0, z = 0, yaw = 0;
-    private double setpointX, setpointY, setpointZ, setpointYaw;
-    private int status = 0, statusLast = 0;
+    private int statusLast = 0;
     private int lostCounter = 0;
     private int pushOSDAfterFrames, osdFramesCounter = 0;
-    private double lostKoeff;
     private double landingDecrement;
     private double allowedLandingRangeXY, allowedLandingRangeYaw;
     public final OSDHandler osdHandler;
-    public double filterKoeff;
+    public double inputFilter, setpointAlignmentFactor;
     public boolean stabEnabled = false;
     public boolean landingEnabled = false;
     public double landingAltitude = 0;
@@ -51,15 +50,23 @@ public class PositionHandler {
      * @param udpHandler UDPHandler class object to send data
      * @param osdHandler OSDHandler object to draw debug frame
      */
-    public PositionHandler(SerialHandler serialHandler, UDPHandler udpHandler, OSDHandler osdHandler) {
+    public PositionHandler(SerialHandler serialHandler,
+                           UDPHandler udpHandler,
+                           PlatformHandler platformHandler,
+                           OSDHandler osdHandler,
+                           PositionContainer positionContainer,
+                           BlackboxHandler blackboxHandler) {
         this.serialHandler = serialHandler;
         this.udpHandler = udpHandler;
+        this.platformHandler = platformHandler;
         this.osdHandler = osdHandler;
         this.miniPIDX = new MiniPID(0, 0, 0, 0);
         this.miniPIDY = new MiniPID(0, 0, 0, 0);
         this.miniPIDZ = new MiniPID(0, 0, 0, 0);
         this.miniPIDYaw = new MiniPID(0, 0, 0, 0);
         this.directControlData = new byte[12];
+        this.positionContainer = positionContainer;
+        this.blackboxHandler = blackboxHandler;
     }
 
     /**
@@ -67,17 +74,17 @@ public class PositionHandler {
      */
     private void proceedPosition() {
         // reset DDC values (1500 = no correction)
-        ddcX = 1500;
-        ddcY = 1500;
-        ddcZ = 1500;
-        ddcYaw = 1500;
+        positionContainer.ddcX = 1500;
+        positionContainer.ddcY = 1500;
+        positionContainer.ddcZ = 1500;
+        positionContainer.ddcYaw = 1500;
 
         // If the altitude is lower than the threshold
-        if (landingEnabled && z <= landingAltitude
+        if (landingEnabled && positionContainer.z <= landingAltitude
                 && (statusLast == 2 || statusLast == 5)) {
             // Consider that the landing is complete
             // Repeat serviceInfo 3 (turn off the motors) continuously
-            status = 5;
+            positionContainer.status = 5;
             if (statusLast == 2) {
                 logger.warn("Landed successfully! Turning off the motors.");
             }
@@ -85,7 +92,7 @@ public class PositionHandler {
         }
 
         // If status is IDLE, LOST or DONE
-        if (status == 0 || status >= 4) {
+        if (positionContainer.status == 0 || positionContainer.status >= 4) {
             // Reset PIDs and quit
             resetPIDs();
             return;
@@ -94,34 +101,45 @@ public class PositionHandler {
         // If last status is IDLE or LOST
         if (statusLast == 0 || statusLast == 4) {
             // Beginning of stabilization
-            setpointZ = z;
-            logger.warn("Marker in sight! Stabilization started at altitude " + (int)setpointZ + " cm");
-            miniPIDZ.setSetpoint(setpointZ);
+            positionContainer.setpointX = positionContainer.x;
+            positionContainer.setpointY = positionContainer.y;
+            positionContainer.setpointZ = positionContainer.z;
+            logger.warn("Marker in sight! Setpoints fixed at X=" +
+                    (int) positionContainer.setpointX +
+                    " Y=" + (int) positionContainer.setpointY +
+                    " Z=" + (int) positionContainer.setpointZ);
+            logger.warn("Start smooth alignment of setpoints");
             resetPIDs();
+            miniPIDX.setSetpoint(positionContainer.setpointX);
+            miniPIDY.setSetpoint(positionContainer.setpointY);
+            miniPIDZ.setSetpoint(positionContainer.setpointZ);
         }
 
+        // Setpoints alignment
+        positionContainer.setpointX = positionContainer.setpointX * setpointAlignmentFactor
+                + positionContainer.setpointAbsX * (1 - setpointAlignmentFactor);
+        positionContainer.setpointY = positionContainer.setpointY * setpointAlignmentFactor
+                + positionContainer.setpointAbsY * (1 - setpointAlignmentFactor);
+        miniPIDX.setSetpoint(positionContainer.setpointX);
+        miniPIDY.setSetpoint(positionContainer.setpointY);
+
         // If landing is enabled, position is not predicted and landing conditions are met
-        if (landingEnabled && status != 3 && Math.abs(x - setpointX) < allowedLandingRangeXY
-                && Math.abs(y - setpointY) < allowedLandingRangeXY
-                && Math.abs(yaw - setpointYaw) < allowedLandingRangeYaw) {
+        if (landingEnabled && positionContainer.status != 3
+                && Math.abs(positionContainer.x - positionContainer.setpointX) < allowedLandingRangeXY
+                && Math.abs(positionContainer.y - positionContainer.setpointY) < allowedLandingRangeXY
+                && Math.abs(positionContainer.yaw - positionContainer.setpointYaw) < allowedLandingRangeYaw) {
             // Slowly lowering the altitude
-            if (setpointZ > 1)
-                setpointZ -= landingDecrement;
-            miniPIDZ.setSetpoint(setpointZ);
-            status = 2;
+            if (positionContainer.setpointZ > 1)
+                positionContainer.setpointZ -= landingDecrement;
+            miniPIDZ.setSetpoint(positionContainer.setpointZ);
+            positionContainer.status = 2;
         }
 
         // Append corrections from PID controllers
-        ddcX += miniPIDX.getOutput(x);
-        ddcY += miniPIDY.getOutput(y);
-        ddcZ += miniPIDZ.getOutput(z);
-        ddcYaw += miniPIDYaw.getOutput(yaw);
-
-        // Cast DDC value to the integer and transfer them to the OSD class
-        osdHandler.ddcX = (int) ddcX;
-        osdHandler.ddcY = (int) ddcY;
-        osdHandler.ddcZ = (int) ddcZ;
-        osdHandler.ddcYaw = (int) ddcYaw;
+        positionContainer.ddcX += miniPIDX.getOutput(positionContainer.x);
+        positionContainer.ddcY += miniPIDY.getOutput(positionContainer.y);
+        positionContainer.ddcZ += miniPIDZ.getOutput(positionContainer.z);
+        positionContainer.ddcYaw += miniPIDYaw.getOutput(positionContainer.yaw);
 
         TransmitPosition(1);
     }
@@ -133,24 +151,26 @@ public class PositionHandler {
      */
     public void TransmitPosition(int serviceInfo) {
         // Convert X and Y to Roll and Pitch
-        double yawSin = Math.sin(Math.toRadians(yaw));
-        double yawCos = Math.cos(Math.toRadians(yaw));
-        double ddcPitch = (ddcX - 1500) * yawCos - (ddcY - 1500) * yawSin + 1500;
-        double ddcRoll = (ddcX - 1500) * yawSin + (ddcY - 1500) * yawCos + 1500;
+        double yawSin = Math.sin(Math.toRadians(positionContainer.yaw));
+        double yawCos = Math.cos(Math.toRadians(positionContainer.yaw));
+        positionContainer.ddcPitch = (int)((positionContainer.ddcX - 1500) * yawCos
+                - (positionContainer.ddcY - 1500) * yawSin + 1500);
+        positionContainer.ddcRoll = (int)((positionContainer.ddcX - 1500) * yawSin
+                + (positionContainer.ddcY - 1500) * yawCos + 1500);
 
         // Form the DDC data package
         // Roll
-        directControlData[0] = (byte) (((int)ddcRoll >> 8) & 0xFF);
-        directControlData[1] = (byte) ((int)ddcRoll & 0xFF);
+        directControlData[0] = (byte) ((positionContainer.ddcRoll >> 8) & 0xFF);
+        directControlData[1] = (byte) (positionContainer.ddcRoll & 0xFF);
         // Pitch
-        directControlData[2] = (byte) (((int)ddcPitch >> 8) & 0xFF);
-        directControlData[3] = (byte) ((int)ddcPitch & 0xFF);
+        directControlData[2] = (byte) ((positionContainer.ddcPitch >> 8) & 0xFF);
+        directControlData[3] = (byte) (positionContainer.ddcPitch & 0xFF);
         // Yaw
-        directControlData[4] = (byte) (((int)ddcYaw >> 8) & 0xFF);
-        directControlData[5] = (byte) ((int)ddcYaw & 0xFF);
+        directControlData[4] = (byte) ((positionContainer.ddcYaw >> 8) & 0xFF);
+        directControlData[5] = (byte) (positionContainer.ddcYaw & 0xFF);
         // Throttle
-        directControlData[6] = (byte) (((int)ddcZ >> 8) & 0xFF);
-        directControlData[7] = (byte) ((int)ddcZ & 0xFF);
+        directControlData[6] = (byte) ((positionContainer.ddcZ >> 8) & 0xFF);
+        directControlData[7] = (byte) (positionContainer.ddcZ & 0xFF);
         // Service info
         directControlData[8] = (byte) (serviceInfo & 0xFF);
 
@@ -161,9 +181,9 @@ public class PositionHandler {
         directControlData[9] = checkByte;
 
         // Transmit data
-        serialHandler.rfData = directControlData;
+        serialHandler.linkData = directControlData;
         udpHandler.udpData = directControlData;
-        serialHandler.pushData();
+        serialHandler.pushLinkData();
         udpHandler.pushData();
     }
 
@@ -175,69 +195,74 @@ public class PositionHandler {
      * @param yaw estimated marker Yaw angle
      */
     public void newPosition(double x, double y, double z, double yaw) {
-        // Filter position
-        this.x = x * filterKoeff + this.x * (1 - filterKoeff);
-        this.y = y * filterKoeff + this.y * (1 - filterKoeff);
-        this.z = z * filterKoeff + this.z * (1 - filterKoeff);
-        this.yaw = yaw * filterKoeff + this.yaw * (1 - filterKoeff);
-        osdHandler.x = this.x;
-        osdHandler.y = this.y;
-        osdHandler.z = this.z;
-        osdHandler.yaw = this.yaw;
+        if (positionContainer.status == 1 || positionContainer.status == 2) {
+            // Filter position if status is STAB or LAND
+            this.positionContainer.x = this.positionContainer.x * inputFilter + x * (1 - inputFilter);
+            this.positionContainer.y = this.positionContainer.y * inputFilter + y * (1 - inputFilter);
+            this.positionContainer.z = this.positionContainer.z * inputFilter + z * (1 - inputFilter);
+            this.positionContainer.yaw = this.positionContainer.yaw * inputFilter + yaw * (1 - inputFilter);
+        } else {
+            // Don't filter in other modes (reset position memory)
+            this.positionContainer.x = x;
+            this.positionContainer.y = y;
+            this.positionContainer.z = z;
+            this.positionContainer.yaw = yaw;
+        }
+
         // Update status
-        if (!landingEnabled || status != 5) {
+        if (!landingEnabled || positionContainer.status != 5) {
             // If not landed
             if (stabEnabled)
-                status = 1;
+                positionContainer.status = 1;
             else
-                status = 0;
+                positionContainer.status = 0;
         }
         // Reset lost counter
         lostCounter = 0;
         // Update new position
         proceedPosition();
-        statusLast = status;
+        statusLast = positionContainer.status;
         // OSD
         proceedOSD();
+        // Blackbox
+        proceedBlackbox();
     }
 
     /**
      * Calls when no position estimated
      */
     public void noMarker() {
-        switch (status) {
+        switch (positionContainer.status) {
             case 1:
             case 2:
                 // STAB
                 logger.warn("The marker is lost! " +
-                        "The predicted position will be used for next " + lostFrames + " frames!");
+                        "The previous position will be used for next " + lostFrames + " frames!");
                 lostCounter++;
-                status = 3;
+                positionContainer.status = 3;
                 break;
             case 3:
-                // PRED
-                x = x * lostKoeff + setpointX * (1 - lostKoeff);
-                y = y * lostKoeff + setpointY * (1 - lostKoeff);
-                z = z * lostKoeff + setpointZ * (1 - lostKoeff);
-                yaw = yaw * lostKoeff + setpointYaw * (1 - lostKoeff);
+                // PREV
                 lostCounter++;
                 if (lostCounter >= lostFrames) {
                     logger.error("The marker is completely lost! Stabilization will be terminated!");
-                    ddcX = 1500;
-                    ddcY = 1500;
-                    ddcZ = 1500;
-                    ddcYaw = 1500;
+                    positionContainer.ddcX = 1500;
+                    positionContainer.ddcY = 1500;
+                    positionContainer.ddcZ = 1500;
+                    positionContainer.ddcYaw = 1500;
                     logger.error("Sending 0-corrections.");
                     TransmitPosition(1);
-                    status = 4;
+                    positionContainer.status = 4;
                 }
             default:
                 break;
         }
         proceedPosition();
-        statusLast = status;
+        statusLast = positionContainer.status;
         // OSD
         proceedOSD();
+        // Blackbox
+        proceedBlackbox();
     }
 
     /**
@@ -254,7 +279,6 @@ public class PositionHandler {
      * Sets newPosition flag every pushOSDAfterFrames frame
      */
     private void proceedOSD() {
-        osdHandler.status = status;
         osdFramesCounter++;
         if (osdFramesCounter == pushOSDAfterFrames) {
             osdHandler.newPositionFlag = true;
@@ -263,12 +287,19 @@ public class PositionHandler {
     }
 
     /**
+     * Sets newPosition flag in BlackboxHandler class
+     */
+    private void proceedBlackbox() {
+        blackboxHandler.newPositionFlag = true;
+    }
+
+    /**
      * Load variables from json settings
      * @param settings JsonObject loaded from settings file
      */
     public void loadSettings(JsonObject settings) {
-        filterKoeff = settings.get("input_filter").getAsDouble();
-        lostKoeff = settings.get("lost_filter").getAsDouble();
+        inputFilter = settings.get("input_filter").getAsDouble();
+        setpointAlignmentFactor = settings.get("setpoint_alignment_factor").getAsDouble();
         landingDecrement = settings.get("landing_decrement").getAsDouble();
         allowedLandingRangeXY = settings.get("allowed_landing_range_xy").getAsDouble();
         allowedLandingRangeYaw = settings.get("allowed_landing_range_yaw").getAsDouble();
@@ -276,13 +307,13 @@ public class PositionHandler {
         pushOSDAfterFrames = settings.get("push_osd_after_frames").getAsInt();
         directControlData[10] = settings.get("data_suffix_1").getAsString().getBytes()[0];
         directControlData[11] = settings.get("data_suffix_2").getAsString().getBytes()[0];
-        setpointX = settings.get("setpoint_x").getAsDouble();
-        setpointY = settings.get("setpoint_y").getAsDouble();
-        setpointYaw = settings.get("setpoint_yaw").getAsDouble();
-        miniPIDX.setSetpoint(setpointX);
-        miniPIDY.setSetpoint(setpointY);
-        miniPIDZ.setSetpoint(setpointZ);
-        miniPIDYaw.setSetpoint(setpointYaw);
+        positionContainer.setSetpoints(settings.get("setpoint_x").getAsDouble(),
+                settings.get("setpoint_y").getAsDouble(),
+                0, settings.get("setpoint_yaw").getAsDouble());
+        miniPIDX.setSetpoint(positionContainer.setpointX);
+        miniPIDY.setSetpoint(positionContainer.setpointY);
+        miniPIDZ.setSetpoint(positionContainer.setpointZ);
+        miniPIDYaw.setSetpoint(positionContainer.setpointYaw);
     }
 
     /**
@@ -291,28 +322,25 @@ public class PositionHandler {
      */
     public void setPIDFromJson(JsonObject pids) {
         // X
-        JsonObject pid = pids.get("pid_x").getAsJsonObject();
-        miniPIDX.setDirection(pid.get("reversed").getAsBoolean());
-        miniPIDX.setPID(pid.get("P").getAsDouble(), pid.get("I").getAsDouble(),
-                pid.get("D").getAsDouble(), pid.get("F").getAsDouble());
-        miniPIDX.setOutputLimits(pid.get("limit").getAsDouble());
+        setupPID(pids.get("pid_x").getAsJsonObject(), miniPIDX);
         // Y
-        pid = pids.get("pid_y").getAsJsonObject();
-        miniPIDY.setDirection(pid.get("reversed").getAsBoolean());
-        miniPIDY.setPID(pid.get("P").getAsDouble(), pid.get("I").getAsDouble(),
-                pid.get("D").getAsDouble(), pid.get("F").getAsDouble());
-        miniPIDY.setOutputLimits(pid.get("limit").getAsDouble());
+        setupPID(pids.get("pid_y").getAsJsonObject(), miniPIDY);
         // Z
-        pid = pids.get("pid_z").getAsJsonObject();
-        miniPIDZ.setDirection(pid.get("reversed").getAsBoolean());
-        miniPIDZ.setPID(pid.get("P").getAsDouble(), pid.get("I").getAsDouble(),
-                pid.get("D").getAsDouble(), pid.get("F").getAsDouble());
-        miniPIDZ.setOutputLimits(pid.get("limit").getAsDouble());
+        setupPID(pids.get("pid_z").getAsJsonObject(), miniPIDZ);
         // Yaw
-        pid = pids.get("pid_yaw").getAsJsonObject();
-        miniPIDYaw.setDirection(pid.get("reversed").getAsBoolean());
-        miniPIDYaw.setPID(pid.get("P").getAsDouble(), pid.get("I").getAsDouble(),
+        setupPID(pids.get("pid_yaw").getAsJsonObject(), miniPIDYaw);
+    }
+
+    /**
+     * Sets parameters of the current PID
+     * @param pid JsonObject PID (from file)
+     * @param miniPID (MiniPID class)
+     */
+    private void setupPID(JsonObject pid, MiniPID miniPID) {
+        miniPID.setDirection(pid.get("reversed").getAsBoolean());
+        miniPID.setPID(pid.get("P").getAsDouble(), pid.get("I").getAsDouble(),
                 pid.get("D").getAsDouble(), pid.get("F").getAsDouble());
-        miniPIDYaw.setOutputLimits(pid.get("limit").getAsDouble());
+        miniPID.setOutputRampRate(pid.get("ramp").getAsDouble());
+        miniPID.setOutputLimits(pid.get("limit").getAsDouble());
     }
 }

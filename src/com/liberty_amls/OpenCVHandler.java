@@ -22,6 +22,7 @@ import com.google.gson.JsonPrimitive;
 import org.apache.log4j.Logger;
 import org.opencv.aruco.Aruco;
 import org.opencv.aruco.DetectorParameters;
+import org.opencv.aruco.Dictionary;
 import org.opencv.calib3d.Calib3d;
 import org.opencv.core.*;
 import org.opencv.imgproc.Imgproc;
@@ -37,11 +38,14 @@ import static java.lang.Math.toDegrees;
 public class OpenCVHandler implements Runnable {
     private final Logger logger = Logger.getLogger(this.getClass().getSimpleName());
     private final PositionHandler positionHandler;
-    private final int cameraID, exposure;
+    private final PositionContainer positionContainer;
+    private final PlatformHandler platformHandler;
+    private final VideoCapture videoCapture;
+    private final int cameraID;
     private final float markerSize;
+    private Dictionary dictionary;
     private JsonArray allowedIDs;
     private boolean openCVRunning;
-    private VideoCapture videoCapture;
     private int framesCount;
     private int fpsMeasurePeriod;
     private long timeStart;
@@ -53,15 +57,21 @@ public class OpenCVHandler implements Runnable {
      * This class reads frame from camera, estimate ARUco marker position
      * and provides it to the other classes
      * @param cameraID Camera identifier
-     * @param exposure Camera exposure
      * @param markerSize ARUco marker size (length)
      * @param positionHandler positionHandler class object (position processing)
      */
-    public OpenCVHandler(int cameraID, int exposure, float markerSize, PositionHandler positionHandler) {
+    public OpenCVHandler(int cameraID,
+                         float markerSize,
+                         VideoCapture videoCapture,
+                         PositionHandler positionHandler,
+                         PositionContainer positionContainer,
+                         PlatformHandler platformHandler) {
         this.cameraID = cameraID;
-        this.exposure = exposure;
         this.markerSize = markerSize;
+        this.videoCapture = videoCapture;
         this.positionHandler = positionHandler;
+        this.positionContainer = positionContainer;
+        this.platformHandler = platformHandler;
         framesCount = 0;
     }
 
@@ -74,13 +84,15 @@ public class OpenCVHandler implements Runnable {
             cameraMatrix = FileWorkers.loadCameraMatrix();
             cameraDistortions = FileWorkers.loadCameraDistortions();
 
+            // Load ARUco dictionary from settings
+            dictionary = Aruco.getPredefinedDictionary(Main.settings.get("aruco_dictionary").getAsInt());
+
             // Load settings
             int frameWidth = Main.settings.get("frame_width").getAsInt();
             int frameHeight = Main.settings.get("frame_height").getAsInt();
             fpsMeasurePeriod = Main.settings.get("fps_measure_period").getAsInt();
             allowedIDs = Main.settings.get("allowed_ids").getAsJsonArray();
-            positionHandler.osdHandler.setpoint = new Point(frameWidth / 2.0, frameHeight / 2.0);
-            videoCapture = new VideoCapture();
+            positionContainer.frameSetpoint = new Point(frameWidth / 2.0, frameHeight / 2.0);
 
             // Start camera with provided ID
             videoCapture.open(cameraID);
@@ -92,7 +104,7 @@ public class OpenCVHandler implements Runnable {
                 videoCapture.set(Videoio.CAP_PROP_AUTO_WB, 0);
             if (Main.settings.get("disable_auto_focus").getAsBoolean())
                 videoCapture.set(Videoio.CAP_PROP_AUTOFOCUS, 0);
-            videoCapture.set(Videoio.CAP_PROP_EXPOSURE, exposure);
+            videoCapture.set(Videoio.CAP_PROP_EXPOSURE, Main.settings.get("default_exposure").getAsDouble());
             openCVRunning = true;
             if (!videoCapture.isOpened()) {
                 return;
@@ -108,6 +120,10 @@ public class OpenCVHandler implements Runnable {
             // Enable or disable video stream on page by settings
             positionHandler.osdHandler.streamOnPageEnabled =
                     Main.settings.get("video_on_page_enabled_by_default").getAsBoolean();
+
+            // Set flag in platformHandler class
+            platformHandler.opencvStarts = true;
+
             logger.info("Camera " + cameraID + " opened!");
 
         } catch (Exception e) {
@@ -140,7 +156,7 @@ public class OpenCVHandler implements Runnable {
                     MatOfInt ids = new MatOfInt();
                     List<Mat> corners = new ArrayList<>();
                     List<Mat> rejectedImgPoints = new ArrayList<>();
-                    Aruco.detectMarkers(gray, Aruco.getPredefinedDictionary(Aruco.DICT_4X4_250), corners, ids,
+                    Aruco.detectMarkers(gray, dictionary, corners, ids,
                             detectorParameters, rejectedImgPoints, cameraMatrix, cameraDistortions);
 
                     // Print warning message if more than one marker detected
@@ -176,11 +192,11 @@ public class OpenCVHandler implements Runnable {
                                     + (int) corners.get(0).get(0, 2)[0]) / 2.0,
                                     ((int) corners.get(0).get(0, 0)[1]
                                             + (int) corners.get(0).get(0, 2)[1]) / 2.0);
-                            center.x = positionHandler.osdHandler.current.x * positionHandler.filterKoeff
-                                    + center.x * (1 - positionHandler.filterKoeff);
-                            center.y = positionHandler.osdHandler.current.y * positionHandler.filterKoeff
-                                    + center.y * (1 - positionHandler.filterKoeff);
-                            positionHandler.osdHandler.current = center;
+                            center.x = positionContainer.frameCurrent.x * positionHandler.inputFilter
+                                    + center.x * (1 - positionHandler.inputFilter);
+                            center.y = positionContainer.frameCurrent.y * positionHandler.inputFilter
+                                    + center.y * (1 - positionHandler.inputFilter);
+                            positionContainer.frameCurrent = center;
                         }
 
                         // Transfer estimated position of the marker to the PositionHandler class

@@ -23,7 +23,7 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 
 public class Main {
-    private static final String version = "beta_0.0.1";
+    private static final String version = "beta_1.0.0";
     public static final Logger logger = Logger.getLogger(Main.class.getSimpleName());
     public static JsonObject settings;
 
@@ -72,30 +72,30 @@ public class Main {
             // Use colorful logs properties if 'c' argument specified
             if (cmd.hasOption("c")) {
                 PropertyConfigurator.configure(Main.class.getResource("log4j_color.properties"));
-                logger.info("Color logs format will be used.");
+                logger.info("Color logs format will be used");
             } else {
-                logger.info("Default logs format will be used.");
+                logger.info("Default logs format will be used");
             }
 
             // Custom server IP (Default is specified in the settings.json)
             String serverIP = settings.get("default_server_host").getAsString();
             if (cmd.hasOption("i")) {
                 serverIP = cmd.getOptionValue("i");
-                logger.info("Server IP argument provided. IP " + serverIP + " will be used.");
+                logger.info("Server IP argument provided. IP " + serverIP + " will be used");
             }
 
             // Custom server port (Default is specified in the settings.json)
             int serverPort = settings.get("default_server_port").getAsInt();
             if (cmd.hasOption("sp")) {
                 serverPort = Integer.parseInt(cmd.getOptionValue("sp"));
-                logger.info("Server Port argument provided. Port " + serverPort + " will be used.");
+                logger.info("Server Port argument provided. Port " + serverPort + " will be used");
             }
 
             // Custom server IP (Default is specified in the settings.json)
             int videoPort = settings.get("default_video_port").getAsInt();
             if (cmd.hasOption("vp")) {
                 videoPort = Integer.parseInt(cmd.getOptionValue("vp"));
-                logger.info("Video stream port argument provided. Port " + videoPort + " will be used.");
+                logger.info("Video stream port argument provided. Port " + videoPort + " will be used");
             }
 
             // Start the server with given IP and Port

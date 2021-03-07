@@ -26,6 +26,7 @@ import flak.annotations.Route;
 import flak.plugin.resource.FlakResourceImpl;
 import org.apache.log4j.Logger;
 import org.opencv.core.Core;
+import org.opencv.videoio.VideoCapture;
 
 import javax.swing.*;
 import java.net.InetAddress;
@@ -40,11 +41,13 @@ public class WebServer {
     private final int serverPort;
     private final int videoPort;
     private boolean controllerRunning = false, aborted = false;
+    private BlackboxHandler blackboxHandler;
     private OpenCVHandler openCVHandler;
     private OSDHandler osdHandler;
     private UDPHandler udpHandler;
     private SerialHandler serialHandler;
     private PositionHandler positionHandler;
+    private PlatformHandler platformHandler;
 
     /**
      * This class creates a server (based on the Flak library) to control the landing process
@@ -109,8 +112,8 @@ public class WebServer {
             }
 
             // Put ports into html page
-            content = content.replace("{{ cnc_ports }}", serialPortsSelector.toString());
-            content = content.replace("{{ rf_ports }}", serialPortsSelector.toString());
+            content = content.replace("{{ platform_ports }}", serialPortsSelector.toString());
+            content = content.replace("{{ link_ports }}", serialPortsSelector.toString());
         } else {
             // controller.html
             // Load PIDs from file
@@ -143,12 +146,16 @@ public class WebServer {
             // Check 'Video on page' checkbox on html if video on page is enabled
             content = content.replace("{{ debug_info.v_page }}",
                     positionHandler.osdHandler.streamOnPageEnabled ? "checked" : "");
+
+            // Check 'Blackbox' checkbox on html if blackbox is enabled
+            content = content.replace("{{ debug_info.blackbox }}",
+                    blackboxHandler.blackboxEnabled ? "checked" : "");
         }
         return content;
     }
 
     /**
-     * Start the controller (runs only by index.html)
+     * Starts the controller (runs only by index.html)
      */
     @Route("/start")
     @SuppressWarnings("StatementWithEmptyBody")
@@ -156,48 +163,79 @@ public class WebServer {
         try {
             Query query = resp.getRequest().getQuery();
             // Log all data submitted from the form
-            logger.info("Starting the controller.");
-            logger.info("CNC Port: " + query.get("cnc_port"));
-            logger.info("CNC Port baudrate: " + query.get("cnc_baudrate"));
-            logger.info("RF Port: " + query.get("rf_port"));
-            logger.info("RF Port baudrate: " + query.get("rf_baudrate"));
+            logger.info("Starting the controller");
+            logger.info("Platform Controller Port: " + query.get("platform_port"));
+            logger.info("Platform Controller Port baudrate: " + query.get("platform_baudrate"));
+            logger.info("Liberty-Link Port: " + query.get("link_port"));
+            logger.info("Liberty-Link Port baudrate: " + query.get("link_baudrate"));
             logger.info("UDP Ip/Port: " + query.get("udp_ip_port"));
             logger.info("Camera ID: " + query.get("camera_id"));
-            logger.info("Exposure: " + query.get("camera_exp"));
 
             // Load native library (from java-library-path)
-            logger.info("Loading OpenCV Native Library.");
+            logger.info("Loading OpenCV Native Library");
             System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
 
             // Create SerialHandler class for serial communication
-            serialHandler = new SerialHandler(query.get("cnc_port"), query.get("cnc_baudrate"),
-                    query.get("rf_port"), query.get("rf_baudrate"));
+            serialHandler = new SerialHandler(query.get("platform_port"), query.get("platform_baudrate"),
+                    query.get("link_port"), query.get("link_baudrate"));
             serialHandler.openPorts();
 
             // Create UDPHandler class for UDP communication
             udpHandler = new UDPHandler(query.get("udp_ip_port"));
             udpHandler.openUDP();
 
+            // Create PositionContainer class for store current position
+            PositionContainer positionContainer = new PositionContainer();
+
+            // Create PlatformContainer class for store platform data
+            PlatformContainer platformContainer =
+                    new PlatformContainer(Main.settings.get("default_exposure").getAsDouble());
+
+            // Create VideoCapture class
+            VideoCapture videoCapture = new VideoCapture();
+
+            // Create PlatformHandler class for integrating with platform
+            platformHandler = new PlatformHandler(platformContainer, serialHandler, videoCapture);
+            platformHandler.loadFromSettings();
+            // Create and start a new thread for the platformHandler if platform port is open
+            if (serialHandler.platformPortOpened) {
+                Thread platformThread = new Thread(platformHandler);
+                platformThread.start();
+            } else
+                logger.warn("No communication with the platform!");
+
             // Create OSDHandler and VideoStream classes
-            osdHandler = new OSDHandler(new VideoStream(null, InetAddress.getByName(hostName), videoPort));
-            // Create and start a new stream with the lowest priority for video stream
+            osdHandler = new OSDHandler(new VideoStream(null, InetAddress.getByName(hostName), videoPort),
+                    positionContainer, platformContainer);
+            // Create and start a new thread with the lowest priority for the video stream
             Thread osdThread = new Thread(osdHandler);
             osdThread.setPriority(Thread.MIN_PRIORITY);
             osdThread.start();
 
+            // Create BlackboxHandler class for logging all events and position
+            blackboxHandler = new BlackboxHandler(positionContainer,
+                    Main.settings.get("blackbox_folder").getAsString());
+            // Create and start a new thread with the normal priority for the blackbox
+            Thread blackboxThread = new Thread(blackboxHandler);
+            blackboxThread.setPriority(Thread.NORM_PRIORITY);
+            blackboxThread.start();
+
             // Create PositionHandler class for to handle the current position
-            positionHandler = new PositionHandler(serialHandler, udpHandler, osdHandler);
+            positionHandler = new PositionHandler(serialHandler, udpHandler, platformHandler, osdHandler,
+                    positionContainer, blackboxHandler);
             positionHandler.landingAltitude = Main.settings.get("landing_alt").getAsDouble();
             positionHandler.loadSettings(Main.settings);
 
             // Create OpenCVHandler class for find marker and estimate its position
             openCVHandler = new OpenCVHandler(Integer.parseInt(query.get("camera_id")),
-                    Integer.parseInt(query.get("camera_exp")),
                     Main.settings.get("marker_size").getAsFloat(),
-                    positionHandler);
+                    videoCapture,
+                    positionHandler,
+                    positionContainer,
+                    platformHandler);
             openCVHandler.start();
 
-            // Create and start a new stream with the highest priority for opencv handler
+            // Create and start a new thread with the highest priority for opencv handler
             Thread openCVThread = new Thread(openCVHandler);
             openCVThread.setPriority(Thread.MAX_PRIORITY);
             openCVThread.start();
@@ -207,7 +245,7 @@ public class WebServer {
 
             // Set controllerRunning flag
             controllerRunning = true;
-            logger.info("Controller startup is complete.");
+            logger.info("Controller startup is complete");
             logger.info("Redirecting...");
 
             // Redirect to the main page (controller.html)
@@ -224,53 +262,44 @@ public class WebServer {
     @Route("/setup")
     public void setup(Response resp) {
         Query query = resp.getRequest().getQuery();
-        JsonObject pidsNew = new JsonObject();
         // Load current coefficients from file
-        JsonObject pidsOld = FileWorkers.loadJsonObject(Main.settings.get("pid_file").getAsString());
+        JsonObject pids = FileWorkers.loadJsonObject(Main.settings.get("pid_file").getAsString());
 
         // Combine PIX X with the new values
-        JsonObject pid = new JsonObject();
-        pid.add("P", new JsonPrimitive(Double.parseDouble(query.get("pid_roll_p"))));
-        pid.add("I", new JsonPrimitive(Double.parseDouble(query.get("pid_roll_i"))));
-        pid.add("D", new JsonPrimitive(Double.parseDouble(query.get("pid_roll_d"))));
-        pid.add("F", pidsOld.get("pid_x").getAsJsonObject().get("F"));
-        pid.add("limit", pidsOld.get("pid_x").getAsJsonObject().get("limit"));
-        pid.add("reversed", pidsOld.get("pid_x").getAsJsonObject().get("reversed"));
-        pidsNew.add("pid_x", pid);
+        pids.add("pid_x", updatePID(pids.get("pid_x").getAsJsonObject(),
+                Double.parseDouble(query.get("pid_roll_p")),
+                Double.parseDouble(query.get("pid_roll_i")),
+                Double.parseDouble(query.get("pid_roll_d"))));
 
         // Combine PIX Y with the new values
-        pid = new JsonObject();
-        pid.add("P", new JsonPrimitive(Double.parseDouble(query.get("pid_roll_p"))));
-        pid.add("I", new JsonPrimitive(Double.parseDouble(query.get("pid_roll_i"))));
-        pid.add("D", new JsonPrimitive(Double.parseDouble(query.get("pid_roll_d"))));
-        pid.add("F", pidsOld.get("pid_y").getAsJsonObject().get("F"));
-        pid.add("limit", pidsOld.get("pid_y").getAsJsonObject().get("limit"));
-        pid.add("reversed", pidsOld.get("pid_y").getAsJsonObject().get("reversed"));
-        pidsNew.add("pid_y", pid);
+        pids.add("pid_y", updatePID(pids.get("pid_y").getAsJsonObject(),
+                Double.parseDouble(query.get("pid_roll_p")),
+                Double.parseDouble(query.get("pid_roll_i")),
+                Double.parseDouble(query.get("pid_roll_d"))));
 
         // Combine PIX Z with the new values
-        pid = new JsonObject();
-        pid.add("P", new JsonPrimitive(Double.parseDouble(query.get("pid_alt_p"))));
-        pid.add("I", new JsonPrimitive(Double.parseDouble(query.get("pid_alt_i"))));
-        pid.add("D", new JsonPrimitive(Double.parseDouble(query.get("pid_alt_d"))));
-        pid.add("F", pidsOld.get("pid_z").getAsJsonObject().get("F"));
-        pid.add("limit", pidsOld.get("pid_z").getAsJsonObject().get("limit"));
-        pid.add("reversed", pidsOld.get("pid_z").getAsJsonObject().get("reversed"));
-        pidsNew.add("pid_z", pid);
-
-        // Combine PIX Yaw with the new values
-        pidsNew.add("pid_yaw", pidsOld.get("pid_yaw").getAsJsonObject());
-
+        pids.add("pid_z", updatePID(pids.get("pid_z").getAsJsonObject(),
+                Double.parseDouble(query.get("pid_alt_p")),
+                Double.parseDouble(query.get("pid_alt_i")),
+                Double.parseDouble(query.get("pid_alt_d"))));
         // Update and save current PIDs
-        positionHandler.setPIDFromJson(pidsNew);
-        FileWorkers.saveJsonObject(pidsNew, Main.settings.get("pid_file").getAsString());
+        positionHandler.setPIDFromJson(pids);
+        FileWorkers.saveJsonObject(pids, Main.settings.get("pid_file").getAsString());
 
         // Enable or disable video stream and page background by checkboxes
         positionHandler.osdHandler.streamEnabled = query.get("video_stream").equals("true");
         positionHandler.osdHandler.streamOnPageEnabled = query.get("video_on_page").equals("true");
+        blackboxHandler.blackboxEnabled = query.get("blackbox").equals("true");
 
         // Redirect to the home page
         resp.redirect("/");
+    }
+
+    private JsonObject updatePID(JsonObject pidsOld, double p, double i, double d) {
+        pidsOld.add("P", new JsonPrimitive(p));
+        pidsOld.add("I", new JsonPrimitive(i));
+        pidsOld.add("D", new JsonPrimitive(d));
+        return pidsOld;
     }
 
     /**
@@ -279,8 +308,9 @@ public class WebServer {
     @Route("/hold_land")
     public void holdLand(Response resp) {
         Query query = resp.getRequest().getQuery();
-        // Set stabilization flag in PositionHandler class
+        // Set stabilization flag in PositionHandler and BlackboxHandler classes
         positionHandler.stabEnabled = query.get("hold").equals("true");
+        blackboxHandler.stabilizationEnabled = positionHandler.stabEnabled;
 
         // Set landing flag in PositionHandler class
         positionHandler.landingEnabled = query.get("land").equals("true");
@@ -294,12 +324,14 @@ public class WebServer {
      */
     @Route("/abort")
     public void abort(Response resp) {
-        logger.warn("Aborting.");
+        logger.warn("Aborting");
         // Redirect to the home page with aborted flag provided
         aborted = true;
         resp.redirect("/");
         try {
-            // Stop video stream and OpenCV handler
+            // Stop all the handler
+            blackboxHandler.stop();
+            platformHandler.stop();
             osdHandler.stop();
             openCVHandler.stop();
 

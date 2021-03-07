@@ -26,17 +26,16 @@ import java.util.Vector;
 
 public class OSDHandler implements Runnable {
     private final Logger logger = Logger.getLogger(this.getClass().getSimpleName());
-    private final DecimalFormat decimalFormat = new DecimalFormat("#");
+    private final DecimalFormat decimalFormatMono = new DecimalFormat("#");
+    private final DecimalFormat decimalFormatSimple = new DecimalFormat("#.#");
     private final VideoStream videoStream;
     private boolean handlerRunning = true;
     private boolean streamEnabledLast = false;
-    public boolean streamEnabled = true, streamOnPageEnabled = true;
-    public boolean newPositionFlag = false;
-    public Point setpoint;
-    public Point current = new Point(0, 0);
-    public double x = 0, y = 0, z = 0, yaw = 0;
-    public int ddcX = 1500, ddcY = 1500, ddcZ = 1500, ddcYaw = 1500;
-    public int status = 0;  // 0 - IDLE, 1 - STAB, 2 - LAND, 3 - REST, 4 - LOST, 5 - DONE
+    volatile public boolean streamEnabled = true, streamOnPageEnabled = true;
+    volatile public boolean newPositionFlag = false;
+    private final PositionContainer positionContainer;
+    private final PlatformContainer platformContainer;
+    
     public String fps = "NAN";
     public Mat sourceFrame, watermark;
 
@@ -52,8 +51,12 @@ public class OSDHandler implements Runnable {
      * This class takes a raw frame as input, draws the OSD and pushes it to the video stream
      * @param videoStream VideoStream class object
      */
-    public OSDHandler(VideoStream videoStream) {
+    public OSDHandler(VideoStream videoStream,
+                      PositionContainer positionContainer,
+                      PlatformContainer platformContainer) {
         this.videoStream = videoStream;
+        this.positionContainer = positionContainer;
+        this.platformContainer = platformContainer;
     }
 
     /**
@@ -71,6 +74,7 @@ public class OSDHandler implements Runnable {
             streamEnabledLast = streamEnabled;
             if (newPositionFlag && streamEnabled && sourceFrame != null) {
                 // Draw OSD if stream enabled and newPositionFlag provided
+                Point setpoint = positionContainer.frameSetpoint;
 
                 // Add watermark
                 Mat destFrame = addWatermark(sourceFrame, watermark);
@@ -85,9 +89,12 @@ public class OSDHandler implements Runnable {
                 Imgproc.circle(destFrame, setpoint, 200, new Scalar(200, 200, 200), 2);
 
                 // Center of the marker
-                Imgproc.circle(destFrame, current, 20, new Scalar(200, 200, 200), 1);
-                Imgproc.circle(destFrame, current, 6, new Scalar(0, 0, 0), -1);
-                Imgproc.circle(destFrame, current, 5, new Scalar(255, 255, 255), -1);
+                Imgproc.circle(destFrame, positionContainer.frameCurrent,
+                        20, new Scalar(200, 200, 200), 1);
+                Imgproc.circle(destFrame, positionContainer.frameCurrent,
+                        6, new Scalar(0, 0, 0), -1);
+                Imgproc.circle(destFrame, positionContainer.frameCurrent,
+                        5, new Scalar(255, 255, 255), -1);
 
                 // Left white on black labels
                 Imgproc.putText(destFrame, "X", new Point(setpoint.x - 220, setpoint.y - 8),
@@ -125,27 +132,34 @@ public class OSDHandler implements Runnable {
                 Imgproc.putText(destFrame, "STATUS", new Point(setpoint.x - 30, setpoint.y - 204),
                         Imgproc.FONT_HERSHEY_PLAIN, 1, new Scalar(255, 255, 255), 1);
 
+                // Bottom left white on black labels
+                Imgproc.putText(destFrame, "EXP", new Point(setpoint.x - 120, setpoint.y + 110),
+                        Imgproc.FONT_HERSHEY_PLAIN, 1, new Scalar(0, 0, 0), 2);
+                Imgproc.putText(destFrame, "EXP", new Point(setpoint.x - 120, setpoint.y + 110),
+                        Imgproc.FONT_HERSHEY_PLAIN, 1, new Scalar(255, 255, 255), 1);
+
                 // Left green data (current absolute coordinates)
-                Imgproc.putText(destFrame, decimalFormat.format(x) + " cm",
+                Imgproc.putText(destFrame, decimalFormatMono.format(positionContainer.x) + " cm",
                         new Point(setpoint.x - 190, setpoint.y - 8),
                         Imgproc.FONT_HERSHEY_PLAIN, 1, new Scalar(0, 255, 0), 2);
-                Imgproc.putText(destFrame, decimalFormat.format(y) + " cm",
+                Imgproc.putText(destFrame, decimalFormatMono.format(positionContainer.y) + " cm",
                         new Point(setpoint.x - 190, setpoint.y + 16),
                         Imgproc.FONT_HERSHEY_PLAIN, 1, new Scalar(0, 255, 0), 2);
 
                 // Bottom green data (current yaw angle)
-                Imgproc.putText(destFrame, decimalFormat.format(yaw) + " deg",
-                        new Point(setpoint.x - (decimalFormat.format(yaw) + " deg").length() * 5, setpoint.y + 190),
+                Imgproc.putText(destFrame, decimalFormatMono.format(positionContainer.yaw) + " deg",
+                        new Point(setpoint.x - (decimalFormatMono.format(positionContainer.yaw) + " deg").length() * 5,
+                                setpoint.y + 190),
                         Imgproc.FONT_HERSHEY_PLAIN, 1, new Scalar(0, 255, 0), 2);
 
                 // Right green data (current absolute altitude)
-                Imgproc.putText(destFrame, decimalFormat.format(z) + " cm",
+                Imgproc.putText(destFrame, decimalFormatMono.format(positionContainer.z) + " cm",
                         new Point(setpoint.x + 190 -
-                                (decimalFormat.format(z) + " cm").length() * 10, setpoint.y + 2),
+                                (decimalFormatMono.format(positionContainer.z) + " cm").length() * 10, setpoint.y + 2),
                         Imgproc.FONT_HERSHEY_PLAIN, 1, new Scalar(0, 255, 0), 2);
 
                 // Top green data (status)
-                switch (status) {
+                switch (positionContainer.status) {
                     case 1:
                         // STAB
                         Imgproc.putText(destFrame, "STAB",
@@ -159,8 +173,8 @@ public class OSDHandler implements Runnable {
                                 Imgproc.FONT_HERSHEY_PLAIN, 1, new Scalar(0, 255, 127), 2);
                         break;
                     case 3:
-                        // PRED
-                        Imgproc.putText(destFrame, "PRED",
+                        // PREV
+                        Imgproc.putText(destFrame, "PREV",
                                 new Point(setpoint.x - 20, setpoint.y - 174),
                                 Imgproc.FONT_HERSHEY_PLAIN, 1, new Scalar(0, 127, 255), 2);
                         break;
@@ -184,87 +198,101 @@ public class OSDHandler implements Runnable {
                         break;
                 }
 
+                // Top left green data (camera exposure)
+                Imgproc.putText(destFrame, decimalFormatSimple.format(platformContainer.cameraExposure),
+                        new Point(setpoint.x - 125,
+                                setpoint.y + 130),
+                        Imgproc.FONT_HERSHEY_PLAIN, 1, new Scalar(0, 255, 0), 2);
+
                 // Yaw progress bars (Bottom)
-                if (ddcYaw > 1520)
+                if (positionContainer.ddcYaw > 1520)
                     Imgproc.ellipse(destFrame, new Point(setpoint.x, setpoint.y), new Size(195, 195),
-                            90, -14, mapInt(ddcYaw, 2000, -15, -45),
-                            new Scalar(255, 200, 0), 5);
-                else if (ddcYaw < 1480)
+                            90, -14, mapInt(positionContainer.ddcYaw,
+                                    2000, -15, -45), new Scalar(255, 200, 0), 5);
+                else if (positionContainer.ddcYaw < 1480)
                     Imgproc.ellipse(destFrame, new Point(setpoint.x, setpoint.y), new Size(195, 195),
-                            90, 14, mapInt(ddcYaw, 1000, 15, 45),
-                            new Scalar(255, 200, 0), 5);
+                            90, 14, mapInt(positionContainer.ddcYaw,
+                                    1000, 15, 45), new Scalar(255, 200, 0), 5);
 
                 // Z progress bars (Right)
-                if (ddcZ > 1520)
+                if (positionContainer.ddcZ > 1520)
                     Imgproc.ellipse(destFrame, new Point(setpoint.x, setpoint.y), new Size(195, 195),
-                            0, -14, mapInt(ddcZ, 2000, -15, -45),
+                            0, -14, mapInt(positionContainer.ddcZ, 2000, -15, -45),
                             new Scalar(255, 200, 0), 5);
-                else if (ddcZ < 1480)
+                else if (positionContainer.ddcZ < 1480)
                     Imgproc.ellipse(destFrame, new Point(setpoint.x, setpoint.y), new Size(195, 195),
-                            0, 14, mapInt(ddcZ, 1000, 15, 45),
+                            0, 14, mapInt(positionContainer.ddcZ, 1000, 15, 45),
                             new Scalar(255, 200, 0), 5);
 
                 // From top to bottom arrows (to the center). Bottom arc on the marker (Y)
-                if (ddcY > 1520) {
+                if (positionContainer.ddcY > 1520) {
                     // Clip ddcY to 1800
-                    int stagedDirection = ddcY;
+                    int stagedDirection = positionContainer.ddcY;
                     if (stagedDirection > 1800)
                         stagedDirection = 1800;
                     for (int i = 0; i < mapInt(stagedDirection, 1800, 1, 11); i++) {
                         Imgproc.line(destFrame, new Point(setpoint.x - 20 - i, setpoint.y - 45 - (16 * i)),
-                                new Point(setpoint.x, setpoint.y - 25 - (16 * i)), new Scalar(255, 200, 0), 2);
+                                new Point(setpoint.x, setpoint.y - 25 - (16 * i)),
+                                new Scalar(255, 200, 0), 2);
                         Imgproc.line(destFrame, new Point(setpoint.x, setpoint.y - 25 - (16 * i)),
-                                new Point(setpoint.x + 20 + i, setpoint.y - 45 - (16 * i)), new Scalar(255, 200, 0), 2);
+                                new Point(setpoint.x + 20 + i, setpoint.y - 45 - (16 * i)),
+                                new Scalar(255, 200, 0), 2);
                     }
-                    Imgproc.ellipse(destFrame, current, new Size(20, 20),
+                    Imgproc.ellipse(destFrame, positionContainer.frameCurrent, new Size(20, 20),
                             90, -45, 45, new Scalar(255, 200, 0), 2);
                 }
 
                 // From right to left arrows (to the center). Left arc on the marker (X)
-                if (ddcX < 1480) {
+                if (positionContainer.ddcX < 1480) {
                     // Clip ddcX to 1200
-                    int stagedDirection = ddcX;
+                    int stagedDirection = positionContainer.ddcX;
                     if (stagedDirection < 1200)
                         stagedDirection = 1200;
                     for (int i = 0; i < mapInt(stagedDirection, 1200, 1, 11); i++) {
                         Imgproc.line(destFrame, new Point(setpoint.x + 45 + (16 * i), setpoint.y - 20 - i),
-                                new Point(setpoint.x + 25 + (16 * i), setpoint.y), new Scalar(255, 200, 0), 2);
+                                new Point(setpoint.x + 25 + (16 * i), setpoint.y),
+                                new Scalar(255, 200, 0), 2);
                         Imgproc.line(destFrame, new Point(setpoint.x + 25 + (16 * i), setpoint.y),
-                                new Point(setpoint.x + 45 + (16 * i), setpoint.y + 20 + i), new Scalar(255, 200, 0), 2);
+                                new Point(setpoint.x + 45 + (16 * i), setpoint.y + 20 + i),
+                                new Scalar(255, 200, 0), 2);
                     }
-                    Imgproc.ellipse(destFrame, current, new Size(20, 20),
+                    Imgproc.ellipse(destFrame, positionContainer.frameCurrent, new Size(20, 20),
                             180, -45, 45, new Scalar(255, 200, 0), 2);
                 }
 
                 // From bottom to top arrows (to the center). Top arc on the marker (Y)
-                if (ddcY < 1480) {
+                if (positionContainer.ddcY < 1480) {
                     // Clip ddcY to 1200
-                    int stagedDirection = ddcY;
+                    int stagedDirection = positionContainer.ddcY;
                     if (stagedDirection < 1200)
                         stagedDirection = 1200;
                     for (int i = 0; i < mapInt(stagedDirection, 1200, 1, 11); i++) {
                         Imgproc.line(destFrame, new Point(setpoint.x - 20 - i, setpoint.y + 45 + (16 * i)),
-                                new Point(setpoint.x, setpoint.y + 25 + (16 * i)), new Scalar(255, 200, 0), 2);
+                                new Point(setpoint.x, setpoint.y + 25 + (16 * i)),
+                                new Scalar(255, 200, 0), 2);
                         Imgproc.line(destFrame, new Point(setpoint.x, setpoint.y + 25 + (16 * i)),
-                                new Point(setpoint.x + 20 + i, setpoint.y + 45 + (16 * i)), new Scalar(255, 200, 0), 2);
+                                new Point(setpoint.x + 20 + i, setpoint.y + 45 + (16 * i)),
+                                new Scalar(255, 200, 0), 2);
                     }
-                    Imgproc.ellipse(destFrame, current, new Size(20, 20),
+                    Imgproc.ellipse(destFrame, positionContainer.frameCurrent, new Size(20, 20),
                             -90, -45, 45, new Scalar(255, 200, 0), 2);
                 }
 
                 // Left, right (X)
-                if (ddcX > 1520) {
+                if (positionContainer.ddcX > 1520) {
                     // Clip ddcX to 1800
-                    int stagedDirection = ddcX;
+                    int stagedDirection = positionContainer.ddcX;
                     if (stagedDirection > 1800)
                         stagedDirection = 1800;
                     for (int i = 0; i < mapInt(stagedDirection, 1800, 1, 11); i++) {
                         Imgproc.line(destFrame, new Point(setpoint.x - 45 - (16 * i), setpoint.y - 20 - i),
-                                new Point(setpoint.x - 25 - (16 * i), setpoint.y), new Scalar(255, 200, 0), 2);
+                                new Point(setpoint.x - 25 - (16 * i), setpoint.y),
+                                new Scalar(255, 200, 0), 2);
                         Imgproc.line(destFrame, new Point(setpoint.x - 25 - (16 * i), setpoint.y),
-                                new Point(setpoint.x - 45 - (16 * i), setpoint.y + 20 + i), new Scalar(255, 200, 0), 2);
+                                new Point(setpoint.x - 45 - (16 * i), setpoint.y + 20 + i),
+                                new Scalar(255, 200, 0), 2);
                     }
-                    Imgproc.ellipse(destFrame, current, new Size(20, 20),
+                    Imgproc.ellipse(destFrame, positionContainer.frameCurrent, new Size(20, 20),
                             0, -45, 45, new Scalar(255, 200, 0), 2);
                 }
 
