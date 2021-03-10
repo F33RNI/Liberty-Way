@@ -23,11 +23,23 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 
 public class Main {
-    private static final String version = "beta_1.0.0";
+    private static final String version = "beta_1.1.0";
     public static final Logger logger = Logger.getLogger(Main.class.getSimpleName());
     public static JsonObject settings;
 
     public static void main(String[] args) {
+        /*int ddcX = 1000;
+        int ddcY = 1500;
+        double yaw = -90;
+        double yawSin = Math.sin(Math.toRadians(yaw));
+        double yawCos = Math.cos(Math.toRadians(yaw));
+        int ddcPitch = (int)((ddcX - 1500) * yawCos
+                - (ddcY - 1500) * yawSin + 1500);
+        int ddcRoll = (int)((ddcX - 1500) * yawSin
+                + (ddcY - 1500) * yawCos + 1500);
+
+        System.out.println("Pitch: " + ddcPitch + " Roll " + ddcRoll);*/
+
         // Set the lowest priority for Main and WebServer classes
         Thread.currentThread().setPriority(Thread.MIN_PRIORITY);
 
