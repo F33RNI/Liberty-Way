@@ -151,8 +151,8 @@ public class PositionHandler {
      */
     public void TransmitPosition(int serviceInfo) {
         // Convert X and Y to Roll and Pitch
-        double yawSin = Math.sin(Math.toRadians(positionContainer.yaw));
-        double yawCos = Math.cos(Math.toRadians(positionContainer.yaw));
+        double yawSin = Math.sin(Math.toRadians(-positionContainer.yaw));
+        double yawCos = Math.cos(Math.toRadians(-positionContainer.yaw));
         positionContainer.ddcPitch = (int)((positionContainer.ddcX - 1500) * yawCos
                 - (positionContainer.ddcY - 1500) * yawSin + 1500);
         positionContainer.ddcRoll = (int)((positionContainer.ddcX - 1500) * yawSin
