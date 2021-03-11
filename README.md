@@ -172,9 +172,17 @@ But few tests shown that Raspberry Pi computing power is not enough for amount o
 
 Then we came up with idea of separating drone and stabilization system so the main math will be accomplished on landing platform with powerful machine.
 
-To highlight the platform we took 4 ARUCO tags and as for recognition we've used as OpenCV algorithms. But in first version of stabilization we didn't have any defining algorithms for markers in space
+To highlight the platform we took 4 ARUCO tags and as for recognition we've used as OpenCV algorithms. But in first version of stabilization we didn't have any defining algorithms for markers in space (click on picture to see the video).
 
 [![Watch the video](https://github.com/XxOinvizioNxX/Liberty-Way/blob/main/git_images/2021-03-11%20(2).png)](https://youtu.be/A2oq6zCebVo)
+
+But, due to the angle of view of the camera, and the difference in the actual position, this was not crowned with much success. Therefore, we had to study methods for assessing the position of a marker in advertising in order to implement the correct adjustment algorithm. In this case we used OpenCV pose estimation (click on picture to see the video).
+
+[![Watch the video](https://github.com/XxOinvizioNxX/Liberty-Way/blob/main/git_images/2021-03-11%20(3).png)](https://www.youtube.com/watch?v=kE3UmJZ00so&ab_channel=AMLSMosPolytech)
+
+After some work with adjustment and calibration of angle we managed to process holding disregarding the height of the drone
+
+Unfortunately, due to developing the algorithm on python and it's low performance and high ping we decided to rewrite the whole code on Java. In fact it means that most of the code was rewritten from scratch but it paid off. And by that we mean higher performance, ease of configuration and debugging and way fancier user interface 
 
 -------
 
@@ -191,5 +199,9 @@ To highlight the platform we took 4 ARUCO tags and as for recognition we've used
 -------
 
 ### Weather protection system
+
+-------
+
+### Extra Materials
 
 -------
