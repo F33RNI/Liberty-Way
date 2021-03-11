@@ -16,7 +16,23 @@ Liberty-Way AMLS Landing Controller © 2021 Pavel Neshumov (Frey Hertz)
 
 All the code excluding the dependencies block, was written by Pavel Neshumov (Frey Hertz)
 
-------------
+-----------
+
+
+## Table of contents
+
+   * [Dependencies](#dependencies)
+   * [Description](#description)
+   * [License](#license)
+   * [Feedback](#feedback)
+   * [Logotype](#logotype)
+   * [Building and running](#building-and-running)
+   * [Configuration](#configuration)
+      * [Settings](#settings)
+      * [PID](#pid)
+   * [Data packet structure](#data-packet-structure)
+
+-----------
 
 ## Dependencies
 - **Flak** (Web framework): https://github.com/pcdv/flak
@@ -28,7 +44,7 @@ All the code excluding the dependencies block, was written by Pavel Neshumov (Fr
 - **jSerialComm** (Serial communication): https://github.com/Fazecast/jSerialComm
 - **GSon** (JSON implementation): https://github.com/google/gson
 
-------------
+-----------
 
 ## Description
 This application is a part of the AMLS project (Autonomous Multi-rotor Landing System).
@@ -38,12 +54,12 @@ The task of the project is to automatically land a drone on a platform in motion
 
 This application processes the frame received from the camera located on the platform which is looking up. On the bottom of the drone, there is an ARUco tag. The application detects the marker, estimates its position, then passes through the PID controller and sends the correction values to the drone.
 
-------------
+-----------
 
 ## License
 Liberty-Way is licensed under AGPLv3, you can find it’s contents in the main branch.
 
-------------
+-----------
 
 ## Feedback
 Our E-Mails:
@@ -51,12 +67,12 @@ Our E-Mails:
 - astik452@gmail.com (Andrey Kabalin)
 - vlad.yasn@gmail.com (Vladislav Yasnetsky)
  
-------------
+-----------
 
 ## Logotype
 AMLS and Liberty-X logo was designed by Pavel Neshumov
 
-------------
+-----------
 
 ## Building and running
 Liberty-Way is a cross-platform application and has been tested on Linux and Windows. 
@@ -74,7 +90,7 @@ When starting the application, you can specify the arguments:
 ```
 Also, the server address and ports can be specified in the configuration (settings.json)
 
--------
+-----------
 
 ##  Configuration
 
@@ -124,21 +140,20 @@ These are the parameters presented in settings.json file that are used by the pr
 "data_suffix_2",          second of the unique ASCII pair symbols that show the end of the packet
 "push_osd_after_frames",           after how many frames the image is being sent to the web-page
 ```
-## PID
+
+### PID
 These are the PID regulation parameters for each processed axle (x, y, z and yaw) which can be found in pid.json file:
 ```
 "P",              proportional term coefficient 
 "I",              integral term coefficient 
 "D",              derivative term coefficient
-"F",              
-"ramp",           maximum rate that output can increase per cycle
-"limit",           
-"reversed",       
+"F",              feed-forward term (which is a rough prediction of the output value) coefficient
+"ramp",           maximum rate that the output can increase per cycle
+"limit",          acceptable maximum of the output value
+"reversed",       should the output be in a reversed state with opposite value
 ```
 
---------
-
-
+-----------
 
 
 ## Data packet structure
@@ -155,4 +170,4 @@ Bytes description:
 - **Check byte** - XOR sum of all previous bytes that is compared via transmittion in order to verify the data
 - **Data suffix** - unique pair of ASCII symbols that is not represented in the packet in any form and that shows the end of the packet 
 
---------
+-----------
