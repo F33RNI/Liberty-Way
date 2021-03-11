@@ -221,6 +221,13 @@ As you may know it doesn't matter how good is our stabilization but without grab
 
 ### Weather protection system
 
+As for the weather protection we developed a 3D model to create a roof that will protect the drone from weather conditions while it is on the platform.
+The AMLS roof mechanism is a scissor mechanism covered with a tarpaulin, which are located on the edges of the platform and after a successful landing, the mechanisms on both sides of the platform will close and protect the drone from external influences. The roof structure itself makes it quite light and strong, and the scissor mechanism allows you to simply fold and unfold, moreover, the assembly of such a mechanism will be simple and reliable.
+
+![Screenshot](https://github.com/XxOinvizioNxX/Liberty-Way/blob/main/git_images/Picture3.png "Screenshot")
+
+![Screenshot](https://github.com/XxOinvizioNxX/Liberty-Way/blob/main/git_images/Picture1.png "Screenshot")
+
 -------
 
 ### Extra Materials
