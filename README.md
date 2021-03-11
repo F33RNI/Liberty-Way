@@ -80,7 +80,7 @@ Also, the server address and ports can be specified in the configuration (settin
 These are the parameters presented in settings.json file that are used by the program and can be changed depending of its application:
 ```
 "marker_size",             length of one side of the tracking marker (cm)
-"default_exposure",
+"default_exposure",        default exposure value of the camera
 "landing_alt",             altitude of sending a packet to turn off the motors (service info = 3)
 "pid_file",              file of PID configuration
 "camera_matrix_file",              camera calibration (matrix)
@@ -88,7 +88,7 @@ These are the parameters presented in settings.json file that are used by the pr
 "watermark_file",              image of a watermark (top-right corner)
 "web_resources_folder",              folder of web resources
 "web_templates_folder",              folder of templates for a web-page
-"blackbox_folder",
+"blackbox_folder",           folder which stores blackboxes' .csv files
 "frame_width",              resolution that is set to web-camera (width)
 "frame_height",              resolution that is set to web-camera (height)
 "disable_auto_exposure",              disabling/enabling auto exposure feature
@@ -99,11 +99,11 @@ These are the parameters presented in settings.json file that are used by the pr
 "default_video_port",              video port which can be overridden by cmd argument
 "video_stream_enabled_by_default",              should the video stream be enabled from the start
 "video_on_page_enabled_by_default",              should the video be enabled on the page from the start 
-"blackbox_enabled_by_default",
-"platform_light_enable_threshold",
-"platform_light_disable_threshold",
-"platform_reply_timeout",
-"platform_loop_timer",
+"blackbox_enabled_by_default",                   should the blackbox feature be enabled by default
+"platform_light_enable_threshold",              lower threshold of the surrounding light to enable additional lighting
+"platform_light_disable_threshold",             upper threshold of the surrounding light to disable additional lighting
+"platform_reply_timeout",         amount of seconds in which a drone is declared lost from vision
+"platform_loop_timer",            
 "fps_measure_period",              period of measurements of fps (milliseconds)
 "adaptive_thresh_constant",              detector of parameters (ARUCO)
 "aruco_dictionary",
