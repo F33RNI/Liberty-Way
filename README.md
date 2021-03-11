@@ -162,13 +162,19 @@ As we mentioned earlier our drone and controller are self made in this regard we
 
 And as we couldn't predict the possibility of accomplishing of our task, first of all, we started to think about means for stabilization system 
 
-Afterwards, we stopped on stabilazing using augmented reality tags. Firstly, it won't take much finances as GPS or RTK systems and will be accurate enough to accomplish it's purpose
+Afterwards, we stopped on stabilazing using augmented reality tags. Firstly, it won't take much finances as GPS or RTK systems and will be accurate enough to accomplish it's purpose.
 
-Our first idea was to attach Raspberry Pi with Liberty_X and give all the stabilization math to Raspberry Pi 
+Our first idea was to attach Raspberry Pi with Liberty_X as it's made in COEX Clover  and give all the stabilization math to Raspberry Pi (click on picture to see the video).
 
 [![Watch the video](https://github.com/XxOinvizioNxX/Liberty-Way/blob/main/git_images/2021-03-11%20(1).png)](https://youtu.be/TrrxXOHAqbQ)
 
-but tests showed that it's 
+But few tests shown that Raspberry Pi computing power is not enough for amount of data needed to stabilize the drone. Furthermore, the idea of installing a Raspberry Pi on each drone is irrational for its own.
+
+Then we came up with idea of separating drone and stabilization system so the main math will be accomplished on landing platform with powerful machine.
+
+To highlight the platform we took 4 ARUCO tags and as for recognition we've used as OpenCV algorithms. But in first version of stabilization we didn't have any defining algorithms for markers in space
+
+[![Watch the video](https://github.com/XxOinvizioNxX/Liberty-Way/blob/main/git_images/2021-03-11%20(2).png)](https://youtu.be/A2oq6zCebVo)
 
 -------
 
