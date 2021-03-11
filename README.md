@@ -166,7 +166,7 @@ Afterwards, we stopped on stabilazing using augmented reality tags. Firstly, it 
 
 Our first idea was to attach Raspberry Pi with Liberty_X and give all the stabilization math to Raspberry Pi 
 
-[![Watch the video](https://raw.github.com/GabLeRoux/WebMole/master/ressources/WebMole_Youtube_Video.png)](https://youtu.be/TrrxXOHAqbQ)
+[![Watch the video](https://github.com/XxOinvizioNxX/Liberty-Way/tree/main/git_images/2021-03-11 (1).png)](https://youtu.be/TrrxXOHAqbQ)
 
 but tests showed that it's 
 
