@@ -18,7 +18,7 @@ All the code excluding the dependencies block, was written by Pavel Neshumov (Fr
 
 ------------
 
-### Dependencies
+## Dependencies
 - **Flak** (Web framework): https://github.com/pcdv/flak
 - **MiniPID** (PID Controller): https://github.com/tekdemo/MiniPID-Java
 - **Log4j** (Logback): https://logging.apache.org/log4j/1.2/
@@ -30,7 +30,7 @@ All the code excluding the dependencies block, was written by Pavel Neshumov (Fr
 
 ------------
 
-### Description
+## Description
 This application is a part of the AMLS project (Autonomous Multi-rotor Landing System).
 The task of the project is to automatically land a drone on a platform in motion.
 
@@ -40,12 +40,12 @@ This application processes the frame received from the camera located on the pla
 
 ------------
 
-### License
+## License
 Liberty-Way is licensed under AGPLv3, you can find it’s contents in the main branch.
 
 ------------
 
-### Feedback
+## Feedback
 Our E-Mails:
 - xxoinvizionxx@gmail.com (Pavel Neshumov)
 - astik452@gmail.com (Andrey Kabalin)
@@ -53,12 +53,12 @@ Our E-Mails:
  
 ------------
 
-### Logotype
+## Logotype
 AMLS and Liberty-X logo was designed by Pavel Neshumov
 
 ------------
 
-### Building and running
+## Building and running
 Liberty-Way is a cross-platform application and has been tested on Linux and Windows. 
 You can try running the application on any other operating system. But you first need to build the OpenCV-contrib library (**The releases include libraries for Windows and Linux**).
 Builded binary JAR-file can be found in releases.
@@ -76,7 +76,10 @@ Also, the server address and ports can be specified in the configuration (settin
 
 -------
 
-###  Configuration
+##  Configuration
+
+### Settings
+
 These are the parameters presented in settings.json file that are used by the program and can be changed depending of its application:
 ```
 "marker_size",             length of one side of the tracking marker (cm)
@@ -102,14 +105,14 @@ These are the parameters presented in settings.json file that are used by the pr
 "blackbox_enabled_by_default",                   should the blackbox feature be enabled by default
 "platform_light_enable_threshold",              lower threshold of the surrounding light to enable additional lighting
 "platform_light_disable_threshold",             upper threshold of the surrounding light to disable additional lighting
-"platform_reply_timeout",         amount of seconds in which a drone is declared lost from vision
-"platform_loop_timer",            
+"platform_reply_timeout",              amount of milliseconds in which receiving a response from the platform is acceptable
+"platform_loop_timer",               update rate of the platform in milliseconds
 "fps_measure_period",              period of measurements of fps (milliseconds)
 "adaptive_thresh_constant",              detector of parameters (ARUCO)
-"aruco_dictionary",
+"aruco_dictionary",             index of used ARUco dictionary (default = 0 which is 50 4x4 marks) 
 "allowed_ids",              array of allowed tracking markers ARUCO ids
 "input_filter",              Kalman filter coefficient
-"setpoint_alignment_factor",
+"setpoint_alignment_factor",        floating setpoint to the desired position coefficient
 "allowed_lost_frames",              frames where the marker is not in the input frame
 "landing_decrement",              constant latitude decrement (cm)
 "allowed_landing_range_xy",              range of the landing allowance (cm)
@@ -121,10 +124,24 @@ These are the parameters presented in settings.json file that are used by the pr
 "data_suffix_2",          second of the unique ASCII pair symbols that show the end of the packet
 "push_osd_after_frames",           after how many frames the image is being sent to the web-page
 ```
+## PID
+These are the PID regulation parameters for each processed axle (x, y, z and yaw) which can be found in pid.json file:
+```
+"P",              proportional term coefficient 
+"I",              integral term coefficient 
+"D",              derivative term coefficient
+"F",              
+"ramp",           maximum rate that output can increase per cycle
+"limit",           
+"reversed",       
+```
 
 --------
 
-### Data packet structure
+
+
+
+## Data packet structure
 This is the structure of a packet that is being sent to the drone for execution of a PID controller arguments:
 
 ![Packet](https://github.com/XxOinvizioNxX/Liberty-Way/blob/main/git_images/Data_structure.png "Data packet")
