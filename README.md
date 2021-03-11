@@ -184,6 +184,12 @@ After some work with adjustment and calibration of angle we managed to process h
 
 Unfortunately, due to developing the algorithm on python and it's low performance and high ping we decided to rewrite the whole code on Java. In fact it means that most of the code was rewritten from scratch but it paid off. And by that we mean higher performance, ease of configuration and debugging and way fancier user interface 
 
+And for sure it helped to push forward the development of Landing and Stabilizing systems
+
+[![Watch the video](https://github.com/XxOinvizioNxX/Liberty-Way/blob/main/git_images/2021-03-11%20(4).png)](https://youtu.be/8VAobWPFG8g)
+
+[![Watch the video](https://github.com/XxOinvizioNxX/Liberty-Way/blob/main/git_images/2021-03-11%20(5).png)](https://youtu.be/15hUJ9WiCQU)
+
 -------
 
 ### GPS holding
