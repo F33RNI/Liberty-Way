@@ -184,7 +184,7 @@ After some work with adjustment and calibration of angle we managed to process h
 
 Unfortunately, due to developing the algorithm on python and it's low performance and high ping we decided to rewrite the whole code on Java. In fact it means that most of the code was rewritten from scratch but it paid off. And by that we mean higher performance, ease of configuration and debugging and way fancier user interface 
 
-And for sure it helped to push forward the development of Landing and Stabilizing systems
+And for sure it helped to push forward the development of Landing and Stabilizing systems (click on picture to see the video).
 
 [![Watch the video](https://github.com/XxOinvizioNxX/Liberty-Way/blob/main/git_images/2021-03-11%20(4).png)](https://youtu.be/8VAobWPFG8g)
 
@@ -197,10 +197,25 @@ And for sure it helped to push forward the development of Landing and Stabilizin
 -------
 
 ### GPS following
+The main part of stabilization using GPS coordinates was the development of an algorithm for predicting the position of the drone. The simplest idea is to use a mathematical calculation of the next drone position. This is calculated for the most accurate positioning in relation to the landing platform.
+
+At the beginning we developed a simple algorithm for calculating the coefficient of coordinate change. Development was done using Python. At the stage of testing this algorithm, the problem of simulating the generation of GPS coordinates arose. To solve this problem, many different resources were used: from open source homemade navigators to trying to use the Google Maps API, Yandex Maps or 2GIS. And only after a 3 month, we thought of a simple change of values for some delta with drawing in MatPlotLib or PyQtGraph. 
+Prior to this, all testing of the algorithm was carried out using the PX4 firmware toolkit, the Gazebo drone motion simulator. As a result, many formalities were overcome in terms of communicating with the simulator and increasing productivity(click on picture to see the video).
+
+[![Watch the video](https://github.com/XxOinvizioNxX/Liberty-Way/blob/main/git_images/2021-03-11%20(6).png)](https://youtu.be/Rg-Y_fl4BKQ)
+
+[![Watch the video](https://github.com/XxOinvizioNxX/Liberty-Way/blob/main/git_images/2021-03-11%20(7).png)](https://youtu.be/4oNa8IbVMvI)
+
+The end result is an error in the predicted boundaries of the range from 0 to 70 centimeters.
 
 -------
 
 ### Grabbing system
+As you may know it doesn't matter how good is our stabilization but without grabbing system drone will crush eventually. In this regard we developed a 3D model of a grabbing system with 4 grips with hook in the end of each one this will allow to slowly grab the drone while it lands and hold it in place after landing.
+
+![Screenshot](https://github.com/XxOinvizioNxX/Liberty-Way/blob/main/git_images/2020-11-17_14-09-25.png "Screenshot")
+
+![Screenshot](https://github.com/XxOinvizioNxX/Liberty-Way/blob/main/git_images/2020-11-17_14-11-52.png "Screenshot")
 
 -------
 
