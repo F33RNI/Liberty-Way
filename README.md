@@ -137,3 +137,53 @@ Bytes description:
 - **Service info** - sets the drone state (0 - Nothing to do, 1 - Stabilization, 2 - Landing (command not implemented and will be removed in the future. This is not a real landing, just to tell the drone to start decreasing altitude), 3 - Disable motors)
 - **Check byte** - XOR sum of all previous bytes that is compared via transmittion in order to verify the data
 - **Data suffix** - unique pair of ASCII symbols that is not represented in the packet in any form and that shows the end of the packet 
+
+--------
+
+### AMLS Article
+In this Article we will describe AMLS project, namely, AMLS Optical stabilization, GPS holding, GPS following, Grapling system and Weather protection system. Plus we will make clear how it works and how it's done!
+
+-------
+
+### How AMLS started
+AMLS or Autonomous Multirotor Landing System is COEX initiative on creating a system of drone and landing platform implemented on a car with automized landing while in move.
+So why we decided to take this assignment. A year before we assigned on this project we had a self made drone developed by Pavel Neshumov and as we were interested in developing a new system with lack of solutions and actually working systems we started our project.
+
+![Screenshot](https://github.com/XxOinvizioNxX/Liberty-Way/blob/main/git_images/drone.png "Screenshot")
+                                               
+Picture of Liberty_X
+
+-------
+
+### Optical stabilization 
+Lets pass to systems of AMLS. First and may be the most important part of our project besides from landing is Optical stabilization.
+
+As we mentioned earlier our drone and controller are self made in this regard we were able to implement new features and systems in short amount of time 
+
+And as we couldn't predict the possibility of accomplishing of our task, first of all, we started to think about means for stabilization system 
+
+Afterwards, we stopped on stabilazing using augmented reality tags. Firstly, it won't take much finances as GPS or RTK systems and will be accurate enough to accomplish it's purpose
+
+Our first idea was to attach Raspberry Pi with Liberty_X and give all the stabilization math to Raspberry Pi 
+
+[![Watch the video](https://raw.github.com/GabLeRoux/WebMole/master/ressources/WebMole_Youtube_Video.png)](https://youtu.be/TrrxXOHAqbQ)
+
+but tests showed that it's 
+
+-------
+
+### GPS holding
+
+-------
+
+### GPS following
+
+-------
+
+### Grabbing system
+
+-------
+
+### Weather protection system
+
+-------
