@@ -59,6 +59,11 @@ This application processes the frame received from the camera located on the pla
 ## License
 Liberty-Way is licensed under AGPLv3, you can find it’s contents in the main branch.
 
+The dependencies are licensed under following licenses:
+   * Apache-2.0 for Flak, Log4j, Opencv, OpenCV-contib, Commons-CLI and GSon
+   * GPL-3.0 for MiniPID
+   * GNU-3.0 for jSerialComm
+
 -----------
 
 ## Feedback
