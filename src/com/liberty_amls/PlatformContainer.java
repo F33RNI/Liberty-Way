@@ -20,6 +20,7 @@ package com.liberty_amls;
 public class PlatformContainer {
     public int illumination;
     public double cameraExposure;
+    public double speed;
 
     /**
      * This class contains all data from the platform
@@ -27,6 +28,7 @@ public class PlatformContainer {
      */
     PlatformContainer(double defaultExposure) {
         illumination = 0;
+        speed = 0;
         cameraExposure = defaultExposure;
     }
 }

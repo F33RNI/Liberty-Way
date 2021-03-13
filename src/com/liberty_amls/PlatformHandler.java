@@ -29,10 +29,10 @@ public class PlatformHandler implements Runnable {
     private final PlatformContainer platformContainer;
     private final SerialHandler serialHandler;
     private final VideoCapture videoCapture;
-    private int timeout, loopTimer, lightEnableThreshold, lightDisableThreshold;
-    private boolean handleRunning;
-    private double exposureLast = 0;
-    private boolean lightsLast = false;
+    volatile private int timeout, loopTimer, lightEnableThreshold, lightDisableThreshold;
+    volatile private boolean handleRunning;
+    volatile private double exposureLast = 0;
+    volatile private boolean lightsLast = false;
     volatile public boolean opencvStarts = false;
 
     /**
@@ -55,8 +55,16 @@ public class PlatformHandler implements Runnable {
     @Override
     @SuppressWarnings("StatementWithEmptyBody")
     public void run() {
+        // Wait for Platform
+        logger.info("Waiting for platform");
+        waitForReplay(-1);
+        logger.info("Platform replied successfully");
+
         // Wait for OpenCVHandler class
+        logger.info("Waiting for OpenCVHandler");
         while (!opencvStarts);
+        logger.info("Starting main loop");
+
         // Set loop flag
         handleRunning = true;
         while (handleRunning)
@@ -87,6 +95,7 @@ public class PlatformHandler implements Runnable {
     private void platformLoop() {
         try {
             illuminationController();
+            speedController();
             Thread.sleep(loopTimer);
         } catch (Exception e) {
             logger.error("Error interacting with platform!", e);
@@ -101,11 +110,17 @@ public class PlatformHandler implements Runnable {
         serialHandler.platformData = "L0\n".getBytes();
         serialHandler.pushPlatformData();
 
-        // Update current illumination (S0 L<value>)
-        if (parseNumberFromGCode(waitForReplay(), 'S', -1) == 0) {
-            // If everything is ok
-            platformContainer.illumination = (int) parseNumberFromGCode(waitForReplay(), 'L', 0);
+        // Wait for data
+        String incoming = waitForReplay(timeout);
+
+        // If error
+        if (parseNumberFromGCode(incoming, 'S', -1) != 0) {
+            logger.error("Error reading illumination!");
+            return;
         }
+
+        // Parse illumination
+        platformContainer.illumination = (int) parseNumberFromGCode(incoming, 'L', 0);
 
         // Enable or disable additional light
         if (!lightsLast && platformContainer.illumination < lightEnableThreshold) {
@@ -128,6 +143,27 @@ public class PlatformHandler implements Runnable {
     }
 
     /**
+     * Checks current speed
+     */
+    private void speedController() {
+        // Send L1 to check speed
+        serialHandler.platformData = "L1\n".getBytes();
+        serialHandler.pushPlatformData();
+
+        // Wait for data
+        String incoming = waitForReplay(timeout);
+
+        // If error
+        if (parseNumberFromGCode(incoming, 'S', -1) != 0) {
+            logger.error("Error reading speed!");
+            return;
+        }
+
+        // Parse illumination
+        platformContainer.speed = parseNumberFromGCode(incoming, 'L', 0);
+    }
+
+    /**
      * Enables platform light
      */
     private void enableLight() {
@@ -136,7 +172,7 @@ public class PlatformHandler implements Runnable {
         // Send data via serial
         serialHandler.pushPlatformData();
         // Wait for complete
-        waitForReplay();
+        waitForReplay(timeout);
         // Set flag
         lightsLast = true;
     }
@@ -150,7 +186,7 @@ public class PlatformHandler implements Runnable {
         // Send data via serial
         serialHandler.pushPlatformData();
         // Wait for complete
-        waitForReplay();
+        waitForReplay(timeout);
         // Set flag
         lightsLast = false;
     }
@@ -159,17 +195,20 @@ public class PlatformHandler implements Runnable {
      * Waits and returns data from the platform
      * @return replay from the platform without '>' symbol
      */
-    private String waitForReplay() {
+    private String waitForReplay(int timeout) {
         StringBuilder stringBuilder = new StringBuilder();
         long timeStart = System.currentTimeMillis();
         while (stringBuilder.indexOf(">") < 0) {
             stringBuilder.append(new String(serialHandler.readDataFromPlatform()));
-            if (System.currentTimeMillis() - timeStart > timeout) {
+            if (timeout >= 0 && System.currentTimeMillis() - timeStart > timeout) {
                 logger.error("Timeout waiting for a response from the platform!");
                 break;
             }
         }
-        return stringBuilder.toString().replace(">", "");
+        return stringBuilder.toString()
+                .replace(">", "")
+                .replace("\r", "")
+                .replace("\n", "");
     }
 
     /**
@@ -184,7 +223,7 @@ public class PlatformHandler implements Runnable {
             // Remove endings and spaces
             data = data.replace("\n", "").replace("\r", "").trim();
             int startIndex = data.indexOf(code);
-            if (startIndex > 0) {
+            if (startIndex >= 0) {
                 // Trim until next space
                 int stopIndex = data.substring(startIndex).indexOf(' ');
                 if (stopIndex > 0) {

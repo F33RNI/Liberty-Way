@@ -132,12 +132,6 @@ public class OSDHandler implements Runnable {
                 Imgproc.putText(destFrame, "STATUS", new Point(setpoint.x - 30, setpoint.y - 204),
                         Imgproc.FONT_HERSHEY_PLAIN, 1, new Scalar(255, 255, 255), 1);
 
-                // Bottom left white on black labels
-                Imgproc.putText(destFrame, "EXP", new Point(setpoint.x - 120, setpoint.y + 110),
-                        Imgproc.FONT_HERSHEY_PLAIN, 1, new Scalar(0, 0, 0), 2);
-                Imgproc.putText(destFrame, "EXP", new Point(setpoint.x - 120, setpoint.y + 110),
-                        Imgproc.FONT_HERSHEY_PLAIN, 1, new Scalar(255, 255, 255), 1);
-
                 // Left green data (current absolute coordinates)
                 Imgproc.putText(destFrame, decimalFormatMono.format(positionContainer.x) + " cm",
                         new Point(setpoint.x - 190, setpoint.y - 8),
@@ -157,6 +151,18 @@ public class OSDHandler implements Runnable {
                         new Point(setpoint.x + 190 -
                                 (decimalFormatMono.format(positionContainer.z) + " cm").length() * 10, setpoint.y + 2),
                         Imgproc.FONT_HERSHEY_PLAIN, 1, new Scalar(0, 255, 0), 2);
+
+                // Bottom left white on black labels
+                Imgproc.putText(destFrame, "EXP", new Point(setpoint.x - 120, setpoint.y + 110),
+                        Imgproc.FONT_HERSHEY_PLAIN, 1, new Scalar(0, 0, 0), 2);
+                Imgproc.putText(destFrame, "EXP", new Point(setpoint.x - 120, setpoint.y + 110),
+                        Imgproc.FONT_HERSHEY_PLAIN, 1, new Scalar(255, 255, 255), 1);
+
+                // Bottom right white on black labels
+                Imgproc.putText(destFrame, "SPD", new Point(setpoint.x + 90, setpoint.y + 110),
+                        Imgproc.FONT_HERSHEY_PLAIN, 1, new Scalar(0, 0, 0), 2);
+                Imgproc.putText(destFrame, "SPD", new Point(setpoint.x + 90, setpoint.y + 110),
+                        Imgproc.FONT_HERSHEY_PLAIN, 1, new Scalar(255, 255, 255), 1);
 
                 // Top green data (status)
                 switch (positionContainer.status) {
@@ -198,9 +204,15 @@ public class OSDHandler implements Runnable {
                         break;
                 }
 
-                // Top left green data (camera exposure)
+                // Bottom left green data (camera exposure)
                 Imgproc.putText(destFrame, decimalFormatSimple.format(platformContainer.cameraExposure),
                         new Point(setpoint.x - 125,
+                                setpoint.y + 130),
+                        Imgproc.FONT_HERSHEY_PLAIN, 1, new Scalar(0, 255, 0), 2);
+
+                // Bottom right green data (speed)
+                Imgproc.putText(destFrame, decimalFormatSimple.format(platformContainer.speed),
+                        new Point(setpoint.x + 95,
                                 setpoint.y + 130),
                         Imgproc.FONT_HERSHEY_PLAIN, 1, new Scalar(0, 255, 0), 2);
 

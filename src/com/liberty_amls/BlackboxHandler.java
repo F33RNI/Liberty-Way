@@ -27,6 +27,7 @@ public class BlackboxHandler implements Runnable {
     private final Logger logger = Logger.getLogger(this.getClass().getSimpleName());
     private final DecimalFormat decimalFormat = new DecimalFormat("#.#");
     private final PositionContainer positionContainer;
+    private final PlatformContainer platformContainer;
     private final String blackboxDirectory;
     private boolean handlerRunning;
     private boolean fileStarted = false;
@@ -42,8 +43,11 @@ public class BlackboxHandler implements Runnable {
      * @param positionContainer container of the current position
      * @param blackboxDirectory Folder where .csv log files are stored
      */
-    BlackboxHandler(PositionContainer positionContainer, String blackboxDirectory) {
+    BlackboxHandler(PositionContainer positionContainer,
+                    PlatformContainer platformContainer,
+                    String blackboxDirectory) {
         this.positionContainer = positionContainer;
+        this.platformContainer = platformContainer;
         this.blackboxDirectory = blackboxDirectory;
         this.blackboxEnabled = Main.settings.get("blackbox_enabled_by_default").getAsBoolean();
     }
@@ -133,7 +137,7 @@ public class BlackboxHandler implements Runnable {
     private void pushHeader() {
         try {
             bufferedWriter.write("time,x,y,z,yaw,setpointX,setpointY,setpointZ,setpointYaw," +
-                    "ddcX,ddcY,ddcZ,ddcRoll,ddcPitch,ddcYaw,frameX,frameY,status");
+                    "ddcX,ddcY,ddcZ,ddcRoll,ddcPitch,ddcYaw,frameX,frameY,exposure,speed,status");
             bufferedWriter.write("\n");
             bufferedWriter.flush();
         } catch (IOException e) {
@@ -179,6 +183,10 @@ public class BlackboxHandler implements Runnable {
             bufferedWriter.write(String.valueOf((int)positionContainer.frameCurrent.x));
             bufferedWriter.write(",");
             bufferedWriter.write(String.valueOf((int)positionContainer.frameCurrent.y));
+            bufferedWriter.write(",");
+            bufferedWriter.write(decimalFormat.format(platformContainer.cameraExposure));
+            bufferedWriter.write(",");
+            bufferedWriter.write(decimalFormat.format(platformContainer.speed));
             bufferedWriter.write(",");
             bufferedWriter.write(String.valueOf(positionContainer.status));
             bufferedWriter.write("\n");

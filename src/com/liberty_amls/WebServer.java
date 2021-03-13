@@ -214,6 +214,7 @@ public class WebServer {
 
             // Create BlackboxHandler class for logging all events and position
             blackboxHandler = new BlackboxHandler(positionContainer,
+                    platformContainer,
                     Main.settings.get("blackbox_folder").getAsString());
             // Create and start a new thread with the normal priority for the blackbox
             Thread blackboxThread = new Thread(blackboxHandler);
