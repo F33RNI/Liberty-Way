@@ -16,6 +16,13 @@ Liberty-Way AMLS Landing Controller © 2021 Pavel Neshumov (Frey Hertz)
 
 All the code excluding the dependencies block, was written by Pavel Neshumov (Frey Hertz)
 
+----------
+
+## AMLS references:
+
+- **Eitude Project:** https://github.com/XxOinvizioNxX/Eitude
+- **PX4 UDP Connection:** https://github.com/Draskown/PX4_UDP_Connection
+
 -----------
 
 
