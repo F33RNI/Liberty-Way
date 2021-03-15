@@ -18,10 +18,10 @@ All the code excluding the dependencies block, was written by Pavel Neshumov (Fr
 
 ----------
 
-## AMLS references:
+## AMLS Projects:
 
 - **Eitude Project:** https://github.com/XxOinvizioNxX/Eitude
-- **PX4 UDP Connection:** https://github.com/Draskown/PX4_UDP_Connection
+- **PX4 UDP Connection Project:** https://github.com/Draskown/PX4_UDP_Connection
 
 -----------
 
