@@ -57,7 +57,7 @@ All the code excluding the dependencies block, was written by Pavel Neshumov (Fr
 This application is a part of the AMLS project (Autonomous Multi-rotor Landing System).
 The task of the project is to automatically land a drone on a platform in motion.
 
-![Screenshot](https://github.com/XxOinvizioNxX/Liberty-Way/blob/main/git_images/Screenshot_1.png "Screenshot")
+![Screenshot](https://github.com/XxOinvizioNxX/Liberty-Way/blob/main/git_images/main_preview.png "Screenshot")
 
 This application processes the frame received from the camera located on the platform which is looking up. On the bottom of the drone, there is an ARUco tag. The application detects the marker, estimates its position, then passes through the PID controller and sends the correction values to the drone.
 
@@ -171,7 +171,7 @@ These are the PID regulation parameters for each processed axle (x, y, z and yaw
 ## Data packet structure
 This is the structure of a packet that is being sent to the drone for execution of a PID controller arguments:
 
-![Packet](https://github.com/XxOinvizioNxX/Liberty-Way/blob/main/git_images/Data_structure.png "Data packet")
+![Packet](https://github.com/XxOinvizioNxX/Liberty-Way/blob/main/git_images/data_structure.png "Data packet")
 
 Bytes description:
 - **Roll bytes** - Roll correction values 
