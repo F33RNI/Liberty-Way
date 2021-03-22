@@ -3,7 +3,7 @@
 
 ![Logo](https://github.com/XxOinvizioNxX/Liberty-Way/blob/main/git_images/logo_book.png "Logo")
 
-[![Liberty-Way_beta_1.1.0](https://img.shields.io/badge/Latest_version-beta_1.1.2-informational?logo=Github&style=flat-square "Liberty-Way_beta_1.1.2")](https://github.com/XxOinvizioNxX/Liberty-Way/releases/tag/beta_1.1.2 "Liberty-Way_beta_1.1.2")
+[![Liberty-Way_beta_1.1.5](https://img.shields.io/badge/Latest_version-beta_1.1.5-informational?logo=Github&style=flat-square "Liberty-Way_beta_1.1.5")](https://github.com/XxOinvizioNxX/Liberty-Way/releases/tag/beta_1.1.5 "Liberty-Way_beta_1.1.5")
 [![Our_channel](https://img.shields.io/badge/Our_channel-YouTube-red?logo=Youtube&style=flat-square "Our_channel")](https://www.youtube.com/channel/UCqN12Jzy-1eJLkcA32R0jdg "Our_channel")
 ![GitHub All Releases](https://img.shields.io/github/downloads/XxOinvizioNxX/Liberty-Way/total?style=flat-square "GitHub All Releases")
 
