@@ -21,6 +21,8 @@ public class PlatformContainer {
     public int illumination;
     public double cameraExposure;
     public double speed;
+    // 0 - IDLE, 1 - STAB, 2 - LAND, 3 - PREV, 4 - LOST, 5 - DONE
+    public int status;
 
     /**
      * This class contains all data from the platform
@@ -29,6 +31,7 @@ public class PlatformContainer {
     PlatformContainer(double defaultExposure) {
         illumination = 0;
         speed = 0;
+        status = 0;
         cameraExposure = defaultExposure;
     }
 }

@@ -29,10 +29,10 @@ public class PlatformHandler implements Runnable {
     private final PlatformContainer platformContainer;
     private final SerialHandler serialHandler;
     private final VideoCapture videoCapture;
-    volatile private int timeout, loopTimer, lightEnableThreshold, lightDisableThreshold;
-    volatile private boolean handleRunning;
-    volatile private double exposureLast = 0;
-    volatile private boolean lightsLast = false;
+    private int timeout, loopTimer, lightEnableThreshold, lightDisableThreshold;
+    private boolean handleRunning;
+    private double exposureLast = 0;
+    private boolean lightsLast = false;
     volatile public boolean opencvStarts = false;
 
     /**
@@ -96,6 +96,7 @@ public class PlatformHandler implements Runnable {
         try {
             illuminationController();
             speedController();
+            writeStatus();
             Thread.sleep(loopTimer);
         } catch (Exception e) {
             logger.error("Error interacting with platform!", e);
@@ -161,6 +162,18 @@ public class PlatformHandler implements Runnable {
 
         // Parse illumination
         platformContainer.speed = parseNumberFromGCode(incoming, 'L', 0);
+    }
+
+    /**
+     * Writes current status to the platform
+     */
+    private void writeStatus() {
+        // Send L2 to set the status
+        serialHandler.platformData = ("L2 S" + platformContainer.status + "\n").getBytes();
+        serialHandler.pushPlatformData();
+
+        // Wait for data
+        waitForReplay(timeout);
     }
 
     /**

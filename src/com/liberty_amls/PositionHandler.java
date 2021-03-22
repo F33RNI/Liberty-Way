@@ -28,6 +28,7 @@ public class PositionHandler {
     private final PlatformHandler platformHandler;
     private final MiniPID miniPIDX, miniPIDY, miniPIDZ, miniPIDYaw;
     private final PositionContainer positionContainer;
+    private final PlatformContainer platformContainer;
     private final BlackboxHandler blackboxHandler;
     private final byte[] directControlData;
     private int lostFrames;
@@ -55,6 +56,7 @@ public class PositionHandler {
                            PlatformHandler platformHandler,
                            OSDHandler osdHandler,
                            PositionContainer positionContainer,
+                           PlatformContainer platformContainer,
                            BlackboxHandler blackboxHandler) {
         this.serialHandler = serialHandler;
         this.udpHandler = udpHandler;
@@ -66,6 +68,7 @@ public class PositionHandler {
         this.miniPIDYaw = new MiniPID(0, 0, 0, 0);
         this.directControlData = new byte[12];
         this.positionContainer = positionContainer;
+        this.platformContainer = platformContainer;
         this.blackboxHandler = blackboxHandler;
     }
 
@@ -125,8 +128,8 @@ public class PositionHandler {
 
         // If landing is enabled, position is not predicted and landing conditions are met
         if (landingEnabled && positionContainer.status != 3
-                && Math.abs(positionContainer.x - positionContainer.setpointX) < allowedLandingRangeXY
-                && Math.abs(positionContainer.y - positionContainer.setpointY) < allowedLandingRangeXY
+                && Math.abs(positionContainer.x - positionContainer.setpointAbsX) < allowedLandingRangeXY
+                && Math.abs(positionContainer.y - positionContainer.setpointAbsY) < allowedLandingRangeXY
                 && Math.abs(positionContainer.yaw - positionContainer.setpointYaw) < allowedLandingRangeYaw) {
             // Slowly lowering the altitude
             if (positionContainer.setpointZ > 1)
@@ -219,11 +222,17 @@ public class PositionHandler {
         }
         // Reset lost counter
         lostCounter = 0;
+
         // Update new position
         proceedPosition();
+
+        // Update status
         statusLast = positionContainer.status;
+        platformContainer.status = positionContainer.status;
+
         // OSD
         proceedOSD();
+
         // Blackbox
         proceedBlackbox();
     }
@@ -258,9 +267,13 @@ public class PositionHandler {
                 break;
         }
         proceedPosition();
+        // Update status
         statusLast = positionContainer.status;
+        platformContainer.status = positionContainer.status;
+
         // OSD
         proceedOSD();
+
         // Blackbox
         proceedBlackbox();
     }

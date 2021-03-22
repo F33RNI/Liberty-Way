@@ -210,9 +210,9 @@ public class OSDHandler implements Runnable {
                                 setpoint.y + 130),
                         Imgproc.FONT_HERSHEY_PLAIN, 1, new Scalar(0, 255, 0), 2);
 
-                // Bottom right green data (speed)
-                Imgproc.putText(destFrame, decimalFormatSimple.format(platformContainer.speed),
-                        new Point(setpoint.x + 95,
+                // Bottom right green data (abs speed)
+                Imgproc.putText(destFrame, decimalFormatSimple.format(Math.abs(platformContainer.speed)) + " km/h",
+                        new Point(setpoint.x + 70,
                                 setpoint.y + 130),
                         Imgproc.FONT_HERSHEY_PLAIN, 1, new Scalar(0, 255, 0), 2);
 

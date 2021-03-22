@@ -223,7 +223,7 @@ public class WebServer {
 
             // Create PositionHandler class for to handle the current position
             positionHandler = new PositionHandler(serialHandler, udpHandler, platformHandler, osdHandler,
-                    positionContainer, blackboxHandler);
+                    positionContainer, platformContainer, blackboxHandler);
             positionHandler.landingAltitude = Main.settings.get("landing_alt").getAsDouble();
             positionHandler.loadSettings(Main.settings);
 
