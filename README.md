@@ -24,13 +24,24 @@ All the code excluding the dependencies block, was written by Pavel Neshumov (Fr
 
 -----------
 
+## Feedback
+Our E-Mails:
+- xxoinvizionxx@gmail.com (Pavel Neshumov)
+- astik452@gmail.com (Andrey Kabalin)
+- vlad.yasn@gmail.com (Vladislav Yasnetsky)
+
+## For project development:
+- BTC: `bc1qd2j53p9nplxcx4uyrv322t3mg0t93pz6m5lnft`
+- ZEC: `t1Jb5tH61zcSTy2QyfsxftUEWHikdSYpPoz`
+- ETH: `0x284E6121362ea1C69528eDEdc309fC8b90fA5578`
+
+-----------
 
 ## Table of contents
 
    * [Dependencies](#dependencies)
    * [Description](#description)
    * [License](#license)
-   * [Feedback](#feedback)
    * [Logotype](#logotype)
    * [Building and running](#building-and-running)
    * [Configuration](#configuration)
@@ -69,14 +80,6 @@ The dependencies are certificated by following licenses:
    * Apache-2.0 for Flak, Log4j, Opencv, OpenCV-contib, Commons-CLI and GSon
    * GPL-3.0 for MiniPID
    * GNU-3.0 for jSerialComm
-
------------
-
-## Feedback
-Our E-Mails:
-- xxoinvizionxx@gmail.com (Pavel Neshumov)
-- astik452@gmail.com (Andrey Kabalin)
-- vlad.yasn@gmail.com (Vladislav Yasnetsky)
  
 -----------
 
