@@ -60,6 +60,8 @@ Our E-Mails:
 - **Commons-CLI** (Arguments parser): https://commons.apache.org/proper/commons-cli/
 - **jSerialComm** (Serial communication): https://github.com/Fazecast/jSerialComm
 - **GSon** (JSON implementation): https://github.com/google/gson
+- **Augmented-UI** (WEB framework for Cyberpunk-style UI): https://github.com/propjockey/augmented-ui
+- **Bing Maps** (Maps from Microsoft): https://www.bing.com/maps/
 
 -----------
 
@@ -78,6 +80,7 @@ Liberty-Way is licensed under AGPLv3, you can find it’s contents in the main b
 
 The dependencies are certificated by following licenses:
    * Apache-2.0 for Flak, Log4j, Opencv, OpenCV-contib, Commons-CLI and GSon
+   * BSD-2-Clause License for Augmented-UI
    * GPL-3.0 for MiniPID
    * GNU-3.0 for jSerialComm
  
