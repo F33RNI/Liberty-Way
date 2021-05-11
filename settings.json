@@ -1,7 +1,9 @@
 {
   "marker_size": 5.0,
   "default_exposure": -8,
-  "landing_alt": 21.0,
+  "landing_alt": 25.0,
+  "landing_allowed": true,
+  "only_optical_stabilization": false,
   "pid_file": "pid.json",
   "camera_matrix_file": "camera_matrix.json",
   "camera_distortions_file": "camera_distortions.json",
@@ -18,10 +20,12 @@
   "default_server_port": 80,
   "default_video_port": 8080,
   "video_stream_enabled_by_default": true,
-  "video_on_page_enabled_by_default": false,
-  "blackbox_enabled_by_default": true,
-  "platform_light_enable_threshold": 790,
-  "platform_light_disable_threshold": 830,
+  "blackbox_enabled": true,
+  "serial_reconnect_time": 500,
+  "telemetry_lost_time": 2000,
+  "platform_lost_time": 500,
+  "platform_light_enable_threshold": 830,
+  "platform_light_disable_threshold": 790,
   "platform_reply_timeout": 1000,
   "platform_loop_timer": 100,
   "fps_measure_period": 2000,
@@ -31,7 +35,7 @@
   "input_filter": 0.30,
   "setpoint_alignment_factor": 0.75,
   "allowed_lost_frames": 10,
-  "landing_decrement": 0.18,
+  "landing_decrement": 0.20,
   "allowed_landing_range_xy": 5.0,
   "allowed_landing_range_yaw": 5.0,
   "setpoint_x": 0.0,
@@ -39,5 +43,5 @@
   "setpoint_yaw": 0.0,
   "data_suffix_1": "L",
   "data_suffix_2": "X",
-  "push_osd_after_frames": 1
+  "push_osd_after_frames": 2
 }
