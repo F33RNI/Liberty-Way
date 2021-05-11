@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>Liberty-Way AMLS</title>
+		<link rel="icon" type="image/png" href="favicon.png"/>
+		<link rel="stylesheet" type="text/css" href="augmented-ui.min.css"/>
+		<link rel="stylesheet" type="text/css" href="stylesheet.css"/>
+		
+		<video playsinline autoplay muted loop>
+		  <source src="background.mp4" type="video/mp4">
+		</video>
+		
+		<style>
+			:root { 
+				font-size: 1em; 
+				--color-containers-border: linear-gradient(var(--color-global-primary-hsl), var(--color-global-secondary-hsl));
+				--color-containers-glow: var(--color-global-secondary-hsl);
+			}
+			/*body {
+				background-image: url('background.gif');
+				background-repeat: no-repeat;
+				background-attachment: fixed;
+				background-size: cover;
+				background-position: center;
+			}*/
+		</style>
+		
+		
+	</head>
+	<body>
+		<div class="center-container">
+			<div class="aug-container-glow" aria-hidden="true">
+				<div class="center-aug-container" data-augmented-ui="tl-2-clip-y tr-clip bl-clip br-clip-y border">
+				</div>
+			</div>
+			<div class="aug-container-glow" aria-hidden="true" style="filter: none;">
+				<div class="center-aug-container" data-augmented-ui="tl-2-clip-y tr-clip bl-clip br-clip-y both" style="--aug-border-all: 2px; backdrop-filter: blur(4px);">
+				</div>
+			</div>
+
+			<img class="watermark" src="amls-watermark.png" alt="AMLS logotype">
+			<br>
+			<img class="watermark" src="liberty-x-watermark.png" alt="Liberty-X logotype">
+			<br>
+			<br>
+			
+			<div>
+				<p class="labels-text" style="text-align:center;">CONNECTION CLOSED</p>
+				<img class="connection-closed-image" src="closed.jpg" alt="Dver mne zapili!">
+			</div>
+		</div>
+	</body>
+</html>

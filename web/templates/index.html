@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>Liberty-Way AMLS</title>
+		<link rel="icon" type="image/png" href="favicon.png"/>
+		<link rel="stylesheet" type="text/css" href="augmented-ui.min.css"/>
+		<link rel="stylesheet" type="text/css" href="stylesheet.css"/>
+		<script type="text/javascript" src="index.js"></script>
+		
+		<video playsinline autoplay muted loop>
+		  <source src="background.mp4" type="video/mp4">
+		</video>
+		
+		<style>
+			:root { 
+				font-size: 1.2em; 
+				--color-containers-border: linear-gradient(var(--color-global-primary-hsl), var(--color-global-secondary-hsl));
+				--color-containers-glow: var(--color-global-secondary-hsl);
+			}
+			/*body {
+				background-image: url('background.gif');
+				background-repeat: no-repeat;
+				background-attachment: fixed;
+				background-size: cover;
+				background-position: center;
+			}*/
+		</style>
+		
+		<script type="text/javascript">
+			
+		</script>
+	</head>
+	<body>
+		<div class="center-container">
+			<div class="aug-container-glow" aria-hidden="true">
+				<div class="center-aug-container" data-augmented-ui="tl-2-clip-y tr-clip bl-clip br-clip-y border"></div>
+			</div>
+			<div class="aug-container-glow" aria-hidden="true" style="filter: none;">
+				<div class="center-aug-container" data-augmented-ui="tl-2-clip-y tr-clip bl-clip br-clip-y both" style="--aug-border-all: 2px; backdrop-filter: blur(4px);"></div>
+			</div>
+			
+			<img class="watermark" src="amls-watermark.png" alt="AMLS logotype">
+			<br>
+			<img class="watermark" src="liberty-x-watermark.png" alt="Liberty-X logotype">
+			<br>
+			<br>
+			
+			<div>
+				<p class="labels-text" style="text-align:center;">HARDWARE SETUP</p>
+				<br>
+				
+				<div class="setup-data-container">
+					<div>
+						<input type="checkbox" id="platform_port_enabled" />
+						<label class="labels-text" for="platform_port_enabled">Platform Port:</label>
+					</div>
+					<div>
+						<div class="select-container" data-augmented-ui="br-clip both">
+							<select id="platform_ports" name="platform_ports">
+								{{ platform_ports }}
+							</select>
+						</div>
+						<div class="select-container" data-augmented-ui="br-clip both">
+							<select id="platform_baudrate" name="platform_baudrate">
+								<option value="57600">57600</option>
+								<option value="9600">9600</option>
+								<option value="14400">14400</option>
+								<option value="19200">19200</option>
+								<option value="28800">28800</option>
+								<option value="33600">33600</option>
+								<option value="38400">38400</option>
+								<option value="115200">115200</option>
+							</select>
+						</div>
+					</div>
+				</div>
+				
+				<div class="setup-data-container">
+					<div>
+						<input type="checkbox" id="link_port_enabled"/>
+						<label class="labels-text" for="link_port_enabled">Liberty Link:</label>
+					</div>
+					<div>
+						<div class="select-container" data-augmented-ui="br-clip both">
+							<select id="link_ports" name="link_ports">
+								{{ link_ports }}
+							</select>
+						</div>
+						<div class="select-container" data-augmented-ui="br-clip both">
+							<select id="link_baudrate" name="link_baudrate">
+								<option value="57600">57600</option>
+								<option value="9600">9600</option>
+								<option value="14400">14400</option>
+								<option value="19200">19200</option>
+								<option value="28800">28800</option>
+								<option value="33600">33600</option>
+								<option value="38400">38400</option>
+								<option value="115200">115200</option>
+							</select>
+						</div>
+					</div>
+				</div>
+				
+				<div class="setup-data-container">
+					<div>
+						<input type="checkbox" id="udp_ip_port_enabled">
+						<label class="labels-text" for="udp_ip_port_enabled">Liberty Link UDP: </label>
+					</div>
+					<div>
+						<div class="input-container" data-augmented-ui="br-clip both">
+							<input type="text" id="udp_ip_port" placeholder="xxx.xxx.xxx.xxx:xxxx" value="192.168.1.184:9876"/>
+						</div>
+					</div>
+				</div>
+				<div class="setup-data-container">
+					<div>
+						<label class="labels-text" for="camera_id">Camera ID: </label>
+					</div>
+					<div>
+						<div class="input-container" data-augmented-ui="br-clip both">
+							<input id="camera_id" type="text" value="0"/>
+						</div>
+					</div>
+				</div>
+				<br>
+			</div>
+			
+			<div class="button blue" id="btn-start" onclick="startController()" data-augmented-ui="br-clip both">
+				<p>START</p>
+			</div>
+			
+			<div class="button red" onclick="abort()" data-augmented-ui="br-clip both">
+				<p>ABORT</p>
+			</div>
+		</div>
+	</body>
+</html>

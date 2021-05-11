@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>Liberty-Way AMLS</title>
+		<link rel="icon" type="image/png" href="favicon.png"/>
+		<link rel="stylesheet" type="text/css" href="augmented-ui.min.css"/>
+		<link rel="stylesheet" type="text/css" href="stylesheet.css"/>
+		<script type="text/javascript" src="controller.js"></script>
+		<script type="text/javascript" src="https://ecn.dev.virtualearth.net/mapcontrol/mapcontrol.ashx?v=7.0"></script>
+	</head>
+	<body>
+	
+	<div class="timeline-container">
+		<div class="aug-container-glow" aria-hidden="true">
+			<div class="timeline-aug-container" data-augmented-ui="bl-clip tr-clip br-clip-x border"></div>
+		</div>
+		<div class="aug-container-glow" aria-hidden="true" style="filter: none;">
+			<div class="timeline-aug-container" data-augmented-ui="bl-clip tr-clip br-clip-x both" style="--aug-border-all: 2px; backdrop-filter: blur(2px);"></div>
+		</div>
+		
+
+		<div class="tickmarks">
+			<p style="width: 0;">Takeoff</p>
+			<p style="width: 0;"></p>
+			<p style="width: 0;">GPS&nbsp;flight</p>
+			<p style="width: 0;"></p>
+			<p style="width: 0;">Optical&nbsp;stabilization</p>
+			<p style="width: 0;"></p>
+			<p style="width: 0;"></p>
+		</div>
+		<div class="tickmarks">
+			<p></p>
+			<p style="width: 0;"></p>
+			<p></p>
+			<p style="width: 0;"></p>
+			<p></p>
+			<p style="width: 0;"></p>
+			<p style="width: 0;"></p>
+		</div>
+		
+			
+		<div class="progress">
+		  <div class="progress-bar" id="timeline-progress" style="width: 0;"></div>
+		</div>
+
+		<div class="tickmarks">
+			<p style="line-height: 2.5em; width: 0;"></p>
+			<p style="line-height: 2.5em;">Increase&nbsp;the&nbsp;altitude</p>
+			<p style="line-height: 2.5em; width: 0;"></p>
+			<p style="line-height: 2.5em;">GPS&nbsp;and&nbsp;altitude&nbsp;hold</p>
+			<p style="line-height: 2.5em; width: 0;"></p>
+			<p style="line-height: 2.5em;">Optical&nbsp;landing</p>
+			<p style="line-height: 2.5em; width: 0;"></p>
+		</div>
+		
+	</div>
+	
+	<div class="telemetry-container">
+		<div class="aug-container-glow" aria-hidden="true">
+			<div class="telemetry-aug-container" data-augmented-ui="tr-clip bl-clip br-clip-y border"></div>
+		</div>
+		<div class="aug-container-glow" aria-hidden="true" style="filter: none;">
+			<div class="telemetry-aug-container" data-augmented-ui="tr-clip bl-clip br-clip-y both" style="--aug-border-all: 2px; backdrop-filter: blur(2px);"></div>
+		</div>
+
+		<img class="watermark" src="amls-watermark.png" alt="AMLS logotype">
+		<br>
+		<img class="watermark" src="liberty-x-watermark.png" alt="Liberty-X logotype">
+		<br>
+		<br>
+		
+		<div>
+			<div class="telemetry-data-container">
+				<div><a class="labels-text">Liberty-Way</a></div>
+				<div><a class="labels-text" id="telemetry-status">Lost</a></div>
+			</div>
+			<div class="telemetry-data-container">
+				<div><a class="labels-text">Packets</a></div>
+				<div><a class="labels-text" id="telemetry-packets">0</a></div>
+			</div>
+			<div class="telemetry-data-container">
+				<div><a class="labels-text">Sys. status</a></div>
+				<div><a class="labels-text" id="status">-</a></div>
+			</div>
+			<br>
+			<p class= "labels-text" style="text-align:center;">DRONE TELEMETRY</p>
+			<div class="telemetry-data-container">
+				<div><a class="labels-text">Packets</a></div>
+				<div><a class="labels-text" id="drone_packets">0</a></div>
+			</div>
+			<div class="telemetry-data-container">
+				<div><a class="labels-text">F. mode</a></div>
+				<div><a class="labels-text" id="flight_mode">0</a></div>
+			</div>
+			<div class="telemetry-data-container">
+				<div><a class="labels-text">Voltage</a></div>
+				<div><a class="labels-text" id="drone_voltage">0 V</a></div>
+			</div>
+			<div class="telemetry-data-container">
+				<div><a class="labels-text">Altitude</a></div>
+				<div><a class="labels-text" id="drone_altitude">0 m</a></div>
+			</div>
+			<div class="telemetry-data-container">
+				<div><a class="labels-text">N. sats</a></div>
+				<div><a class="labels-text" id="drone_satellites">0</a></div>
+			</div>
+			<div class="telemetry-data-container">
+				<div><a class="labels-text">Lat.</a></div>
+				<div><a class="labels-text" id="drone_lat">0</a></div>
+			</div>
+			<div class="telemetry-data-container">
+				<div><a class= "labels-text">Lon.</a></div>
+				<div><a class= "labels-text" id="drone_lon">0</a></div>
+			</div>
+			<br>
+			<p class= "labels-text" style="text-align:center;">PLATFORM TELEMETRY</p>
+			<div class="telemetry-data-container">
+				<div><a class="labels-text">Packets</a></div>
+				<div><a class="labels-text" id="platform_packets">0</a></div>
+			</div>
+			<div class="telemetry-data-container">
+				<div><a class="labels-text">Speed</a></div>
+				<div><a class="labels-text" id="platform_speed">0 km/h</a></div>
+			</div>
+			<div class="telemetry-data-container">
+				<div><a class="labels-text">Pressure</a></div>
+				<div><a class="labels-text" id="platform_pressure">0 Pa</a></div>
+			</div>
+			<div class="telemetry-data-container">
+				<div><a class="labels-text">N. sats</a></div>
+				<div><a class="labels-text" id="platform_satellites">0</a></div>
+			</div>
+			<div class="telemetry-data-container">
+				<div><a class="labels-text">Lat.</a></div>
+				<div><a class="labels-text" id="platform_lat">0</a></div>
+			</div>
+			<div class="telemetry-data-container">
+				<div><a class="labels-text">Lon.</a></div>
+				<div><a class="labels-text" id="platform_lon">0</a></div>
+			</div>
+			<br>
+		</div>
+		
+		<div class="button blue" onclick="execute()" data-augmented-ui="br-clip both">
+			<p>EXECUTE</p>
+		</div>
+		<br>
+		<div class="button blue" onclick="switchView()" data-augmented-ui="br-clip both">
+			<p>SWITCH VIEW</p>
+		</div>
+		<br>
+		<div class="button red" onclick="abort()" data-augmented-ui="br-clip both">
+			<p>ABORT</p>
+		</div>
+	</div>
+
+	<div id="map-container"></div>
+	<div id="stream-container">
+		
+	</div>
+	</body>
+</html>
