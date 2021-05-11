@@ -25,9 +25,9 @@ All the code excluding the dependencies block, was written by Pavel Neshumov (Fr
 -----------
 
 ## Feedback
-- Pavel Neshumov. E-Mail: xxoinvizionxx@gmail.com, Twitter: @frey_hertz
-- Andrey Kabalin. E-Mail: astik452@gmail.com
-- Vladislav Yasnetsky. E-Mail: vlad.yasn@gmail.com
+- Pavel Neshumov (Author and main developer of the project) E-Mail: xxoinvizionxx@gmail.com, Twitter: @frey_hertz
+- Andrey Kabalin (Project developer. GPS stabilization, hardware development) E-Mail: astik452@gmail.com
+- Vladislav Yasnetsky (Project developer. Video editing, PR, hardware development). E-Mail: vlad.yasn@gmail.com
 
 ## For project development:
 - BTC: `bc1qd2j53p9nplxcx4uyrv322t3mg0t93pz6m5lnft`
