@@ -19,35 +19,37 @@ package com.liberty_amls;
 
 import org.apache.log4j.Logger;
 import org.opencv.core.Mat;
-import org.opencv.core.MatOfByte;
-import org.opencv.imgcodecs.Imgcodecs;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.io.*;
+import java.awt.image.DataBufferByte;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 
 public class VideoStream {
     private final Logger logger = Logger.getLogger(this.getClass().getSimpleName());
-    private ServerSocket serverSocket;
-    private Socket socket;
     private final InetAddress serverIP;
     private final int serverPort;
-    public boolean serverRunning;
-    public Mat frame;
+    private final BufferedImage bufferedImage;
+    private final byte[] frameBytes;
+    private ServerSocket serverSocket;
+    private Socket socket;
+    private volatile boolean serverRunning;
 
     /**
      * This class creates jpeg video stream via http that can be wived in browser
-     * @param initialFrame first frame (could be null)
      * @param serverIP InetAddress object (IP of the server)
      * @param serverPort Video stream port (ex. 8080 or 5000)
      */
-    public VideoStream(Mat initialFrame, InetAddress serverIP, int serverPort) {
-        this.frame = initialFrame;
+    public VideoStream(InetAddress serverIP, int serverPort, int frameWidth, int frameHeight) {
         this.serverIP = serverIP;
         this.serverPort = serverPort;
+        bufferedImage = new BufferedImage(frameWidth, frameHeight, BufferedImage.TYPE_3BYTE_BGR);
+        frameBytes = new byte[frameWidth * frameHeight * 3];
     }
 
     /**
@@ -70,22 +72,24 @@ public class VideoStream {
     /**
      * Pushes frame to the page
      */
-    public void pushFrame() throws IOException {
+    public void pushFrame(Mat frame) throws IOException {
         if (frame == null || !serverRunning)
             return;
         try {
             OutputStream outputStream = socket.getOutputStream();
-            BufferedImage bufferedImage = matToBufferedImage(frame);
             ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+            frame.get(0, 0, frameBytes);
+            System.arraycopy(frameBytes, 0,
+                    ((DataBufferByte) bufferedImage.getRaster().getDataBuffer()).getData(), 0,
+                    frameBytes.length);
             ImageIO.write(bufferedImage, "jpg", byteArrayOutputStream);
-            byte[] imageBytes = byteArrayOutputStream.toByteArray();
             byteArrayOutputStream.close();
-            outputStream.write(("Content-type: image/jpeg\r\n" +
+            byte[] imageBytes = byteArrayOutputStream.toByteArray();
+            outputStream.write(("Content-type: image/bmp\r\n" +
                     "Content-Length: " + imageBytes.length + "\r\n" +
                     "\r\n").getBytes());
             outputStream.write(imageBytes);
-            String boundary = "stream";
-            outputStream.write(("\r\n--" + boundary + "\r\n").getBytes());
+            outputStream.write(("\r\n--stream\r\n").getBytes());
             outputStream.flush();
         } catch (Exception e) {
             socket = serverSocket.accept();
@@ -119,18 +123,5 @@ public class VideoStream {
         } catch (IOException e) {
             logger.error("Error closing video stream!", e);
         }
-    }
-
-    /**
-     * Converts Mat to BufferedImage
-     * @param image OpenCV Mat
-     * @return Encoded in JPEG BufferedImages
-     */
-    private BufferedImage matToBufferedImage(Mat image) throws IOException {
-        MatOfByte bytes_mat = new MatOfByte();
-        Imgcodecs.imencode(".jpg", image, bytes_mat);
-        byte[] bytes = bytes_mat.toArray();
-        InputStream in = new ByteArrayInputStream(bytes);
-        return ImageIO.read(in);
     }
 }

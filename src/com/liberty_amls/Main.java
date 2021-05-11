@@ -17,15 +17,13 @@
 
 package com.liberty_amls;
 
-import com.google.gson.JsonObject;
 import org.apache.commons.cli.*;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 
 public class Main {
-    private static final String version = "beta_1.1.5";
+    private static final String version = "beta_3.0.0";
     public static final Logger logger = Logger.getLogger(Main.class.getSimpleName());
-    public static JsonObject settings;
 
     public static void main(String[] args) {
         // Set the lowest priority for Main and WebServer classes
@@ -66,8 +64,12 @@ public class Main {
             // Print app version
             logger.info("Liberty-Way AMLS Landing Controller. Version: " + version);
 
-            // Parse app settings
-            settings = FileWorkers.loadJsonObject("settings.json");
+            // Create settings container and parse app settings
+            SettingsContainer settingsContainer = new SettingsContainer();
+            SettingsHandler settingsHandler = new SettingsHandler(settingsContainer,
+                    FileWorkers.loadJsonObject("settings.json"));
+            settingsHandler.parseSettings();
+
 
             // Use colorful logs properties if 'c' argument specified
             if (cmd.hasOption("c")) {
@@ -78,28 +80,28 @@ public class Main {
             }
 
             // Custom server IP (Default is specified in the settings.json)
-            String serverIP = settings.get("default_server_host").getAsString();
+            String serverIP = settingsContainer.defaultServerHost;
             if (cmd.hasOption("i")) {
                 serverIP = cmd.getOptionValue("i");
                 logger.info("Server IP argument provided. IP " + serverIP + " will be used");
             }
 
             // Custom server port (Default is specified in the settings.json)
-            int serverPort = settings.get("default_server_port").getAsInt();
+            int serverPort = settingsContainer.defaultServerPort;
             if (cmd.hasOption("sp")) {
                 serverPort = Integer.parseInt(cmd.getOptionValue("sp"));
                 logger.info("Server Port argument provided. Port " + serverPort + " will be used");
             }
 
             // Custom server IP (Default is specified in the settings.json)
-            int videoPort = settings.get("default_video_port").getAsInt();
+            int videoPort = settingsContainer.defaultVideoPort;
             if (cmd.hasOption("vp")) {
                 videoPort = Integer.parseInt(cmd.getOptionValue("vp"));
                 logger.info("Video stream port argument provided. Port " + videoPort + " will be used");
             }
 
             // Start the server with given IP and Port
-            WebServer webServer = new WebServer(serverIP, serverPort, videoPort);
+            WebServer webServer = new WebServer(serverIP, serverPort, videoPort, settingsContainer);
             webServer.start();
         } catch (ParseException | NumberFormatException e) {
             logger.error("Error parsing command-line arguments!", e);

@@ -29,14 +29,14 @@ public class BlackboxHandler implements Runnable {
     private final PositionContainer positionContainer;
     private final PlatformContainer platformContainer;
     private final String blackboxDirectory;
-    private boolean handlerRunning;
     private boolean fileStarted = false;
     private long timeStart;
     private BufferedWriter bufferedWriter;
     private FileOutputStream fileOutputStream;
     private OutputStreamWriter outputStreamWriter;
-    volatile public boolean blackboxEnabled, stabilizationEnabled = false;
-    volatile public boolean newPositionFlag = false;
+    private boolean blackboxEnabled = false;
+    private boolean newEntryFlag = false;
+    private volatile boolean handlerRunning;
 
     /**
      * This class writes the current state of the drone to log files
@@ -49,7 +49,6 @@ public class BlackboxHandler implements Runnable {
         this.positionContainer = positionContainer;
         this.platformContainer = platformContainer;
         this.blackboxDirectory = blackboxDirectory;
-        this.blackboxEnabled = Main.settings.get("blackbox_enabled_by_default").getAsBoolean();
     }
 
     /**
@@ -60,6 +59,20 @@ public class BlackboxHandler implements Runnable {
         handlerRunning = true;
         while (handlerRunning)
             proceedLogs();
+    }
+
+    /**
+     * Set to true if there is new data to log
+     */
+    public void setNewEntryFlag(boolean newEntryFlag) {
+        this.newEntryFlag = newEntryFlag;
+    }
+
+    /**
+     * Enables or disables blackbox logs
+     */
+    public void setBlackboxEnabled(boolean blackboxEnabled) {
+        this.blackboxEnabled = blackboxEnabled;
     }
 
     /**
@@ -74,22 +87,21 @@ public class BlackboxHandler implements Runnable {
      * Checks current state and opens/closes file or pushes new data
      */
     private void proceedLogs() {
-        if (fileStarted && (!blackboxEnabled || !stabilizationEnabled || positionContainer.status == 5)) {
-            // Blackbox disabled or stabilization disabled or status == DONE
+        if (fileStarted && !blackboxEnabled) {
+            // Blackbox disabled
             // Close file
             closeFile();
         }
-        if (!fileStarted && blackboxEnabled && stabilizationEnabled
-                && (positionContainer.status == 1 || positionContainer.status == 2)) {
-            // Blackbox enabled and stabilization enabled and status == STAB or LAND
+        if (!fileStarted && blackboxEnabled) {
+            // Blackbox enabled and stabilization enabled
             // Open new file
             startNewFile();
         }
-        if (fileStarted && blackboxEnabled && stabilizationEnabled && newPositionFlag) {
+        if (fileStarted && blackboxEnabled && newEntryFlag) {
             // Continue pushing data
-            // If there is new position, push it and uncheck the flag
+            // If there is new entry, push it and uncheck the flag
             pushPosition();
-            newPositionFlag = false;
+            newEntryFlag = false;
         }
     }
 

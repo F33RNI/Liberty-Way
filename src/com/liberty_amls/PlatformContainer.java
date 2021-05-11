@@ -18,20 +18,34 @@
 package com.liberty_amls;
 
 public class PlatformContainer {
+    public boolean platformLost;
+    public int packetsNumber;
     public int illumination;
     public double cameraExposure;
     public double speed;
-    // 0 - IDLE, 1 - STAB, 2 - LAND, 3 - PREV, 4 - LOST, 5 - DONE
-    public int status;
+    public int gpsLatInt, gpsLonInt;
+    public double gpsLatDouble, gpsLonDouble;
+    public int fixType, satellitesNum;
+    public int pressure;
+    public boolean gpsNewPositionFlag;
 
     /**
      * This class contains all data from the platform
      * @param defaultExposure Camera exposure specified in the settings.
      */
     PlatformContainer(double defaultExposure) {
+        platformLost = true;
+        packetsNumber = 0;
         illumination = 0;
         speed = 0;
-        status = 0;
+        gpsLatInt = 0;
+        gpsLonInt = 0;
+        gpsLatDouble = 0;
+        gpsLonDouble = 0;
+        pressure = 0;
+        fixType = 0;
+        satellitesNum = 0;
+        gpsNewPositionFlag = false;
         cameraExposure = defaultExposure;
     }
 }

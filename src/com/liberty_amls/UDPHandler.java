@@ -18,16 +18,24 @@
 package com.liberty_amls;
 
 import org.apache.log4j.Logger;
-import java.net.*;
 
-public class UDPHandler {
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
+
+public class UDPHandler implements Runnable {
     private final Logger logger = Logger.getLogger(this.getClass().getSimpleName());
     private DatagramSocket datagramSocket;
     private final String udpIPPort;
     private InetAddress inetAddress;
     private int port;
-    public boolean udpPortOpened = false;
-    public byte[] udpData;
+    private boolean udpPortOpened = false;
+    private byte[] udpData;
+    private final byte[] packetBuffer = new byte[1024];
+    private final BlockingQueue<Byte> receiveBuffer = new ArrayBlockingQueue<>(1024);
+    private volatile boolean handlerRunning = false;
 
     /**
      * This class takes an array of bytes (udpData) and sends it as a packet via an UDP
@@ -42,17 +50,28 @@ public class UDPHandler {
      */
     public void openUDP() {
         try {
-            if (udpIPPort != null) {
+            if (udpIPPort != null && udpIPPort.length() > 0) {
                 inetAddress = InetAddress.getByName(udpIPPort.split(":")[0]);
                 port = Integer.parseInt(udpIPPort.split(":")[1]);
-                datagramSocket = new DatagramSocket();
+                datagramSocket = new DatagramSocket(port);
+                udpData = new byte[1];
                 udpPortOpened = true;
+                pushData();
             }
         } catch (Exception e) {
+            udpPortOpened = false;
             logger.error("Error starting UDP socket!", e);
             // Exit because UDP is a vital node when turned on
             System.exit(1);
         }
+    }
+
+    @Override
+    public void run() {
+        if (udpPortOpened)
+            handlerRunning = true;
+        while (handlerRunning)
+            updReader();
     }
 
     /**
@@ -72,9 +91,62 @@ public class UDPHandler {
     }
 
     /**
+     * Blocks until at least 1 byte of data is received into the buffer
+     * @return byte from UDP port
+     */
+    public byte takeSingleByte() {
+        try {
+            return receiveBuffer.take();
+        } catch (Exception e) {
+            logger.error("Error taking byte from buffer!", e);
+        }
+        return 0;
+    }
+
+    /**
+     * Reads all available bytes from UDP port
+     */
+    private void updReader() {
+        try {
+            if (udpPortOpened) {
+                // New receiving packet
+                DatagramPacket packet = new DatagramPacket(packetBuffer, packetBuffer.length);
+
+                // Block until a packet is received
+                datagramSocket.setSoTimeout(2000);
+                datagramSocket.receive(packet);
+
+                // Add bytes to the buffer
+                for (int i = 0; i < packet.getLength(); i++) {
+                    receiveBuffer.add(packetBuffer[i + packet.getOffset()]);
+                }
+            }
+        } catch (Exception e) {
+            logger.error("Error reading data from UDP port!", e);
+        }
+    }
+
+    /**
+     * Sets bytes buffer to be sent to the UDP socket
+     * @param udpData bytes buffer
+     */
+    public void setUdpData(byte[] udpData) {
+        this.udpData = udpData;
+    }
+
+    /**
+     * @return true if UDP port is opened
+     */
+    public boolean isUdpPortOpened() {
+        return udpPortOpened;
+    }
+
+    /**
      * Closes datagramSocket and sets udpPortOpened flag to false
      */
     public void closeUDP() {
+        logger.warn("Closing UDP port");
+        handlerRunning = false;
         if (udpPortOpened)
             datagramSocket.close();
         udpPortOpened = false;

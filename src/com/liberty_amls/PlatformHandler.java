@@ -25,15 +25,18 @@ import java.text.DecimalFormat;
 
 public class PlatformHandler implements Runnable {
     private final Logger logger = Logger.getLogger(this.getClass().getSimpleName());
+    private final SettingsContainer settingsContainer;
     private final DecimalFormat decimalFormat = new DecimalFormat("#.##");
     private final PlatformContainer platformContainer;
+    private final PositionContainer positionContainer;
     private final SerialHandler serialHandler;
     private final VideoCapture videoCapture;
-    private int timeout, loopTimer, lightEnableThreshold, lightDisableThreshold;
+    private long platformLastPacketTime;
+    private boolean cycleError;
     private boolean handleRunning;
     private double exposureLast = 0;
     private boolean lightsLast = false;
-    volatile public boolean opencvStarts = false;
+    private volatile boolean opencvStarts = false;
 
     /**
      * This class communicates with the platform via the serial port
@@ -42,11 +45,22 @@ public class PlatformHandler implements Runnable {
      * @param videoCapture opencv camera capture (for exposure setup)
      */
     PlatformHandler(PlatformContainer platformContainer,
+                    PositionContainer positionContainer,
                     SerialHandler serialHandler,
-                    VideoCapture videoCapture) {
+                    VideoCapture videoCapture,
+                    SettingsContainer settingsContainer) {
         this.platformContainer = platformContainer;
+        this.positionContainer = positionContainer;
         this.serialHandler = serialHandler;
         this.videoCapture = videoCapture;
+        this.settingsContainer = settingsContainer;
+    }
+
+    /**
+     * Sets openCV status
+     */
+    public void setOpencvStarts(boolean opencvStarts) {
+        this.opencvStarts = opencvStarts;
     }
 
     /**
@@ -72,35 +86,56 @@ public class PlatformHandler implements Runnable {
     }
 
     /**
-     * Loads variables from JSON settings
-     */
-    public void loadFromSettings() {
-        timeout = Main.settings.get("platform_reply_timeout").getAsInt();
-        loopTimer = Main.settings.get("platform_loop_timer").getAsInt();
-        lightEnableThreshold = Main.settings.get("platform_light_enable_threshold").getAsInt();
-        lightDisableThreshold = Main.settings.get("platform_light_disable_threshold").getAsInt();
-    }
-
-    /**
-     * Stops the main loop and disables platform lights
-     */
-    public void stop() {
-        handleRunning = false;
-        disableLight();
-    }
-
-    /**
      * Main platform loop
      */
     private void platformLoop() {
         try {
-            illuminationController();
-            speedController();
-            writeStatus();
-            Thread.sleep(loopTimer);
+            // Check lost status
+            if (!platformContainer.platformLost &&
+                    System.currentTimeMillis() - platformLastPacketTime >= settingsContainer.platformLostTime) {
+                logger.warn("Platform telemetry lost!");
+                platformContainer.platformLost = true;
+            }
+
+            cycleError = false;
+            if (checkStatus()) {
+                readPressureAndGPS();
+                illuminationController();
+                speedController();
+                writeStatus();
+            }
+
+            // If no errors
+            if (!cycleError) {
+                platformLastPacketTime = System.currentTimeMillis();
+                platformContainer.platformLost = false;
+            }
+
+            // Min loop time
+            Thread.sleep(settingsContainer.platformLoopTimer);
         } catch (Exception e) {
             logger.error("Error interacting with platform!", e);
         }
+    }
+
+    private boolean checkStatus() {
+        // Send L0 to check illumination
+        serialHandler.setPlatformData("L8\n".getBytes());
+        serialHandler.pushPlatformData();
+
+        // Wait for data
+        String incoming = waitForReplay(settingsContainer.platformReplyTimeout);
+
+        // If error
+        if (parseNumberFromGCode(incoming, 'S', -1) == 0) {
+            // Increment packets counter
+            platformContainer.packetsNumber++;
+            return true;
+        }
+
+        logger.error("Error reading platform status!");
+        cycleError = true;
+        return false;
     }
 
     /**
@@ -108,11 +143,11 @@ public class PlatformHandler implements Runnable {
      */
     private void illuminationController() {
         // Send L0 to check illumination
-        serialHandler.platformData = "L0\n".getBytes();
+        serialHandler.setPlatformData("L0\n".getBytes());
         serialHandler.pushPlatformData();
 
         // Wait for data
-        String incoming = waitForReplay(timeout);
+        String incoming = waitForReplay(settingsContainer.platformReplyTimeout);
 
         // If error
         if (parseNumberFromGCode(incoming, 'S', -1) != 0) {
@@ -124,10 +159,10 @@ public class PlatformHandler implements Runnable {
         platformContainer.illumination = (int) parseNumberFromGCode(incoming, 'L', 0);
 
         // Enable or disable additional light
-        if (!lightsLast && platformContainer.illumination < lightEnableThreshold) {
+        if (!lightsLast && platformContainer.illumination < settingsContainer.platformLightEnableThreshold) {
             // Enable Light
             enableLight();
-        } else if (lightsLast && platformContainer.illumination > lightDisableThreshold) {
+        } else if (lightsLast && platformContainer.illumination > settingsContainer.platformLightDisableThreshold) {
             // Disable Light
             disableLight();
         }
@@ -148,11 +183,11 @@ public class PlatformHandler implements Runnable {
      */
     private void speedController() {
         // Send L1 to check speed
-        serialHandler.platformData = "L1\n".getBytes();
+        serialHandler.setPlatformData("L1\n".getBytes());
         serialHandler.pushPlatformData();
 
         // Wait for data
-        String incoming = waitForReplay(timeout);
+        String incoming = waitForReplay(settingsContainer.platformReplyTimeout);
 
         // If error
         if (parseNumberFromGCode(incoming, 'S', -1) != 0) {
@@ -165,15 +200,49 @@ public class PlatformHandler implements Runnable {
     }
 
     /**
+     * Reads current platform pressure in PA and GPS lat and lon
+     */
+    private void readPressureAndGPS() {
+        // Read pressure
+        serialHandler.setPlatformData("L3\n".getBytes());
+        serialHandler.pushPlatformData();
+        String incoming = waitForReplay(settingsContainer.platformReplyTimeout);
+        if (parseNumberFromGCode(incoming, 'S', -1) != 0) {
+            logger.error("Error reading pressure!");
+            cycleError = true;
+            return;
+        }
+        platformContainer.pressure = (int) parseNumberFromGCode(incoming, 'P', 0);
+
+        // Read GPS
+        serialHandler.setPlatformData("L4\n".getBytes());
+        serialHandler.pushPlatformData();
+        incoming = waitForReplay(settingsContainer.platformReplyTimeout);
+        if (parseNumberFromGCode(incoming, 'S', -1) != 0) {
+            logger.error("Error reading GPS!");
+            cycleError = true;
+            return;
+        }
+        platformContainer.gpsLatInt = (int) parseNumberFromGCode(incoming, 'A', 0);
+        platformContainer.gpsLonInt = (int) parseNumberFromGCode(incoming, 'O', 0);
+
+        platformContainer.gpsLatDouble = platformContainer.gpsLatInt / 1000000.0;
+        platformContainer.gpsLonDouble = platformContainer.gpsLonInt / 1000000.0;
+
+        platformContainer.satellitesNum = (int) parseNumberFromGCode(incoming, 'N', 0);
+        platformContainer.fixType = (int) parseNumberFromGCode(incoming, 'F', 0);
+    }
+
+    /**
      * Writes current status to the platform
      */
     private void writeStatus() {
         // Send L2 to set the status
-        serialHandler.platformData = ("L2 S" + platformContainer.status + "\n").getBytes();
+        serialHandler.setPlatformData(("L2 S" + positionContainer.status + "\n").getBytes());
         serialHandler.pushPlatformData();
 
         // Wait for data
-        waitForReplay(timeout);
+        waitForReplay(settingsContainer.platformReplyTimeout);
     }
 
     /**
@@ -181,11 +250,11 @@ public class PlatformHandler implements Runnable {
      */
     private void enableLight() {
         logger.info("Enabling light");
-        serialHandler.platformData = "M3\n".getBytes();
+        serialHandler.setPlatformData("M3\n".getBytes());
         // Send data via serial
         serialHandler.pushPlatformData();
         // Wait for complete
-        waitForReplay(timeout);
+        waitForReplay(settingsContainer.platformReplyTimeout);
         // Set flag
         lightsLast = true;
     }
@@ -195,11 +264,11 @@ public class PlatformHandler implements Runnable {
      */
     private void disableLight() {
         logger.info("Disabling light");
-        serialHandler.platformData = "M5\n".getBytes();
+        serialHandler.setPlatformData("M5\n".getBytes());
         // Send data via serial
         serialHandler.pushPlatformData();
         // Wait for complete
-        waitForReplay(timeout);
+        waitForReplay(settingsContainer.platformReplyTimeout);
         // Set flag
         lightsLast = false;
     }
@@ -215,6 +284,7 @@ public class PlatformHandler implements Runnable {
             stringBuilder.append(new String(serialHandler.readDataFromPlatform()));
             if (timeout >= 0 && System.currentTimeMillis() - timeStart > timeout) {
                 logger.error("Timeout waiting for a response from the platform!");
+                cycleError = true;
                 break;
             }
         }
@@ -246,7 +316,17 @@ public class PlatformHandler implements Runnable {
             }
         } catch (Exception e) {
             logger.error("Error parsing G-Code!", e);
+            cycleError = true;
         }
         return defaultValue;
+    }
+
+    /**
+     * Stops the main loop and disables platform lights
+     */
+    public void stop() {
+        logger.warn("Stopping platform handler");
+        handleRunning = false;
+        disableLight();
     }
 }

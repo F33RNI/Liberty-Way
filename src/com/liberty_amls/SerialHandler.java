@@ -25,12 +25,14 @@ import java.util.List;
 public class SerialHandler {
     private final Logger logger = Logger.getLogger(this.getClass().getSimpleName());
     private final String platformPortName, linkPortName;
-    private int platformBaudrate, linkBaudrate;
+    private final int reconnectTime;
+    private final int platformBaudrate, linkBaudrate;
     private SerialPort platformPort, linkPort;
-    public boolean platformPortOpened;
-    public boolean linkPortOpened;
-    public byte[] platformData;
-    public byte[] linkData;
+    private boolean platformPortOpened, platformPortLost = false;
+    private boolean linkPortOpened, linkPortLost = false;
+    private long platformPortLostTimer = 0, linkPortLostTimer = 0;
+    private byte[] platformData;
+    private byte[] linkData;
 
     /**
      * Discovers available Serial ports
@@ -53,13 +55,19 @@ public class SerialHandler {
      * @param linkPortName name of drone communication port (Liberty-Link) (ex. 'COM1' on Windows or '/dev/ttyS0' on Linux)
      * @param linkBaudrate baudrate drone communication port (Liberty-Link) (ex. '57600')
      */
-    public SerialHandler(String platformPortName, String platformBaudrate, String linkPortName, String linkBaudrate) {
+    public SerialHandler(String platformPortName, String platformBaudrate,
+                         String linkPortName, String linkBaudrate, int reconnectTime) {
         this.platformPortName = platformPortName;
         this.linkPortName = linkPortName;
-        if (platformPortName != null)
+        this.reconnectTime = reconnectTime;
+        if (platformPortName != null && platformPortName.length() > 0)
             this.platformBaudrate = Integer.parseInt(platformBaudrate);
-        if (linkPortName != null)
+        else
+            this.platformBaudrate = 0;
+        if (linkPortName != null && linkPortName.length() > 0)
             this.linkBaudrate = Integer.parseInt(linkBaudrate);
+        else
+            this.linkBaudrate = 0;
     }
 
     /**
@@ -68,43 +76,16 @@ public class SerialHandler {
     public void openPorts() {
         platformPortOpened = false;
         linkPortOpened = false;
-        if (platformPortName == null && linkPortName == null)
+        if ((platformPortName == null || platformPortName.length() == 0) &&
+                (linkPortName == null || linkPortName.length() == 0))
             // If no ports provided
             logger.warn("No serial ports presented. Nothing to open");
         else {
             try {
-                if (platformPortName != null) {
-                    // If Platform port provided
-                    platformPort = SerialPort.getCommPort(platformPortName);
-                    // Set baudrate
-                    platformPort.setBaudRate(platformBaudrate);
-                    // Open it
-                    platformPort.openPort();
-                    // Wait some time for correct opening
-                    Thread.sleep(500);
-
-                    // Check if port is open
-                    if (platformPort.isOpen()) {
-                        platformPortOpened = true;
-                        logger.info("Platform Port opened successfully.");
-                    }
-                }
-                if (linkPortName != null) {
-                    // If drone communication port (RF) provided
-                    linkPort = SerialPort.getCommPort(linkPortName);
-                    // Set baudrate
-                    linkPort.setBaudRate(linkBaudrate);
-                    // Open it
-                    linkPort.openPort();
-                    // Wait some time for correct opening
-                    Thread.sleep(500);
-
-                    // Check if port is open
-                    if (linkPort.isOpen()) {
-                        linkPortOpened = true;
-                        logger.info("Liberty-Link Port opened successfully.");
-                    }
-                }
+                openPlatformPort();
+                Thread.sleep(500);
+                openLinkPort();
+                Thread.sleep(500);
             } catch (Exception e) {
                 logger.error("Error opening serial ports!", e);
                 // Exit because Serial Port is a vital node when turned on
@@ -114,34 +95,152 @@ public class SerialHandler {
     }
 
     /**
+     * Opens platform port if platformPortName is provided
+     */
+    private void openPlatformPort() {
+        if (platformPortName != null && platformPortName.length() > 0) {
+            // If Platform port provided
+            platformPort = SerialPort.getCommPort(platformPortName);
+            // Set baudrate
+            platformPort.setBaudRate(platformBaudrate);
+            // Open it
+            platformPort.openPort();
+
+            // Check if port is open
+            if (platformPort.isOpen()) {
+                platformPortOpened = true;
+                platformPortLost = false;
+                logger.info("Platform Port opened successfully.");
+            }
+        }
+    }
+
+    /**
+     * Opens Liberty-Link port if platformPortName is provided
+     */
+    private void openLinkPort() {
+        if (linkPortName != null && linkPortName.length() > 0) {
+            // If drone communication port (RF) provided
+            linkPort = SerialPort.getCommPort(linkPortName);
+            // Set baudrate
+            linkPort.setBaudRate(linkBaudrate);
+            // Open it
+            linkPort.openPort();
+
+            // Check if port is open
+            if (linkPort.isOpen()) {
+                linkPortOpened = true;
+                linkPortLost = false;
+                logger.info("Liberty-Link Port opened successfully.");
+            }
+        }
+    }
+
+    /**
+     * @return true if platform port is opened
+     */
+    public boolean isPlatformPortOpened() {
+        return platformPortOpened;
+    }
+
+    /**
+     * @return true if Liberty-Link port is opened
+     */
+    public boolean isLinkPortOpened() {
+        return linkPortOpened;
+    }
+
+    /**
+     * Fills platform data buffer
+     * @param platformData bytes buffer to send
+     */
+    public void setPlatformData(byte[] platformData) {
+        this.platformData = platformData;
+    }
+
+    /**
+     * Fills Liberty-Link data buffer
+     * @param linkData bytes buffer to send
+     */
+    public void setLinkData(byte[] linkData) {
+        this.linkData = linkData;
+    }
+
+    /**
      * Pushes byte arrays to Liberty-Link port
      */
     public void pushLinkData() {
-        try {
-            if (linkPortOpened && linkData != null && linkData.length > 0) {
-                // RF Port
-                linkPort.writeBytes(linkData, linkData.length);
-                // Flush port for safe
-                linkPort.getOutputStream().flush();
+        if (!linkPortLost) {
+            try {
+                if (linkPortOpened && linkData != null && linkData.length > 0) {
+                    // RF Port
+                    linkPort.writeBytes(linkData, linkData.length);
+                    // Flush port for safe
+                    linkPort.getOutputStream().flush();
+                }
+            } catch (Exception e) {
+                logger.error("Error pushing data over serial!", e);
+                linkPortLost = true;
+                linkPortOpened = false;
+                linkPortLostTimer = System.currentTimeMillis();
             }
-        } catch (Exception e) {
-            logger.error("Error pushing data over serial!", e);
+        } else if (System.currentTimeMillis() - linkPortLostTimer >= reconnectTime) {
+            // Try to reopen serial port
+            reopenLinkPort();
+            linkPortLostTimer = System.currentTimeMillis();
         }
+    }
+
+    /**
+     * Reads all available bytes from Liberty-Link port
+     * @return bytes array from Liberty-Link port
+     */
+    public byte[] readDataFromLink() {
+        if (!linkPortLost) {
+            if (linkPortOpened) {
+                try {
+                    int bytesAvailable = linkPort.bytesAvailable();
+                    byte[] buffer = new byte[bytesAvailable];
+                    linkPort.readBytes(buffer, bytesAvailable);
+                    return buffer;
+                } catch (Exception e) {
+                    logger.error("Error reading data from Liberty-Link port!", e);
+                    linkPortLost = true;
+                    linkPortOpened = false;
+                    linkPortLostTimer = System.currentTimeMillis();
+                }
+            }
+        } else if (System.currentTimeMillis() - linkPortLostTimer >= reconnectTime) {
+            // Try to reopen serial port
+            reopenLinkPort();
+            linkPortLostTimer = System.currentTimeMillis();
+        }
+        return new byte[0];
     }
 
     /**
      * Pushes byte arrays to Platform controller port
      */
     public void pushPlatformData() {
-        try {
-            if (platformPortOpened && platformData != null && platformData.length > 0) {
-                // Platform Port
-                platformPort.writeBytes(platformData, platformData.length);
-                // Flush port for safe
-                platformPort.getOutputStream().flush();
+        if (!platformPortLost) {
+            // If port is not lost
+            try {
+                if (platformPortOpened && platformData != null && platformData.length > 0) {
+                    // Platform Port
+                    platformPort.writeBytes(platformData, platformData.length);
+                    // Flush port for safe
+                    platformPort.getOutputStream().flush();
+                }
+            } catch (Exception e) {
+                logger.error("Error pushing data over serial!", e);
+                platformPortLost = true;
+                platformPortOpened = false;
+                platformPortLostTimer = System.currentTimeMillis();
             }
-        } catch (Exception e) {
-            logger.error("Error pushing data over serial!", e);
+        } else if (System.currentTimeMillis() - platformPortLostTimer >= reconnectTime) {
+            // Try to reopen serial port
+            reopenPlatformPort();
+            platformPortLostTimer = System.currentTimeMillis();
         }
     }
 
@@ -150,17 +249,68 @@ public class SerialHandler {
      * @return bytes array from platform port
      */
     public byte[] readDataFromPlatform() {
-        int bytesAvailable = platformPort.bytesAvailable();
-        byte[] buffer = new byte[bytesAvailable];
-        platformPort.readBytes(buffer, bytesAvailable);
-        return buffer;
+        if (!platformPortLost) {
+            // If port is not lost
+            if (platformPortOpened) {
+                try {
+                    int bytesAvailable = platformPort.bytesAvailable();
+                    byte[] buffer = new byte[bytesAvailable];
+                    platformPort.readBytes(buffer, bytesAvailable);
+                    return buffer;
+                } catch (Exception e) {
+                    logger.error("Error reading data from platform port!", e);
+                    platformPortLost = true;
+                    platformPortOpened = false;
+                    platformPortLostTimer = System.currentTimeMillis();
+                }
+            }
+        } else if (System.currentTimeMillis() - platformPortLostTimer >= reconnectTime) {
+            // Try to reopen serial port
+            reopenPlatformPort();
+            platformPortLostTimer = System.currentTimeMillis();
+        }
+        return new byte[0];
+    }
+
+    /**
+     * Tries to close and reopen platform port (in case of connection lost)
+     */
+    private void reopenPlatformPort() {
+        try {
+            logger.warn("Attempt to reopen platform port");
+
+            // Close port
+            platformPort.closePort();
+
+            // Open port
+            openPlatformPort();
+        } catch (Exception e) {
+            logger.error("Error reopening platform port!", e);
+        }
+    }
+
+    /**
+     * Tries to close and reopen Liberty-Link port (in case of connection lost)
+     */
+    private void reopenLinkPort() {
+        try {
+            logger.warn("Attempt to reopen Liberty-Link port");
+
+            // Close port
+            linkPort.closePort();
+
+            // Open port
+            openLinkPort();
+        } catch (Exception e) {
+            logger.error("Error reopening Liberty-Link port", e);
+        }
     }
 
     /**
      * Closes ports
      */
     public void closePorts() {
-        logger.info("Closing ports.");
+        logger.warn("Closing serial ports");
         if (platformPortOpened) {
             platformPortOpened = false;
             try {
