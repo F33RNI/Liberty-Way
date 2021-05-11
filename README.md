@@ -3,7 +3,7 @@
 
 ![Logo](https://github.com/XxOinvizioNxX/Liberty-Way/blob/main/git_images/logo_book.png "Logo")
 
-[![Liberty-Way_beta_1.1.5](https://img.shields.io/badge/Latest_version-beta_1.1.5-informational?logo=Github&style=flat-square "Liberty-Way_beta_1.1.5")](https://github.com/XxOinvizioNxX/Liberty-Way/releases/tag/beta_1.1.5 "Liberty-Way_beta_1.1.5")
+[![Liberty-Way_beta_3.0.0](https://img.shields.io/badge/Latest_version-beta_3.0.0-informational?logo=Github&style=flat-square "Liberty-Way_beta_3.0.0")](https://github.com/XxOinvizioNxX/Liberty-Way/releases/tag/beta_3.0.0 "Liberty-Way_beta_3.0.0")
 ![GitHub All Releases](https://img.shields.io/github/downloads/XxOinvizioNxX/Liberty-Way/total?style=flat-square "GitHub All Releases")
 
 
@@ -180,7 +180,8 @@ Bytes description:
 - **Pitch bytes** - Pitch correction values 
 - **Yaw bytes** - Yaw correction values
 - **Altitude bytes** - Altitude correction values
-- **Service info** - sets the drone state (0 - Nothing to do, 1 - Stabilization, 2 - Landing (command not implemented and will be removed in the future. This is not a real landing, just to tell the drone to start decreasing altitude), 3 - Disable motors)
+- **Service info** - Sets the drone state. After beta_3.0.0: 0 - IDLE, 1 - Direct control, 2 - Pressure (altitude) setpoint, 3 - GPS setpoint, 4 - Turn off the motors, 5 - Start Liberty Way sequence, 6 - Abort Liberty Way sequence. 
+- **Service info** - Before beta_3.0.0: 0 - Nothing to do, 1 - Stabilization, 2 - Landing (command not implemented and will be removed in the future. This is not a real landing, just to tell the drone to start decreasing altitude), 3 - Disable motors
 - **Check byte** - XOR sum of all previous bytes that is compared via transmittion in order to verify the data
 - **Data suffix** - unique pair of ASCII symbols that is not represented in the packet in any form and that shows the end of the packet 
 
