@@ -33,7 +33,7 @@ All the code excluding the dependencies block, was written by Pavel Neshumov (Fr
 - BTC: `bc1qd2j53p9nplxcx4uyrv322t3mg0t93pz6m5lnft`
 - ZEC: `t1Jb5tH61zcSTy2QyfsxftUEWHikdSYpPoz`
 - ETH: `0x284E6121362ea1C69528eDEdc309fC8b90fA5578`
-- (XCH) CHIA: `xch1dnm87ennt63sssnmzzmh8ggf3s2jjxd6pt4rhkzyhg4tyfhah0ts43zkct`
+- XCH (CHIA): `xch1dnm87ennt63sssnmzzmh8ggf3s2jjxd6pt4rhkzyhg4tyfhah0ts43zkct`
 
 -----------
 
