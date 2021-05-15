@@ -7,6 +7,10 @@
     <property name="dir.jar"     value="${dir.build}/jar"/>
     <property name="main-class"  value="com.liberty_amls.Main"/>
   
+    <presetdef name="javac">
+      <javac includeantruntime="false"/>
+    </presetdef>
+  
     <fileset dir="${utilities.dir}">
         <include name="*.jar"/>
     </fileset>
@@ -19,15 +23,7 @@
         <mkdir dir="${dir.classes}"/>
         <javac srcdir="${dir.src}" destdir="${dir.classes}">
           <classpath>
-            <pathelement path="${dir.utilities}/jSerialComm-2.6.2.jar"/>
-            <pathelement path="${dir.utilities}/gson-2.8.6.jar"/>
-            <pathelement path="${dir.utilities}/commons-cli-1.4.jar"/>
-            <pathelement path="${dir.utilities}/flak-api-1.2.0.jar"/>
-            <pathelement path="${dir.utilities}/flak-backend-jdk-1.2.0.jar"/>
-            <pathelement path="${dir.utilities}/flak-resource-1.2.0.jar"/>
-            <pathelement path="${dir.utilities}/flak-spi-1.2.0.jar"/>
-            <pathelement path="${dir.utilities}/log4j-1.2.17.jar"/>
-            <pathelement path="${dir.utilities}/opencv-451.jar"/>
+            <pathelement path="${dir.utilities}/*.jar"/>
           </classpath>
         </javac>
     </target>
