@@ -10,10 +10,6 @@
     <presetdef name="javac">
       <javac includeantruntime="false"/>
     </presetdef>
-  
-    <fileset dir="${utilities.dir}">
-        <include name="*.jar"/>
-    </fileset>
 
     <target name="clean">
         <delete dir="${dir.build}"/>
@@ -38,6 +34,7 @@
 
     <target name="jar" depends="compile">
         <mkdir dir="${dir.jar}"/>
+        <zipgroupfileset includes="*.jar" dir="${dir.utilities}"/>
         <jar destfile="${dir.jar}/${ant.project.name}.jar" basedir="${dir.classes}">
             <manifest>
                 <attribute name="Main-Class" value="${main-class}"/>
@@ -46,10 +43,7 @@
     </target>
 
     <target name="run" depends="jar">
-        <java jar="${dir.jar}/${ant.project.name}.jar" fork="true">
-          <arg value="${arg0}"/>
-          <arg value="${arg1}"/>
-        </java>
+        <java jar="${dir.jar}/${ant.project.name}.jar" fork="true"/>
     </target>
 
     <target name="clean-build" depends="clean,jar"/>
