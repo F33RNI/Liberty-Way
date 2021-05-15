@@ -1,5 +1,6 @@
   
 <project name="liberty-way" basedir="." default="main">
+    <property name="dir.main"    value="."/>
     <property name="dir.src"     value="src"/>
     <property name="dir.build"   value="build"/>
     <property name="dir.utilities" value="lib"/>
@@ -46,6 +47,8 @@
     </target>
 
     <target name="run" depends="jar">
+        <copy todir="${dir.jar}" >  
+            <fileset dir="${dir.main}" includes="**"/>  
         <java jar="${dir.jar}/${ant.project.name}.jar" fork="true"/>
     </target>
 
