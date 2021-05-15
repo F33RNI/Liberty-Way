@@ -17,7 +17,9 @@
 
     <target name="compile">
         <mkdir dir="${dir.classes}"/>
+        <mkdir dir="${dir.classes}/com/liberty_amls"/>
         <copy file="${dir.src}/com/liberty_amls/log4j.properties" todir="${dir.classes}"/>
+        <copy file="${dir.src}/com/liberty_amls/log4j.properties" todir="${dir.classes}/com/liberty_amls"/>
         <javac srcdir="${dir.src}" destdir="${dir.classes}">
           <classpath>
             <pathelement path="${dir.utilities}/jSerialComm-2.6.2.jar"/>
