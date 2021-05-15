@@ -38,15 +38,15 @@ All the code excluding the dependencies block, was written by Pavel Neshumov (Fr
 
 ## Table of contents
 
-   - [Dependencies](#dependencies)
-   - [Description](#description)
-   - [License](#license)
-   - [Logotype](#logotype)
-   - [Building and running](#building-and-running)
-   - [Configuration](#configuration)
-      - [Settings](#settings)
-      - [PID](#pid)
-   - [Data packet structure](#data-packet-structure)
+- [Dependencies](#dependencies)
+- [Description](#description)
+- [License](#license)
+- [Logotype](#logotype)
+- [Building and running](#building-and-running)
+- [Configuration](#configuration)
+  - [Settings](#settings)
+  - [PID](#pid)
+- [Data packet structure](#data-packet-structure)
 
 ----------
 
@@ -115,7 +115,7 @@ Also, the server address and ports can be specified in the configuration (settin
 
 ----------
 
-##  Configuration
+## Configuration
 
 ### Settings
 
@@ -168,6 +168,7 @@ These are the parameters presented in settings.json file that are used by the pr
 ### PID
 
 These are the PID regulation parameters for each processed axle (x, y, z and yaw) which can be found in pid.json file:
+
 ```
 "P",              proportional term coefficient 
 "I",              integral term coefficient 
