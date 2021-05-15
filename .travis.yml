@@ -1,0 +1,6 @@
+arch: amd64
+
+language: java
+
+jdk: 
+  - oraclejdk8
