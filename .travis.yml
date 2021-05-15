@@ -18,3 +18,19 @@ jobs:
       name: "Liberty-Way Build"
       language: java
       script: ant main
+      
+    - stage: Build
+      name: "Documentation"
+      language: node_js
+      node_js:
+        - "10"
+      before_script:
+        - sudo sh -c "echo ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true | debconf-set-selections"
+        - sudo apt update && sudo apt install -y calibre msttcorefonts
+        - npm install gitbook-cli -g
+        - npm install markdownlint-cli -g
+        - npm install svgexport -g
+        - gitbook -V
+        - markdownlint -V
+      script:
+        - markdownlint docs
