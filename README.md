@@ -19,6 +19,11 @@ All the code excluding the dependencies block, was written by Pavel Neshumov (Fr
 
 ## AMLS Projects:
 
+Test error:
+!#*fee*#*1!*1*
+fewg
+[]`11`fwf`
+
 - **Eitude Project:** https://github.com/XxOinvizioNxX/Eitude
 - **PX4 UDP Connection Project:** https://github.com/Draskown/PX4_UDP_Connection
 
