@@ -6,6 +6,75 @@
     <property name="dir.jar"     value="${dir.build}/jar"/>
 
     <property name="main-class"  value="com.liberty_amls.Main"/>
+  
+    <!-- Project Libraries -->
+
+    <path id="library.com.fazecast:jserialcomm:2.6.2.classpath">
+      <pathelement location="${basedir}/lib/jSerialComm-2.6.2.jar"/>
+    </path>
+
+    <path id="library.com.google.code.gson:gson:2.8.6.classpath">
+      <pathelement location="${basedir}/lib/gson-2.8.6.jar"/>
+    </path>
+
+    <path id="library.commons-cli:commons-cli:1.4.classpath">
+      <pathelement location="${basedir}/lib/commons-cli-1.4.jar"/>
+    </path>
+
+    <path id="library.flak-api-1.2.0.classpath">
+      <pathelement location="${basedir}/lib/flak-1.2.0/flak-api-1.2.0.jar"/>
+      <pathelement location="${basedir}/lib/flak-1.2.0/flak-backend-jdk-1.2.0.jar"/>
+      <pathelement location="${basedir}/lib/flak-1.2.0/flak-resource-1.2.0.jar"/>
+      <pathelement location="${basedir}/lib/flak-1.2.0/flak-spi-1.2.0.jar"/>
+    </path>
+
+    <path id="library.log4j:log4j:1.2.17.classpath">
+      <pathelement location="${basedir}/lib/log4j-1.2.17.jar"/>
+    </path>
+  
+    <!-- Module Liberty-Way -->
+
+    <dirname property="module.liberty-way.basedir" file="${ant.file}"/>
+  
+    <path id="liberty-way.module.production.classpath">
+      <path refid="library.commons-cli:commons-cli:1.4.classpath"/>
+      <path refid="library.com.fazecast:jserialcomm:2.6.2.classpath"/>
+      <path refid="library.com.google.code.gson:gson:2.8.6.classpath"/>
+      <path refid="library.flak-api-1.2.0.classpath"/>
+      <pathelement location="${basedir}/lib/Libraries/opencv-451.jar"/>
+      <path refid="library.log4j:log4j:1.2.17.classpath"/>
+    </path>
+
+    <path id="liberty-way.runtime.production.module.classpath">
+      <pathelement location="${liberty-way.output.dir}"/>
+      <path refid="library.commons-cli:commons-cli:1.4.classpath"/>
+      <path refid="library.com.fazecast:jserialcomm:2.6.2.classpath"/>
+      <path refid="library.com.google.code.gson:gson:2.8.6.classpath"/>
+      <path refid="library.flak-api-1.2.0.classpath"/>
+      <pathelement location="${basedir}/lib/Libraries/opencv-451.jar"/>
+      <path refid="library.log4j:log4j:1.2.17.classpath"/>
+    </path>
+
+    <path id="liberty-way.module.classpath">
+      <pathelement location="${liberty-way.output.dir}"/>
+      <path refid="library.commons-cli:commons-cli:1.4.classpath"/>
+      <path refid="library.com.fazecast:jserialcomm:2.6.2.classpath"/>
+      <path refid="library.com.google.code.gson:gson:2.8.6.classpath"/>
+      <path refid="library.flak-api-1.2.0.classpath"/>
+      <pathelement location="${basedir}/lib/Libraries/opencv-451.jar"/>
+      <path refid="library.log4j:log4j:1.2.17.classpath"/>
+    </path>
+
+    <path id="liberty-way.runtime.module.classpath">
+      <pathelement location="${liberty-way.testoutput.dir}"/>
+      <pathelement location="${liberty-way.output.dir}"/>
+      <path refid="library.commons-cli:commons-cli:1.4.classpath"/>
+      <path refid="library.com.fazecast:jserialcomm:2.6.2.classpath"/>
+      <path refid="library.com.google.code.gson:gson:2.8.6.classpath"/>
+      <path refid="library.flak-api-1.2.0.classpath"/>
+      <pathelement location="${basedir}/lib/Libraries/opencv-451.jar"/>
+      <path refid="library.log4j:log4j:1.2.17.classpath"/>
+    </path>
 
     <target name="clean">
         <delete dir="${dir.build}"/>
