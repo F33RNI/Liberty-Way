@@ -28,4 +28,4 @@ jobs:
         - npm install markdownlint-cli -g
         - markdownlint -V
       script:
-        - markdownlint
+        - markdownlint -r .markdownlint.json 
