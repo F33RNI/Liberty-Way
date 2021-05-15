@@ -1,2 +1,8 @@
+arch: amd64
+
 language: java
+
+notifications:
+  email: false
+
 script: ant main
