@@ -1,5 +1,6 @@
 /*
- * Copyright 2021 The Liberty-Way Landing System Open Source Project
+ * Copyright (C) 2021 Frey Hertz (Pavel Neshumov), Liberty-Way Landing System Project
+ *
  * This software is part of Autonomous Multirotor Landing System (AMLS) Project
  *
  * Licensed under the GNU Affero General Public License, Version 3.0 (the "License");
@@ -13,18 +14,23 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
+ * IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY CLAIM, DAMAGES OR
+ * OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+ * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+ * OTHER DEALINGS IN THE SOFTWARE.
  */
 
 package com.liberty_amls;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonPrimitive;
 import org.apache.log4j.Logger;
 import org.opencv.aruco.Aruco;
 import org.opencv.aruco.DetectorParameters;
 import org.opencv.aruco.Dictionary;
 import org.opencv.calib3d.Calib3d;
-import org.opencv.core.*;
+import org.opencv.core.Mat;
+import org.opencv.core.MatOfInt;
+import org.opencv.core.Point;
 import org.opencv.imgproc.Imgproc;
 import org.opencv.videoio.VideoCapture;
 import org.opencv.videoio.Videoio;
@@ -37,41 +43,40 @@ import static java.lang.Math.toDegrees;
 
 public class OpenCVHandler implements Runnable {
     private final Logger logger = Logger.getLogger(this.getClass().getSimpleName());
+    private final SettingsContainer settingsContainer;
     private final PositionHandler positionHandler;
     private final PositionContainer positionContainer;
     private final PlatformHandler platformHandler;
+    private final OSDHandler osdHandler;
     private final VideoCapture videoCapture;
     private final int cameraID;
-    private final float markerSize;
     private Dictionary dictionary;
-    private JsonArray allowedIDs;
     private boolean openCVRunning;
     private int framesCount;
-    private int fpsMeasurePeriod;
     private long timeStart;
     private final DecimalFormat decimalFormat = new DecimalFormat("#.#");
     private Mat cameraMatrix, cameraDistortions;
-    public Mat frame;
+    private final Mat frame = new Mat(), gray = new Mat();
+    private int pushOSDAfterFrames, osdFramesCounter = 0;
 
     /**
      * This class reads frame from camera, estimate ARUco marker position
      * and provides it to the other classes
-     * @param cameraID Camera identifier
-     * @param markerSize ARUco marker size (length)
-     * @param positionHandler positionHandler class object (position processing)
      */
     public OpenCVHandler(int cameraID,
-                         float markerSize,
                          VideoCapture videoCapture,
                          PositionHandler positionHandler,
                          PositionContainer positionContainer,
-                         PlatformHandler platformHandler) {
+                         PlatformHandler platformHandler,
+                         OSDHandler osdHandler,
+                         SettingsContainer settingsContainer) {
         this.cameraID = cameraID;
-        this.markerSize = markerSize;
         this.videoCapture = videoCapture;
         this.positionHandler = positionHandler;
         this.positionContainer = positionContainer;
         this.platformHandler = platformHandler;
+        this.osdHandler = osdHandler;
+        this.settingsContainer = settingsContainer;
         framesCount = 0;
     }
 
@@ -81,48 +86,40 @@ public class OpenCVHandler implements Runnable {
     public void start() {
         try {
             // Load camera corrections from jsons
-            cameraMatrix = FileWorkers.loadCameraMatrix();
-            cameraDistortions = FileWorkers.loadCameraDistortions();
+            cameraMatrix = FileWorkers.loadCameraMatrix(settingsContainer.cameraMatrixFile);
+            cameraDistortions = FileWorkers.loadCameraDistortions(settingsContainer.cameraDistortionsFile);
 
             // Load ARUco dictionary from settings
-            dictionary = Aruco.getPredefinedDictionary(Main.settings.get("aruco_dictionary").getAsInt());
+            dictionary = Aruco.getPredefinedDictionary(settingsContainer.arucoDictionary);
+
+            // Set after how many frame the frame will be pushed to the OSD class
+            pushOSDAfterFrames = settingsContainer.pushOSDAfterFrames;
 
             // Load settings
-            int frameWidth = Main.settings.get("frame_width").getAsInt();
-            int frameHeight = Main.settings.get("frame_height").getAsInt();
-            fpsMeasurePeriod = Main.settings.get("fps_measure_period").getAsInt();
-            allowedIDs = Main.settings.get("allowed_ids").getAsJsonArray();
-            positionContainer.frameSetpoint = new Point(frameWidth / 2.0, frameHeight / 2.0);
+            positionContainer.frameSetpoint = new Point(settingsContainer.frameWidth / 2.0,
+                    settingsContainer.frameHeight / 2.0);
 
             // Start camera with provided ID
             videoCapture.open(cameraID);
-            videoCapture.set(Videoio.CAP_PROP_FRAME_WIDTH, frameWidth);
-            videoCapture.set(Videoio.CAP_PROP_FRAME_HEIGHT, frameHeight);
-            if (Main.settings.get("disable_auto_exposure").getAsBoolean())
+            videoCapture.set(Videoio.CAP_PROP_FRAME_WIDTH, settingsContainer.frameWidth);
+            videoCapture.set(Videoio.CAP_PROP_FRAME_HEIGHT, settingsContainer.frameHeight);
+            if (settingsContainer.disableAutoExposure)
                 videoCapture.set(Videoio.CAP_PROP_AUTO_EXPOSURE, 0);
-            if (Main.settings.get("disable_auto_wb").getAsBoolean())
+            if (settingsContainer.disableAutoWB)
                 videoCapture.set(Videoio.CAP_PROP_AUTO_WB, 0);
-            if (Main.settings.get("disable_auto_focus").getAsBoolean())
+            if (settingsContainer.disableAutoFocus)
                 videoCapture.set(Videoio.CAP_PROP_AUTOFOCUS, 0);
-            videoCapture.set(Videoio.CAP_PROP_EXPOSURE, Main.settings.get("default_exposure").getAsDouble());
+            videoCapture.set(Videoio.CAP_PROP_EXPOSURE, settingsContainer.defaultExposure);
             openCVRunning = true;
             if (!videoCapture.isOpened()) {
                 return;
             }
-            frame = new Mat();
 
             // Capture the first frame
             videoCapture.read(frame);
 
-            // Enable or disable stream by settings
-            positionHandler.osdHandler.streamEnabled =
-                    Main.settings.get("video_stream_enabled_by_default").getAsBoolean();
-            // Enable or disable video stream on page by settings
-            positionHandler.osdHandler.streamOnPageEnabled =
-                    Main.settings.get("video_on_page_enabled_by_default").getAsBoolean();
-
             // Set flag in platformHandler class
-            platformHandler.opencvStarts = true;
+            platformHandler.setOpencvStarts(true);
 
             logger.info("Camera " + cameraID + " opened!");
 
@@ -139,15 +136,21 @@ public class OpenCVHandler implements Runnable {
     public void run() {
         // Create ARUco parameters (adaptive thresholding) from settings
         DetectorParameters detectorParameters = DetectorParameters.create();
-        detectorParameters.set_adaptiveThreshConstant(Main.settings.get("adaptive_thresh_constant").getAsInt());
+        detectorParameters.set_adaptiveThreshConstant(settingsContainer.adaptiveThreshConstant);
 
-        Mat gray = new Mat();
+        // Transfer the current frame to the OSDHandler class
+        osdHandler.setSourceFrame(frame);
+
         while (openCVRunning && videoCapture.isOpened()) {
             // Wait for the frame to be read
             if (videoCapture.read(frame)) {
                 try {
-                    // Transfer the current frame to the OSDHandler class
-                    positionHandler.osdHandler.sourceFrame = frame;
+                    // Push frame to the OSD class
+                    osdFramesCounter++;
+                    if (osdFramesCounter > pushOSDAfterFrames) {
+                        osdFramesCounter = 0;
+                        osdHandler.setNewFrameFlag(true);
+                    }
 
                     // Convert current frame to grayscale
                     Imgproc.cvtColor(frame, gray, Imgproc.COLOR_RGB2GRAY);
@@ -164,13 +167,13 @@ public class OpenCVHandler implements Runnable {
                         logger.warn("More than one marker found!");
 
                     // Make sure that only one marker was found and it is allowed
-                    if (ids.total() == 1 && allowedIDs.contains(new JsonPrimitive((int)ids.get(0, 0)[0]))) {
+                    if (ids.total() == 1 && settingsContainer.allowedIDs.contains((int)ids.get(0, 0)[0])) {
 
                         // Estimate position of the marker
                         Mat rVec = new Mat();
                         Mat tVec = new Mat();
                         Mat rMat = new Mat();
-                        Aruco.estimatePoseSingleMarkers(corners, markerSize,
+                        Aruco.estimatePoseSingleMarkers(corners, settingsContainer.markerSize,
                                 cameraMatrix, cameraDistortions, rVec, tVec);
                         double[] tArr = tVec.get(0, 0);
 
@@ -186,34 +189,34 @@ public class OpenCVHandler implements Runnable {
                         }
 
                         // Calculate marker's center if video stream is enabled
-                        if (positionHandler.osdHandler.streamEnabled) {
+                        if (osdHandler.isStreamEnabled()) {
                             // (TopLeftX + BottomRightX) / 2, (TopLeftY + BottomRightY) / 2
                             Point center = new Point(((int) corners.get(0).get(0, 0)[0]
                                     + (int) corners.get(0).get(0, 2)[0]) / 2.0,
                                     ((int) corners.get(0).get(0, 0)[1]
                                             + (int) corners.get(0).get(0, 2)[1]) / 2.0);
-                            center.x = positionContainer.frameCurrent.x * positionHandler.inputFilter
-                                    + center.x * (1 - positionHandler.inputFilter);
-                            center.y = positionContainer.frameCurrent.y * positionHandler.inputFilter
-                                    + center.y * (1 - positionHandler.inputFilter);
+                            center.x = positionContainer.frameCurrent.x * settingsContainer.inputFilter
+                                    + center.x * (1 - settingsContainer.inputFilter);
+                            center.y = positionContainer.frameCurrent.y * settingsContainer.inputFilter
+                                    + center.y * (1 - settingsContainer.inputFilter);
                             positionContainer.frameCurrent = center;
                         }
 
                         // Transfer estimated position of the marker to the PositionHandler class
-                        positionHandler.newPosition(tArr[0], tArr[1], tArr[2], yaw);
+                        positionHandler.proceedPosition(true, tArr[0], tArr[1], tArr[2], yaw);
                     } else
                         // If no correct markers detected
-                        positionHandler.noMarker();
+                        positionHandler.proceedPosition(false);
 
                     // Calculate FPS
                     framesCount++;
                     long timeCurrent = System.currentTimeMillis();
-                    if (timeCurrent - timeStart > fpsMeasurePeriod) {
+                    if (timeCurrent - timeStart > settingsContainer.fpsMeasurePeriod) {
                         // If 'fps_measure_period' passes
                         double fps = (double) framesCount / (timeCurrent - timeStart) * 1000.0;
 
                         // Transfer FPS to the OSD Class and log it
-                        positionHandler.osdHandler.fps = decimalFormat.format(fps);
+                        osdHandler.setFps(decimalFormat.format(fps));
                         logger.info("FPS: " + decimalFormat.format(fps));
                         framesCount = 0;
 
@@ -222,19 +225,27 @@ public class OpenCVHandler implements Runnable {
                     }
                 } catch (Exception e) {
                     logger.error("Error processing the frame!", e);
-                    positionHandler.noMarker();
+                    positionHandler.proceedPosition(false);
                 }
             } else {
                 logger.error("Can't read the frame!");
-                positionHandler.noMarker();
+                positionHandler.proceedPosition(false);
             }
         }
+    }
+
+    /**
+     * @return true if current openCV frame is empty
+     */
+    public boolean isFrameEmpty() {
+        return frame.empty();
     }
 
     /**
      * Stops OpenCVHandler and releases the camera
      */
     public void stop() {
+        logger.warn("Stopping OpenCV handler");
         openCVRunning = false;
         videoCapture.release();
     }

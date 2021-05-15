@@ -1,5 +1,6 @@
 /*
- * Copyright 2021 The Liberty-Way Landing System Open Source Project
+ * Copyright (C) 2021 Frey Hertz (Pavel Neshumov), Liberty-Way Landing System Project
+ *
  * This software is part of Autonomous Multirotor Landing System (AMLS) Project
  *
  * Licensed under the GNU Affero General Public License, Version 3.0 (the "License");
@@ -13,12 +14,16 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
+ * IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY CLAIM, DAMAGES OR
+ * OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+ * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+ * OTHER DEALINGS IN THE SOFTWARE.
  */
 
 package com.liberty_amls;
 
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import org.opencv.core.CvType;
@@ -72,8 +77,7 @@ public class FileWorkers {
      * Loads camera matrix from json (the file is specified in the settings)
      * @return 3x3 Mat filled with float (32FC1)
      */
-    public static Mat loadCameraMatrix() {
-        String file = Main.settings.get("camera_matrix_file").getAsString();
+    public static Mat loadCameraMatrix(String file) {
         Main.logger.info("Loading " + file);
         Gson gson = new Gson();
         try (Reader reader = new FileReader(file)) {
@@ -97,8 +101,7 @@ public class FileWorkers {
      * Loads camera distortions from json (the file is specified in the settings)
      * @return 1x3 Mat filled with float (32FC1)
      */
-    public static Mat loadCameraDistortions() {
-        String file = Main.settings.get("camera_distortions_file").getAsString();
+    public static Mat loadCameraDistortions(String file) {
         Main.logger.info("Loading " + file);
         Gson gson = new Gson();
         try (Reader reader = new FileReader(file)) {
@@ -132,21 +135,6 @@ public class FileWorkers {
             Main.logger.error("Error reading " + file, e);
         }
         return pids;
-    }
-
-    /**
-     * Saves JsonObject as .json file
-     * @param jsonObject input data
-     * @param file path to the file (.json)
-     */
-    public static void saveJsonObject(JsonObject jsonObject, String file) {
-        Main.logger.info("Saving " + file);
-        try (Writer writer = new FileWriter(file)) {
-            Gson gson = new GsonBuilder().setPrettyPrinting().create();
-            gson.toJson(jsonObject, writer);
-        } catch (Exception e) {
-            Main.logger.error("Error saving " + file, e);
-        }
     }
 
     /**

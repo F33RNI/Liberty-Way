@@ -1,181 +1,184 @@
+<!--
+   - Copyright (C) 2021 Frey Hertz (Pavel Neshumov), Liberty-Way Landing System Project
+   -
+   - This software is part of Autonomous Multirotor Landing System (AMLS) Project
+   -
+   - Licensed under the GNU Affero General Public License, Version 3.0 (the "License");
+   - you may not use this file except in compliance with the License.
+   - You may obtain a copy of the License at
+   -
+   -      https://www.gnu.org/licenses/agpl-3.0.en.html
+   -
+   - Unless required by applicable law or agreed to in writing, software
+   - distributed under the License is distributed on an "AS IS" BASIS,
+   - WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   - See the License for the specific language governing permissions and
+   - limitations under the License.
+   -
+   - IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY CLAIM, DAMAGES OR
+   - OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+   - ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+   - OTHER DEALINGS IN THE SOFTWARE. -->
+
 <!DOCTYPE html>
-<html>
+<html lang="en">
 	<head>
-		<link rel="icon" type="image/png" href="favicon.png"/>
-		<link rel="stylesheet" href="stylesheet.css">
-		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<title>Liberty-Way AMLS</title>
-		<style>
-			body {
-				background-image: url('background.jpg');
-				background-repeat: no-repeat, no-repeat;
-				background-attachment: fixed, fixed;
-				background-size: contain, cover;
-				background-position: center, center;
-			}
-			input::-webkit-outer-spin-button,
-			input::-webkit-inner-spin-button {
-				-webkit-appearance: none;
-				margin: 0;
-			}
-		</style>
-		<script type="text/javascript">
-			window.addEventListener("load", function(){
-				var video_on_page_enabled = document.getElementById('video_on_page_enabled').checked;
-				if (video_on_page_enabled) {
-					document.body.style.backgroundImage = "url('video_feed'), url('background.jpg')";
-					document.body.style.backgroundSize = "contain, cover";
-				} else {
-					document.body.style.backgroundImage = "url('background.jpg')";
-					document.body.style.backgroundSize = "cover";
-				}
-			});
-			function submit_values() {
-				var pid_roll_p = parseFloat(document.getElementById('pid_roll_p').value);
-				var pid_roll_i = parseFloat(document.getElementById('pid_roll_i').value);
-				var pid_roll_d = parseFloat(document.getElementById('pid_roll_d').value);
-				var pid_alt_p = parseFloat(document.getElementById('pid_alt_p').value);
-				var pid_alt_i = parseFloat(document.getElementById('pid_alt_i').value);
-				var pid_alt_d = parseFloat(document.getElementById('pid_alt_d').value);
-				var video_stream_enabled = document.getElementById('video_stream_enabled').checked;
-				var video_on_page_enabled = document.getElementById('video_on_page_enabled').checked;
-				var blackbox_enabled = document.getElementById('blackbox_enabled').checked;
-				window.location.href = '/setup?pid_roll_p=' + pid_roll_p + '&pid_roll_i=' + pid_roll_i + '&pid_roll_d=' + pid_roll_d + '&pid_alt_p=' + pid_alt_p + '&pid_alt_i=' + pid_alt_i + '&pid_alt_d=' + pid_alt_d + '&video_stream=' + video_stream_enabled + '&video_on_page=' + video_on_page_enabled + '&blackbox=' + blackbox_enabled;
-			}
-			function holding_changed(cb) {
-				if (!cb.checked)
-					document.getElementById("landing_drone").checked = false;
-				window.location.href = '/hold_land?hold=' + cb.checked + '&land=' + document.getElementById("landing_drone").checked;
-			}
-			function landing_changed(cb) {
-				if (cb.checked && !document.getElementById("holding_drone").checked)
-					document.getElementById("landing_drone").checked = false;
-				else
-					window.location.href = '/hold_land/?hold=' + document.getElementById("holding_drone").checked + '&land=' + cb.checked;
-			}
-			function increase_p(element_id) {
-				var new_value = parseFloat(document.getElementById(element_id).value) + 0.1;
-				if (new_value >= 0)
-					document.getElementById(element_id).value = new_value.toFixed(2).toString();
-			}
-			function decrease_p(element_id) {
-				var new_value = parseFloat(document.getElementById(element_id).value) - 0.1;
-				if (new_value >= 0)
-					document.getElementById(element_id).value = new_value.toFixed(2).toString();
-			}
-			function increase_i(element_id) {
-				var new_value = parseFloat(document.getElementById(element_id).value) + 0.002;
-				if (new_value >= 0)
-					document.getElementById(element_id).value = new_value.toFixed(3).toString();
-			}
-			function decrease_i(element_id) {
-				var new_value = parseFloat(document.getElementById(element_id).value) - 0.002;
-				if (new_value >= 0)
-					document.getElementById(element_id).value = new_value.toFixed(3).toString();
-			}
-			function increase_d(element_id) {
-				var new_value = parseFloat(document.getElementById(element_id).value) + 2.0;
-				if (new_value >= 0)
-					document.getElementById(element_id).value = new_value.toFixed(1).toString();
-			}
-			function decrease_d(element_id) {
-				var new_value = parseFloat(document.getElementById(element_id).value) - 2.0;
-				if (new_value >= 0)
-					document.getElementById(element_id).value = new_value.toFixed(1).toString();
-			}
-		</script>
+		<link rel="icon" type="image/png" href="favicon.png"/>
+		<link rel="stylesheet" type="text/css" href="augmented-ui.min.css"/>
+		<link rel="stylesheet" type="text/css" href="stylesheet.css"/>
+		<script type="text/javascript" src="controller.js"></script>
+		<script type="text/javascript" src="https://ecn.dev.virtualearth.net/mapcontrol/mapcontrol.ashx?v=7.0"></script>
 	</head>
 	<body>
-	<div class="main_container">
-		<h2>
-			<a style="color: #f15b4e">L</a><a style="color: #f6821d">i</a><a style="color: #fed206">b</a><a style="color: #61bc46">e</a><a style="color: #299bb7">r</a><a style="color: #0178d5">t</a><a style="color: #a93daa">y</a><a style="color: #96b4ff">-Way</a>
-			<a style="color: #96b4ff">AMLS</a>
-		</h2>
-		<h2>
-			<span style="color: #d4e0ff">Holding</span>	
-			<label class="switch">
-				<input id="holding_drone" type="checkbox" onclick="holding_changed(this);" {{ holding_drone }}>
-				<span class="slider round"></span>
-			</label>
-		</h2>
-		<h2>
-			<span style="color: #d4e0ff">Landing</span>	
-			<label class="switch">
-				<input id="landing_drone" type="checkbox" onclick="landing_changed(this);" {{ landing_drone }}>
-				<span class="slider round"></span>
-			</label>
-		</h2>
-		<a href="/abort">
-			<button class="w3-button" style="background-color: #ff6385">Abort</button>
-		</a>
+	
+	<div class="timeline-container">
+		<div class="aug-container-glow" aria-hidden="true">
+			<div class="timeline-aug-container" data-augmented-ui="bl-clip tr-clip br-clip-x border"></div>
+		</div>
+		<div class="aug-container-glow" aria-hidden="true" style="filter: none;">
+			<div class="timeline-aug-container" data-augmented-ui="bl-clip tr-clip br-clip-x both" style="--aug-border-all: 2px; backdrop-filter: blur(2px);"></div>
+		</div>
+		
+
+		<div class="tickmarks">
+			<p style="width: 0;">Takeoff</p>
+			<p style="width: 0;"></p>
+			<p style="width: 0;">GPS&nbsp;flight</p>
+			<p style="width: 0;"></p>
+			<p style="width: 0;">Optical&nbsp;stabilization</p>
+			<p style="width: 0;"></p>
+			<p style="width: 0;"></p>
+		</div>
+		<div class="tickmarks">
+			<p></p>
+			<p style="width: 0;"></p>
+			<p></p>
+			<p style="width: 0;"></p>
+			<p></p>
+			<p style="width: 0;"></p>
+			<p style="width: 0;"></p>
+		</div>
+		
+			
+		<div class="progress">
+		  <div class="progress-bar" id="timeline-progress" style="width: 0;"></div>
+		</div>
+
+		<div class="tickmarks">
+			<p style="line-height: 2.5em; width: 0;"></p>
+			<p style="line-height: 2.5em;">Increase&nbsp;the&nbsp;altitude</p>
+			<p style="line-height: 2.5em; width: 0;"></p>
+			<p style="line-height: 2.5em;">GPS&nbsp;and&nbsp;altitude&nbsp;hold</p>
+			<p style="line-height: 2.5em; width: 0;"></p>
+			<p style="line-height: 2.5em;">Optical&nbsp;landing</p>
+			<p style="line-height: 2.5em; width: 0;"></p>
+		</div>
+		
 	</div>
-	<div class="main_container">
-		<label for="pid_roll_p">P:&nbsp;</label>
-		<button class="w3-button_dec" onclick="decrease_p('pid_roll_p')">-</button>
-		<input id="pid_roll_p" type="number" style="width: 2em;" value={{ pid_roll.p }} readonly>
-		<button class="w3-button_inc" onclick="increase_p('pid_roll_p')">+</button>
-		<a>&nbsp;</a>
+	
+	<div class="telemetry-container">
+		<div class="aug-container-glow" aria-hidden="true">
+			<div class="telemetry-aug-container" data-augmented-ui="tr-clip bl-clip br-clip-y border"></div>
+		</div>
+		<div class="aug-container-glow" aria-hidden="true" style="filter: none;">
+			<div class="telemetry-aug-container" data-augmented-ui="tr-clip bl-clip br-clip-y both" style="--aug-border-all: 2px; backdrop-filter: blur(2px);"></div>
+		</div>
+
+		<img class="watermark" src="amls-watermark.png" alt="AMLS logotype">
+		<br>
+		<img class="watermark" src="liberty-x-watermark.png" alt="Liberty-X logotype">
+		<br>
+		<br>
 		
-		<label for="pid_roll_i">I:&nbsp;</label>
-		<button class="w3-button_dec" onclick="decrease_i('pid_roll_i')">-</button>
-		<input id="pid_roll_i" type="number" style="width: 3em;" value={{ pid_roll.i }} readonly>
-		<button class="w3-button_inc" onclick="increase_i('pid_roll_i')">+</button>
-		<a>&nbsp;</a>
+		<div>
+			<div class="telemetry-data-container">
+				<div><a class="labels-text">Liberty-Way</a></div>
+				<div><a class="labels-text" id="telemetry-status">Lost</a></div>
+			</div>
+			<div class="telemetry-data-container">
+				<div><a class="labels-text">Packets</a></div>
+				<div><a class="labels-text" id="telemetry-packets">0</a></div>
+			</div>
+			<div class="telemetry-data-container">
+				<div><a class="labels-text">Sys. status</a></div>
+				<div><a class="labels-text" id="status">-</a></div>
+			</div>
+			<br>
+			<p class= "labels-text" style="text-align:center;">DRONE TELEMETRY</p>
+			<div class="telemetry-data-container">
+				<div><a class="labels-text">Packets</a></div>
+				<div><a class="labels-text" id="drone_packets">0</a></div>
+			</div>
+			<div class="telemetry-data-container">
+				<div><a class="labels-text">F. mode</a></div>
+				<div><a class="labels-text" id="flight_mode">0</a></div>
+			</div>
+			<div class="telemetry-data-container">
+				<div><a class="labels-text">Voltage</a></div>
+				<div><a class="labels-text" id="drone_voltage">0 V</a></div>
+			</div>
+			<div class="telemetry-data-container">
+				<div><a class="labels-text">Altitude</a></div>
+				<div><a class="labels-text" id="drone_altitude">0 m</a></div>
+			</div>
+			<div class="telemetry-data-container">
+				<div><a class="labels-text">N. sats</a></div>
+				<div><a class="labels-text" id="drone_satellites">0</a></div>
+			</div>
+			<div class="telemetry-data-container">
+				<div><a class="labels-text">Lat.</a></div>
+				<div><a class="labels-text" id="drone_lat">0</a></div>
+			</div>
+			<div class="telemetry-data-container">
+				<div><a class= "labels-text">Lon.</a></div>
+				<div><a class= "labels-text" id="drone_lon">0</a></div>
+			</div>
+			<br>
+			<p class= "labels-text" style="text-align:center;">PLATFORM TELEMETRY</p>
+			<div class="telemetry-data-container">
+				<div><a class="labels-text">Packets</a></div>
+				<div><a class="labels-text" id="platform_packets">0</a></div>
+			</div>
+			<div class="telemetry-data-container">
+				<div><a class="labels-text">Speed</a></div>
+				<div><a class="labels-text" id="platform_speed">0 km/h</a></div>
+			</div>
+			<div class="telemetry-data-container">
+				<div><a class="labels-text">Pressure</a></div>
+				<div><a class="labels-text" id="platform_pressure">0 Pa</a></div>
+			</div>
+			<div class="telemetry-data-container">
+				<div><a class="labels-text">N. sats</a></div>
+				<div><a class="labels-text" id="platform_satellites">0</a></div>
+			</div>
+			<div class="telemetry-data-container">
+				<div><a class="labels-text">Lat.</a></div>
+				<div><a class="labels-text" id="platform_lat">0</a></div>
+			</div>
+			<div class="telemetry-data-container">
+				<div><a class="labels-text">Lon.</a></div>
+				<div><a class="labels-text" id="platform_lon">0</a></div>
+			</div>
+			<br>
+		</div>
 		
-		<label for="pid_roll_d">D:&nbsp;</label>
-		<button class="w3-button_dec" onclick="decrease_d('pid_roll_d')">-</button>
-		<input id="pid_roll_d" type="number" style="width: 3em;" value={{ pid_roll.d }} readonly>
-		<button class="w3-button_inc" onclick="increase_d('pid_roll_d')">+</button>
+		<div class="button blue" onclick="execute()" data-augmented-ui="br-clip both">
+			<p>EXECUTE</p>
+		</div>
 		<br>
+		<div class="button blue" onclick="switchView()" data-augmented-ui="br-clip both">
+			<p>SWITCH VIEW</p>
+		</div>
 		<br>
-		<label for="pid_alt_p">P:&nbsp;</label>
-		<button class="w3-button_dec" onclick="decrease_p('pid_alt_p')">-</button>
-		<input id="pid_alt_p" type="number" style="width: 2em;" value={{ pid_alt.p }} readonly>
-		<button class="w3-button_inc" onclick="increase_p('pid_alt_p')">+</button>
-		<a>&nbsp;</a>
+		<div class="button red" onclick="abort()" data-augmented-ui="br-clip both">
+			<p>ABORT</p>
+		</div>
+	</div>
+
+	<div id="map-container"></div>
+	<div id="stream-container">
 		
-		<label for="pid_alt_i">I:&nbsp;</label>
-		<button class="w3-button_dec" onclick="decrease_i('pid_alt_i')">-</button>
-		<input id="pid_alt_i" type="number" style="width: 3em;" value={{ pid_alt.i }} readonly>
-		<button class="w3-button_inc" onclick="increase_i('pid_alt_i')">+</button>
-		<a>&nbsp;</a>
-		
-		<label for="pid_alt_d">D:&nbsp;</label>
-		<button class="w3-button_dec" onclick="decrease_d('pid_alt_d')">-</button>
-		<input id="pid_alt_d" type="number" style="width: 3em;" value={{ pid_alt.d }} readonly>
-		<button class="w3-button_inc" onclick="increase_d('pid_alt_d')">+</button>
-		
-		<br>
-		<br>
-		<!--
-		<label for="set_alt">Altitude setpoint: </label>
-		<button class="w3-button_dec" onclick="decrease_d('set_alt')">-</button>
-		<input id="set_alt" type="number" style="width: 3em;" value={{ pid_alt.d }} readonly>
-		<button class="w3-button_inc" onclick="increase_d('set_alt')">+</button>
-		<label for="set_alt"> cm.</label>
-		<br>
-		-->
-		
-		<!--
-		<input type="checkbox" id="debug_enabled" {{ debug_info.d }}>
-		<label for="debug_enabled"> DEBUG</label>
-		<a>&nbsp;&nbsp;</a>
-		-->
-		<input type="checkbox" id="video_stream_enabled" {{ debug_info.v_stream }}>
-		<label for="video_stream_enabled"> Stream</label>
-		<input type="checkbox" id="video_on_page_enabled" {{ debug_info.v_page }}>
-		<label for="video_on_page_enabled"> On page</label>
-		<input type="checkbox" id="blackbox_enabled" {{ debug_info.blackbox }}>
-		<label for="blackbox_enabled"> Blackbox</label>
-		<!--
-		<a>&nbsp;&nbsp;</a>
-		<input type="checkbox" id="opencv_enabled" {{ debug_info.o }}>
-		<label for="opencv_enabled"> FRAME</label>
-		-->
-		<br>
-		<br>
-		<button class="w3-button" onclick="submit_values()">Submit</button>
-		<br>
 	</div>
 	</body>
 </html>

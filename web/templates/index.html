@@ -1,106 +1,159 @@
+<!--
+   - Copyright (C) 2021 Frey Hertz (Pavel Neshumov), Liberty-Way Landing System Project
+   -
+   - This software is part of Autonomous Multirotor Landing System (AMLS) Project
+   -
+   - Licensed under the GNU Affero General Public License, Version 3.0 (the "License");
+   - you may not use this file except in compliance with the License.
+   - You may obtain a copy of the License at
+   -
+   -      https://www.gnu.org/licenses/agpl-3.0.en.html
+   -
+   - Unless required by applicable law or agreed to in writing, software
+   - distributed under the License is distributed on an "AS IS" BASIS,
+   - WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   - See the License for the specific language governing permissions and
+   - limitations under the License.
+   -
+   - IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY CLAIM, DAMAGES OR
+   - OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+   - ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+   - OTHER DEALINGS IN THE SOFTWARE. -->
+
 <!DOCTYPE html>
-<html>
+<html lang="en">
 	<head>
-		<link rel="icon" type="image/png" href="favicon.png"/>
-		<link rel="stylesheet" href="stylesheet.css">
-		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<title>Liberty-Way AMLS</title>
-		<script type="text/javascript">
-			function start_loop() {
-				document.getElementById("btn_start").disabled = true;
-				var camera_id = document.getElementById("camera_id").value;
-				
-				var start_location = "/start?camera_id=" + camera_id;
-				
-				if (document.getElementById("platform_port_enabled").checked) {
-					start_location += "&platform_port=" + document.getElementById("platform_ports").value;
-					start_location += "&platform_baudrate=" + document.getElementById("platform_baudrate").value;
-				}
-					
-				if (document.getElementById("link_port_enabled").checked) {
-					start_location += "&link_port=" + document.getElementById("link_ports").value;
-					start_location += "&link_baudrate=" + document.getElementById("link_baudrate").value;
-				}
-					
-				if (document.getElementById("udp_ip_port_enabled").checked)
-					start_location += "&udp_ip_port=" + document.getElementById("udp_ip_port").value;
-				
-				window.location.href = start_location;
+		<link rel="icon" type="image/png" href="favicon.png"/>
+		<link rel="stylesheet" type="text/css" href="augmented-ui.min.css"/>
+		<link rel="stylesheet" type="text/css" href="stylesheet.css"/>
+		<script type="text/javascript" src="index.js"></script>
+		
+		<video playsinline autoplay muted loop>
+		  <source src="background.mp4" type="video/mp4">
+		</video>
+		
+		<style>
+			:root { 
+				font-size: 1.2em; 
+				--color-containers-border: linear-gradient(var(--color-global-primary-hsl), var(--color-global-secondary-hsl));
+				--color-containers-glow: var(--color-global-secondary-hsl);
 			}
+			/*body {
+				background-image: url('background.gif');
+				background-repeat: no-repeat;
+				background-attachment: fixed;
+				background-size: cover;
+				background-position: center;
+			}*/
+		</style>
+		
+		<script type="text/javascript">
+			
 		</script>
 	</head>
 	<body>
-		<div class="main_container">
-			<h1>
-				<a style="color: #f15b4e">L</a><a style="color: #f6821d">i</a><a style="color: #fed206">b</a><a style="color: #61bc46">e</a><a style="color: #299bb7">r</a><a style="color: #0178d5">t</a><a style="color: #a93daa">y</a><a style="color: #96b4ff">-Way</a>
-				<a style="color: #96b4ff">AMLS</a>
-			</h1>
-			<br>
-
-			<div id="container">
-				<div>
-					<input type="checkbox" id="platform_port_enabled">
-					<label for="platform_port_enabled"> Platform Port: </label>
-				</div>
-				<div>
-					<select id="platform_ports" name="platform_ports">
-						{{ platform_ports }}
-					</select>
-					<select id="platform_baudrate" name="platform_baudrate">
-						<option value="57600">57600</option>
-						<option value="9600">9600</option>
-						<option value="14400">14400</option>
-						<option value="19200">19200</option>
-						<option value="28800">28800</option>
-						<option value="33600">33600</option>
-						<option value="38400">38400</option>
-						<option value="115200">115200</option>
-					</select>
-				</div>
+		<div class="center-container">
+			<div class="aug-container-glow" aria-hidden="true">
+				<div class="center-aug-container" data-augmented-ui="tl-2-clip-y tr-clip bl-clip br-clip-y border"></div>
 			</div>
-
-			<div id="container">
-				<div>
-					<input type="checkbox" id="link_port_enabled" checked>
-					<label for="link_port_enabled"> Liberty-Link: </label>
-				</div>
-				<div>
-					<select id="link_ports" name="link_ports">
-						{{ link_ports }}
-					</select>
-					<select id="link_baudrate" name="link_baudrate">
-						<option value="57600">57600</option>
-						<option value="9600">9600</option>
-						<option value="14400">14400</option>
-						<option value="19200">19200</option>
-						<option value="28800">28800</option>
-						<option value="33600">33600</option>
-						<option value="38400">38400</option>
-						<option value="115200">115200</option>
-					</select>
-				</div>
-				
-			</div>
-
-
-			<div id="container">
-				<div>
-					<input type="checkbox" id="udp_ip_port_enabled">
-					<label for="udp_ip_port">UDP Ip/Port: </label>
-				</div>
-				<div><input type="text" id="udp_ip_port" placeholder="xxx.xxx.xxx.xxx:xxxx" value="192.168.1.184:9876" style="width: 9em;"></input></div>
-			</div>
-			<br>
-			<div id="container">
-				<div><label for="camera_id">Camera ID: </label></div>
-				<div><input id="camera_id" type="number" style="width: 3em;" value="0"></div>
+			<div class="aug-container-glow" aria-hidden="true" style="filter: none;">
+				<div class="center-aug-container" data-augmented-ui="tl-2-clip-y tr-clip bl-clip br-clip-y both" style="--aug-border-all: 2px; backdrop-filter: blur(4px);"></div>
 			</div>
 			
-			<p><button id="btn_start" class="w3-button" onclick="start_loop()">Start</button>
-			<a href="/abort">
-				<button class="w3-button" style="background-color: #ff6385">Abort</button>
-			</a>
-			</p>
+			<img class="watermark" src="amls-watermark.png" alt="AMLS logotype">
+			<br>
+			<img class="watermark" src="liberty-x-watermark.png" alt="Liberty-X logotype">
+			<br>
+			<br>
+			
+			<div>
+				<p class="labels-text" style="text-align:center;">HARDWARE SETUP</p>
+				<br>
+				
+				<div class="setup-data-container">
+					<div>
+						<input type="checkbox" id="platform_port_enabled" />
+						<label class="labels-text" for="platform_port_enabled">Platform Port:</label>
+					</div>
+					<div>
+						<div class="select-container" data-augmented-ui="br-clip both">
+							<select id="platform_ports" name="platform_ports">
+								{{ platform_ports }}
+							</select>
+						</div>
+						<div class="select-container" data-augmented-ui="br-clip both">
+							<select id="platform_baudrate" name="platform_baudrate">
+								<option value="57600">57600</option>
+								<option value="9600">9600</option>
+								<option value="14400">14400</option>
+								<option value="19200">19200</option>
+								<option value="28800">28800</option>
+								<option value="33600">33600</option>
+								<option value="38400">38400</option>
+								<option value="115200">115200</option>
+							</select>
+						</div>
+					</div>
+				</div>
+				
+				<div class="setup-data-container">
+					<div>
+						<input type="checkbox" id="link_port_enabled"/>
+						<label class="labels-text" for="link_port_enabled">Liberty Link:</label>
+					</div>
+					<div>
+						<div class="select-container" data-augmented-ui="br-clip both">
+							<select id="link_ports" name="link_ports">
+								{{ link_ports }}
+							</select>
+						</div>
+						<div class="select-container" data-augmented-ui="br-clip both">
+							<select id="link_baudrate" name="link_baudrate">
+								<option value="57600">57600</option>
+								<option value="9600">9600</option>
+								<option value="14400">14400</option>
+								<option value="19200">19200</option>
+								<option value="28800">28800</option>
+								<option value="33600">33600</option>
+								<option value="38400">38400</option>
+								<option value="115200">115200</option>
+							</select>
+						</div>
+					</div>
+				</div>
+				
+				<div class="setup-data-container">
+					<div>
+						<input type="checkbox" id="udp_ip_port_enabled">
+						<label class="labels-text" for="udp_ip_port_enabled">Liberty Link UDP: </label>
+					</div>
+					<div>
+						<div class="input-container" data-augmented-ui="br-clip both">
+							<input type="text" id="udp_ip_port" placeholder="xxx.xxx.xxx.xxx:xxxx" value="192.168.1.184:9876"/>
+						</div>
+					</div>
+				</div>
+				<div class="setup-data-container">
+					<div>
+						<label class="labels-text" for="camera_id">Camera ID: </label>
+					</div>
+					<div>
+						<div class="input-container" data-augmented-ui="br-clip both">
+							<input id="camera_id" type="text" value="0"/>
+						</div>
+					</div>
+				</div>
+				<br>
+			</div>
+			
+			<div class="button blue" id="btn-start" onclick="startController()" data-augmented-ui="br-clip both">
+				<p>START</p>
+			</div>
+			
+			<div class="button red" onclick="abort()" data-augmented-ui="br-clip both">
+				<p>ABORT</p>
+			</div>
 		</div>
 	</body>
 </html>
