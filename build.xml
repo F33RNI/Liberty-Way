@@ -49,6 +49,7 @@
     <target name="run" depends="jar">
         <copy todir="${dir.jar}" >  
             <fileset dir="${dir.main}" includes="**"/>  
+        </copy>
         <java jar="${dir.jar}/${ant.project.name}.jar" fork="true"/>
     </target>
 
