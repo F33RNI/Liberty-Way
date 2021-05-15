@@ -34,7 +34,7 @@
 
     <target name="jar" depends="compile">
         <mkdir dir="${dir.jar}"/>
-        <copy file="${dir.src}/log4j.properties" todir="${dir.jar}"/>
+        <copy file="${dir.src}/liberty_amls/log4j.properties" todir="${dir.jar}"/>
         <jar destfile="${dir.jar}/${ant.project.name}.jar" basedir="${dir.classes}">
             <zipgroupfileset includes="*.jar" dir="${dir.utilities}"/>
             <manifest>
