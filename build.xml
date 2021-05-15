@@ -28,13 +28,13 @@
             <pathelement path="${dir.utilities}/flak-spi-1.2.0.jar"/>
             <pathelement path="${dir.utilities}/log4j-1.2.17.jar"/>
             <pathelement path="${dir.utilities}/opencv-451.jar"/>
+            <pathelement path="${dir.src}/liberty_amls/log4j.properties"/>
           </classpath>
         </javac>
     </target>
 
     <target name="jar" depends="compile">
         <mkdir dir="${dir.jar}"/>
-        <copy file="${dir.src}/liberty_amls/log4j.properties" todir="${dir.jar}"/>
         <jar destfile="${dir.jar}/${ant.project.name}.jar" basedir="${dir.classes}">
             <zipgroupfileset includes="*.jar" dir="${dir.utilities}"/>
             <manifest>
