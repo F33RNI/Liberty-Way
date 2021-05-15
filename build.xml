@@ -7,26 +7,10 @@
 
     <property name="main-class"  value="com.liberty_amls.Main"/>
   
-    <!-- Project Libraries -->
-  
     <property name="utilities.dir" value="lib"/>
-     <fileset dir="${utilities.dir}">
-           <include name="*.jar"/>
-     </fileset>
-  
-    <javac srcdir="./src" destdir="./build/classes">   
-        <classpath>
-            <pathelement path="lib/jSerialComm-2.6.2.jar"/>
-            <pathelement path="lib/gson-2.8.6.jar"/>
-            <pathelement path="lib/commons-cli-1.4.jar"/>
-            <pathelement path="lib/flak-api-1.2.0.jar"/>
-            <pathelement path="lib/flak-backend-jdk-1.2.0.jar"/>
-            <pathelement path="lib/flak-resource-1.2.0.jar"/>
-            <pathelement path="lib/flak-spi-1.2.0.jar"/>
-            <pathelement path="lib/log4j-1.2.17.ja"/>
-            <pathelement path="lib/opencv-451.jar"/>
-        </classpath>
-    </javac>
+    <fileset dir="${utilities.dir}">
+        <include name="*.jar"/>
+    </fileset>
 
     <target name="clean">
         <delete dir="${dir.build}"/>
