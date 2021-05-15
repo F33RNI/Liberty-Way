@@ -6,7 +6,7 @@
 [![Liberty-Way_beta_1.1.5](https://img.shields.io/badge/Latest_version-beta_1.1.5-informational?logo=Github&style=flat-square "Liberty-Way_beta_1.1.5")](https://github.com/XxOinvizioNxX/Liberty-Way/releases/tag/beta_1.1.5 "Liberty-Way_beta_1.1.5")
 ![GitHub All Releases](https://img.shields.io/github/downloads/XxOinvizioNxX/Liberty-Way/total?style=flat-square "GitHub All Releases")
 
-
+**bruh**
 
 This project was created as a part of project activities subject of Moscow Polytech University by the 181-311 group.
 It also participates in the CopterHack 2021 hackathon from Copter Express.
