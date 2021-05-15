@@ -46,7 +46,10 @@
     </target>
 
     <target name="run" depends="jar">
-        <java jar="${dir.jar}/${ant.project.name}.jar" fork="true"/>
+        <java jar="${dir.jar}/${ant.project.name}.jar" fork="true">
+          <arg value="${arg0}"/>
+          <arg value="${arg1}"/>
+        </java>
     </target>
 
     <target name="clean-build" depends="clean,jar"/>
