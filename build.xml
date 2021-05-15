@@ -18,7 +18,7 @@
     <target name="compile">
         <mkdir dir="${dir.classes}"/>
         <copy todir="${dir.classes}" >
-            <fileset dir="${dir.src}/liberty_amls" includes="*.properties" />
+            <fileset dir="${dir.src}" includes="*.properties" />
         </copy>
         <javac srcdir="${dir.src}" destdir="${dir.classes}">
           <classpath>
