@@ -23,7 +23,15 @@
         <mkdir dir="${dir.classes}"/>
         <javac srcdir="${dir.src}" destdir="${dir.classes}">
           <classpath>
-            <pathelement path="${dir.utilities}/*.jar"/>
+            <pathelement path="${dir.utilities}/jSerialComm-2.6.2.jar"/>
+            <pathelement path="${dir.utilities}/gson-2.8.6.jar"/>
+            <pathelement path="${dir.utilities}/commons-cli-1.4.jar"/>
+            <pathelement path="${dir.utilities}/flak-api-1.2.0.jar"/>
+            <pathelement path="${dir.utilities}/flak-backend-jdk-1.2.0.jar"/>
+            <pathelement path="${dir.utilities}/flak-resource-1.2.0.jar"/>
+            <pathelement path="${dir.utilities}/flak-spi-1.2.0.jar"/>
+            <pathelement path="${dir.utilities}/log4j-1.2.17.jar"/>
+            <pathelement path="${dir.utilities}/opencv-451.jar"/>
           </classpath>
         </javac>
     </target>
