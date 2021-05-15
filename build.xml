@@ -9,6 +9,8 @@
   
     <!-- Project Libraries -->
   
+    <property name="utilities.dir" value="lib"/>
+  
     <javac srcdir="./src" destdir="./build/classes">   
         <classpath>
             <pathelement path="lib/jSerialComm-2.6.2.jar"/>
