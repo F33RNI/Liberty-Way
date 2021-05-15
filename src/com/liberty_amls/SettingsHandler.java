@@ -41,6 +41,7 @@ public class SettingsHandler {
         this.jsonSettings = jsonSettings;
     }
 
+    @SuppressWarnings("ResultOfMethodCallIgnored")
     public void parseSettings() {
         try {
             logger.info("Parsing settings from JSON");
@@ -96,8 +97,8 @@ public class SettingsHandler {
 
             // Blackbox folder
             settingsContainer.blackboxFolder = jsonSettings.get("blackbox_folder").getAsString();
-            // if (!new File(settingsContainer.blackboxFolder).exists())
-            //    exitWithError("Blackbox folder doesn't exists");
+            if (!new File(settingsContainer.blackboxFolder).exists())
+                new File(settingsContainer.blackboxFolder).mkdirs();
 
             // Frame width
             settingsContainer.frameWidth = jsonSettings.get("frame_width").getAsInt();
