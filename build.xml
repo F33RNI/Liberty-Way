@@ -2,27 +2,26 @@
 <project name="liberty-way" basedir="." default="main">
     <property name="dir.src"     value="src"/>
     <property name="dir.build"   value="build"/>
+    <property name="dir.utilities" value="lib"/>
     <property name="dir.classes" value="${dir.build}/classes"/>
     <property name="dir.jar"     value="${dir.build}/jar"/>
-
     <property name="main-class"  value="com.liberty_amls.Main"/>
   
-    <property name="utilities.dir" value="lib"/>
     <fileset dir="${utilities.dir}">
         <include name="*.jar"/>
     </fileset>
   
-    <javac srcdir="./src" destdir="./build/classes">   
+    <javac srcdir="${dir.src}" destdir="${dir.classes}">   
         <classpath>
-            <pathelement path="lib/jSerialComm-2.6.2.jar"/>
-            <pathelement path="lib/gson-2.8.6.jar"/>
-            <pathelement path="lib/commons-cli-1.4.jar"/>
-            <pathelement path="lib/flak-api-1.2.0.jar"/>
-            <pathelement path="lib/flak-backend-jdk-1.2.0.jar"/>
-            <pathelement path="lib/flak-resource-1.2.0.jar"/>
-            <pathelement path="lib/flak-spi-1.2.0.jar"/>
-            <pathelement path="lib/log4j-1.2.17.jar"/>
-            <pathelement path="lib/opencv-451.jar"/>
+            <pathelement path="${dir.utilities}/jSerialComm-2.6.2.jar"/>
+            <pathelement path="${dir.utilities}/gson-2.8.6.jar"/>
+            <pathelement path="${dir.utilities}/commons-cli-1.4.jar"/>
+            <pathelement path="${dir.utilities}/flak-api-1.2.0.jar"/>
+            <pathelement path="${dir.utilities}/flak-backend-jdk-1.2.0.jar"/>
+            <pathelement path="${dir.utilities}/flak-resource-1.2.0.jar"/>
+            <pathelement path="${dir.utilities}/flak-spi-1.2.0.jar"/>
+            <pathelement path="${dir.utilities}/log4j-1.2.17.jar"/>
+            <pathelement path="${dir.utilities}/opencv-451.jar"/>
         </classpath>
     </javac>
 
