@@ -17,6 +17,9 @@
 
     <target name="compile">
         <mkdir dir="${dir.classes}"/>
+        <copy todir="${dir.classes}" >
+            <fileset dir="${dir.src}/liberty_amls" includes="*.properties" />
+        </copy>
         <javac srcdir="${dir.src}" destdir="${dir.classes}">
           <classpath>
             <pathelement path="${dir.utilities}/jSerialComm-2.6.2.jar"/>
@@ -28,7 +31,6 @@
             <pathelement path="${dir.utilities}/flak-spi-1.2.0.jar"/>
             <pathelement path="${dir.utilities}/log4j-1.2.17.jar"/>
             <pathelement path="${dir.utilities}/opencv-451.jar"/>
-            <pathelement path="${dir.src}/liberty_amls/log4j.properties"/>
           </classpath>
         </javac>
     </target>
