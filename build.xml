@@ -17,9 +17,6 @@
 
     <target name="compile">
         <mkdir dir="${dir.classes}"/>
-        <copy todir="${dir.classes}" >
-            <fileset dir="${dir.src}" includes="*.properties" />
-        </copy>
         <javac srcdir="${dir.src}" destdir="${dir.classes}">
           <classpath>
             <pathelement path="${dir.utilities}/jSerialComm-2.6.2.jar"/>
@@ -39,6 +36,7 @@
         <mkdir dir="${dir.jar}"/>
         <jar destfile="${dir.jar}/${ant.project.name}.jar" basedir="${dir.classes}">
             <zipgroupfileset includes="*.jar" dir="${dir.utilities}"/>
+            <zipgroupfileset includes="*.properties" dir="${dir.src}"/>
             <manifest>
                 <attribute name="Main-Class" value="${main-class}"/>
             </manifest>
