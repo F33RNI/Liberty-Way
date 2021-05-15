@@ -1,7 +1,6 @@
   
 <project name="liberty-way" basedir="." default="main">
     <property name="dir.src"     value="src"/>
-    <property name="log4j-properties"     value="src/com/liberty_amls/log4j.properties"/>
     <property name="dir.build"   value="build"/>
     <property name="dir.utilities" value="lib"/>
     <property name="dir.classes" value="${dir.build}/classes"/>
@@ -49,5 +48,6 @@
         <java jar="${dir.jar}/${ant.project.name}.jar" fork="true"/>
     </target>
 
-    
+    <target name="clean-build" depends="clean,jar"/>
+    <target name="main" depends="clean,run"/>
 </project>
