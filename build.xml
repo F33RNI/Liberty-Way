@@ -50,6 +50,7 @@
         <copy todir="${dir.jar}" >  
             <fileset dir="${dir.main}" includes="**"/>  
         </copy>
+        <mkdir dir="${dir.jar}/blackbox"/>
         <java jar="${dir.jar}/${ant.project.name}.jar" fork="true"/>
     </target>
 
