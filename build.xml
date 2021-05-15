@@ -10,6 +10,9 @@
     <!-- Project Libraries -->
   
     <property name="utilities.dir" value="lib"/>
+     <fileset dir="${utilities.dir}">
+           <include name="*.jar"/>
+     </fileset>
   
     <javac srcdir="./src" destdir="./build/classes">   
         <classpath>
