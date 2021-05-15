@@ -1,286 +1,34 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project name="liberty-way" default="all">
   
-  
-  <property file="liberty-way.properties"/>
-  <!-- Uncomment the following property if no tests compilation is needed -->
-  <!-- 
-  <property name="skip.tests" value="true"/>
-   -->
-  
-  <!-- Compiler options -->
-  
-  <property name="compiler.debug" value="on"/>
-  <property name="compiler.generate.no.warnings" value="off"/>
-  <property name="compiler.args" value=""/>
-  <property name="compiler.max.memory" value="700m"/>
-  <patternset id="ignored.files">
-    <exclude name="**/*.pyc/**"/>
-    <exclude name="**/*.pyo/**"/>
-    <exclude name="**/*.rbc/**"/>
-    <exclude name="**/*.yarb/**"/>
-    <exclude name="**/*~/**"/>
-    <exclude name="**/.DS_Store/**"/>
-    <exclude name="**/.git/**"/>
-    <exclude name="**/.hg/**"/>
-    <exclude name="**/.svn/**"/>
-    <exclude name="**/CVS/**"/>
-    <exclude name="**/__pycache__/**"/>
-    <exclude name="**/_svn/**"/>
-    <exclude name="**/vssver.scc/**"/>
-    <exclude name="**/vssver2.scc/**"/>
-  </patternset>
-  <patternset id="library.patterns">
-    <include name="*.egg"/>
-    <include name="*.zip"/>
-    <include name="*.war"/>
-    <include name="*.swc"/>
-    <include name="*.ear"/>
-    <include name="*.jar"/>
-    <include name="*.klib"/>
-    <include name="*.ane"/>
-  </patternset>
-  <patternset id="compiler.resources">
-    <exclude name="**/?*.java"/>
-    <exclude name="**/?*.form"/>
-    <exclude name="**/?*.class"/>
-    <exclude name="**/?*.groovy"/>
-    <exclude name="**/?*.scala"/>
-    <exclude name="**/?*.flex"/>
-    <exclude name="**/?*.kt"/>
-    <exclude name="**/?*.clj"/>
-    <exclude name="**/?*.aj"/>
-  </patternset>
-  
-  <!-- JDK definitions -->
-  
-  <property name="jdk.bin.1.8" value="${jdk.home.1.8}/bin"/>
-  <path id="jdk.classpath.1.8">
-    <fileset dir="${jdk.home.1.8}">
-      <include name="jre/lib/charsets.jar"/>
-      <include name="jre/lib/deploy.jar"/>
-      <include name="jre/lib/ext/access-bridge-64.jar"/>
-      <include name="jre/lib/ext/cldrdata.jar"/>
-      <include name="jre/lib/ext/dnsns.jar"/>
-      <include name="jre/lib/ext/jaccess.jar"/>
-      <include name="jre/lib/ext/jfxrt.jar"/>
-      <include name="jre/lib/ext/localedata.jar"/>
-      <include name="jre/lib/ext/nashorn.jar"/>
-      <include name="jre/lib/ext/sunec.jar"/>
-      <include name="jre/lib/ext/sunjce_provider.jar"/>
-      <include name="jre/lib/ext/sunmscapi.jar"/>
-      <include name="jre/lib/ext/sunpkcs11.jar"/>
-      <include name="jre/lib/ext/zipfs.jar"/>
-      <include name="jre/lib/javaws.jar"/>
-      <include name="jre/lib/jce.jar"/>
-      <include name="jre/lib/jfr.jar"/>
-      <include name="jre/lib/jfxswt.jar"/>
-      <include name="jre/lib/jsse.jar"/>
-      <include name="jre/lib/management-agent.jar"/>
-      <include name="jre/lib/plugin.jar"/>
-      <include name="jre/lib/resources.jar"/>
-      <include name="jre/lib/rt.jar"/>
-    </fileset>
-  </path>
-  
-  <property name="project.jdk.home" value="${jdk.home.1.8}"/>
-  <property name="project.jdk.bin" value="${jdk.bin.1.8}"/>
-  <property name="project.jdk.classpath" value="jdk.classpath.1.8"/>
-  
-  
-  <!-- Project Libraries -->
-  
-  <path id="library.com.fazecast:jserialcomm:2.6.2.classpath">
-    <pathelement location="${basedir}/lib/jSerialComm-2.6.2.jar"/>
-  </path>
-  
-  <path id="library.com.google.code.gson:gson:2.8.6.classpath">
-    <pathelement location="${basedir}/lib/gson-2.8.6.jar"/>
-  </path>
-  
-  <path id="library.commons-cli:commons-cli:1.4.classpath">
-    <pathelement location="${basedir}/lib/commons-cli-1.4.jar"/>
-  </path>
-  
-  <path id="library.flak-api-1.2.0.classpath">
-    <pathelement location="${basedir}/../Libraries/flak-1.2.0/flak-api-1.2.0.jar"/>
-    <pathelement location="${basedir}/../Libraries/flak-1.2.0/flak-backend-jdk-1.2.0.jar"/>
-    <pathelement location="${basedir}/../Libraries/flak-1.2.0/flak-resource-1.2.0.jar"/>
-    <pathelement location="${basedir}/../Libraries/flak-1.2.0/flak-spi-1.2.0.jar"/>
-  </path>
-  
-  <path id="library.log4j:log4j:1.2.17.classpath">
-    <pathelement location="${basedir}/lib/log4j-1.2.17.jar"/>
-  </path>
-  
-  
-  <!-- Global Libraries -->
-  <!-- Register Custom Compiler Taskdefs -->
-  <property name="javac2.home" value="${idea.home}/lib"/>
-  <path id="javac2.classpath">
-    <fileset dir="${javac2.home}">
-      <include name="jdom.jar"/>
-      <include name="asm-all*.jar"/>
-      <include name="forms-*.jar"/>
-      <include name="forms_rt.jar"/>
-    </fileset>
-    <fileset dir="${idea.home}/plugins/java/lib">
-      <include name="javac2.jar"/>
-    </fileset>
-  </path>
-  <target name="register.custom.compilers">
-    <taskdef name="javac2" classname="com.intellij.ant.Javac2" classpathref="javac2.classpath"/>
-    <taskdef name="instrumentIdeaExtensions" classname="com.intellij.ant.InstrumentIdeaExtensions" classpathref="javac2.classpath"/>
-  </target>
-  
-  <!-- Modules -->
-  
-  
-  <!-- Module Liberty-Way -->
-  
-  <dirname property="module.liberty-way.basedir" file="${ant.file}"/>
-  
-  
-  <property name="module.jdk.home.liberty-way" value="${project.jdk.home}"/>
-  <property name="module.jdk.bin.liberty-way" value="${project.jdk.bin}"/>
-  <property name="module.jdk.classpath.liberty-way" value="${project.jdk.classpath}"/>
-  
-  <property name="compiler.args.liberty-way" value="-encoding UTF-8 -source 8 -target 8 ${compiler.args}"/>
-  
-  <property name="liberty-way.output.dir" value="${module.liberty-way.basedir}/out/production/Liberty-Way"/>
-  <property name="liberty-way.testoutput.dir" value="${module.liberty-way.basedir}/out/test/Liberty-Way"/>
-  
-  <path id="liberty-way.module.bootclasspath">
-    <!-- Paths to be included in compilation bootclasspath -->
-  </path>
-  
-  <path id="liberty-way.module.production.classpath">
-    <path refid="${module.jdk.classpath.liberty-way}"/>
-    <path refid="library.commons-cli:commons-cli:1.4.classpath"/>
-    <path refid="library.com.fazecast:jserialcomm:2.6.2.classpath"/>
-    <path refid="library.com.google.code.gson:gson:2.8.6.classpath"/>
-    <path refid="library.flak-api-1.2.0.classpath"/>
-    <pathelement location="${basedir}/../Libraries/opencv-451.jar"/>
-    <path refid="library.log4j:log4j:1.2.17.classpath"/>
-  </path>
-  
-  <path id="liberty-way.runtime.production.module.classpath">
-    <pathelement location="${liberty-way.output.dir}"/>
-    <path refid="library.commons-cli:commons-cli:1.4.classpath"/>
-    <path refid="library.com.fazecast:jserialcomm:2.6.2.classpath"/>
-    <path refid="library.com.google.code.gson:gson:2.8.6.classpath"/>
-    <path refid="library.flak-api-1.2.0.classpath"/>
-    <pathelement location="${basedir}/../Libraries/opencv-451.jar"/>
-    <path refid="library.log4j:log4j:1.2.17.classpath"/>
-  </path>
-  
-  <path id="liberty-way.module.classpath">
-    <path refid="${module.jdk.classpath.liberty-way}"/>
-    <pathelement location="${liberty-way.output.dir}"/>
-    <path refid="library.commons-cli:commons-cli:1.4.classpath"/>
-    <path refid="library.com.fazecast:jserialcomm:2.6.2.classpath"/>
-    <path refid="library.com.google.code.gson:gson:2.8.6.classpath"/>
-    <path refid="library.flak-api-1.2.0.classpath"/>
-    <pathelement location="${basedir}/../Libraries/opencv-451.jar"/>
-    <path refid="library.log4j:log4j:1.2.17.classpath"/>
-  </path>
-  
-  <path id="liberty-way.runtime.module.classpath">
-    <pathelement location="${liberty-way.testoutput.dir}"/>
-    <pathelement location="${liberty-way.output.dir}"/>
-    <path refid="library.commons-cli:commons-cli:1.4.classpath"/>
-    <path refid="library.com.fazecast:jserialcomm:2.6.2.classpath"/>
-    <path refid="library.com.google.code.gson:gson:2.8.6.classpath"/>
-    <path refid="library.flak-api-1.2.0.classpath"/>
-    <pathelement location="${basedir}/../Libraries/opencv-451.jar"/>
-    <path refid="library.log4j:log4j:1.2.17.classpath"/>
-  </path>
-  
-  
-  <patternset id="excluded.from.module.liberty-way">
-    <patternset refid="ignored.files"/>
-  </patternset>
-  
-  <patternset id="excluded.from.compilation.liberty-way">
-    <patternset refid="excluded.from.module.liberty-way"/>
-  </patternset>
-  
-  <path id="liberty-way.module.sourcepath">
-    <dirset dir="${module.liberty-way.basedir}">
-      <include name="src"/>
-    </dirset>
-  </path>
-  
-  
-  <target name="compile.module.liberty-way" depends="compile.module.liberty-way.production,compile.module.liberty-way.tests" description="Compile module Liberty-Way"/>
-  
-  <target name="compile.module.liberty-way.production" depends="register.custom.compilers" description="Compile module Liberty-Way; production classes">
-    <mkdir dir="${liberty-way.output.dir}"/>
-    <javac2 destdir="${liberty-way.output.dir}" debug="${compiler.debug}" nowarn="${compiler.generate.no.warnings}" memorymaximumsize="${compiler.max.memory}" fork="true" executable="${module.jdk.bin.liberty-way}/javac">
-      <compilerarg line="${compiler.args.liberty-way}"/>
-      <bootclasspath refid="liberty-way.module.bootclasspath"/>
-      <classpath refid="liberty-way.module.production.classpath"/>
-      <src refid="liberty-way.module.sourcepath"/>
-      <patternset refid="excluded.from.compilation.liberty-way"/>
-    </javac2>
-    
-    <copy todir="${liberty-way.output.dir}">
-      <fileset dir="${module.liberty-way.basedir}/src">
-        <patternset refid="compiler.resources"/>
-        <type type="file"/>
-      </fileset>
-    </copy>
-  </target>
-  
-  <target name="compile.module.liberty-way.tests" depends="register.custom.compilers,compile.module.liberty-way.production" description="compile module Liberty-Way; test classes" unless="skip.tests"/>
-  
-  <target name="clean.module.liberty-way" description="cleanup module">
-    <delete dir="${liberty-way.output.dir}"/>
-    <delete dir="${liberty-way.testoutput.dir}"/>
-  </target>
-  
-  <target name="init" description="Build initialization">
-    <!-- Perform any build initialization in this target -->
-  </target>
-  
-  <target name="clean" depends="clean.module.liberty-way" description="cleanup all"/>
-  
-  <target name="build.modules" depends="init, clean, compile.module.liberty-way" description="build all modules"/>
-  
-  <target name="init.artifacts">
-    <property name="artifacts.temp.dir" value="${basedir}/__artifacts_temp"/>
-    <property name="artifact.output.liberty-way:jar" value="${basedir}/out/artifacts/Liberty_Way_jar"/>
-    <mkdir dir="${artifacts.temp.dir}"/>
-    <property name="temp.jar.path.Liberty-Way.jar" value="${artifacts.temp.dir}/Liberty-Way.jar"/>
-  </target>
-  
-  <target name="artifact.liberty-way:jar" depends="init.artifacts, compile.module.liberty-way" description="Build &#39;Liberty-Way:jar&#39; artifact">
-    <property name="artifact.temp.output.liberty-way:jar" value="${artifacts.temp.dir}/Liberty_Way_jar"/>
-    <mkdir dir="${artifact.temp.output.liberty-way:jar}"/>
-    <jar destfile="${temp.jar.path.Liberty-Way.jar}" duplicate="preserve" filesetmanifest="mergewithoutmain">
-      <zipfileset dir="${liberty-way.output.dir}"/>
-      <zipfileset src="${basedir}/../Libraries/flak-1.2.0/flak-api-1.2.0.jar"/>
-      <zipfileset src="${basedir}/../Libraries/flak-1.2.0/flak-backend-jdk-1.2.0.jar"/>
-      <zipfileset src="${basedir}/../Libraries/flak-1.2.0/flak-resource-1.2.0.jar"/>
-      <zipfileset src="${basedir}/../Libraries/flak-1.2.0/flak-spi-1.2.0.jar"/>
-      <zipfileset src="${basedir}/lib/gson-2.8.6.jar"/>
-      <zipfileset src="${basedir}/lib/log4j-1.2.17.jar"/>
-      <zipfileset src="${basedir}/lib/jSerialComm-2.6.2.jar"/>
-      <zipfileset src="${basedir}/../Libraries/opencv-451.jar"/>
-      <zipfileset src="${basedir}/lib/commons-cli-1.4.jar"/>
-    </jar>
-    <copy file="${temp.jar.path.Liberty-Way.jar}" tofile="${artifact.temp.output.liberty-way:jar}/Liberty-Way.jar"/>
-  </target>
-  
-  <target name="build.all.artifacts" depends="artifact.liberty-way:jar" description="Build all artifacts">
-    <mkdir dir="${artifact.output.liberty-way:jar}"/>
-    <copy todir="${artifact.output.liberty-way:jar}">
-      <fileset dir="${artifact.temp.output.liberty-way:jar}"/>
-    </copy>
-    
-    <!-- Delete temporary files -->
-    <delete dir="${artifacts.temp.dir}"/>
-  </target>
-  
-  <target name="all" depends="build.modules, build.all.artifacts" description="build all"/>
+<project name="liberty-way" basedir="." default="main">
+    <property name="dir.src"     value="src"/>
+    <property name="dir.build"   value="build"/>
+    <property name="dir.classes" value="${dir.build}/classes"/>
+    <property name="dir.jar"     value="${dir.build}/jar"/>
+
+    <property name="main-class"  value="com.liberty_amls.Main"/>
+
+    <target name="clean">
+        <delete dir="${dir.build}"/>
+    </target>
+
+    <target name="compile">
+        <mkdir dir="${dir.classes}"/>
+        <javac srcdir="${dir.src}" destdir="${dir.classes}"/>
+    </target>
+
+    <target name="jar" depends="compile">
+        <mkdir dir="${dir.jar}"/>
+        <jar destfile="${dir.jar}/${ant.project.name}.jar" basedir="${dir.classes}">
+            <manifest>
+                <attribute name="Main-Class" value="${main-class}"/>
+            </manifest>
+        </jar>
+    </target>
+
+    <target name="run" depends="jar">
+        <java jar="${dir.jar}/${ant.project.name}.jar" fork="true"/>
+    </target>
+
+    <target name="clean-build" depends="clean,jar"/>
+    <target name="main" depends="clean,run"/>
 </project>
