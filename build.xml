@@ -36,7 +36,7 @@
         <mkdir dir="${dir.jar}"/>
         <jar destfile="${dir.jar}/${ant.project.name}.jar" basedir="${dir.classes}">
             <zipgroupfileset includes="*.jar" dir="${dir.utilities}"/>
-            <zipgroupfileset includes="*.properties" dir="${dir.src}"/>
+            <zipgroupfileset includes="log4j.properties" dir="${dir.src}"/>
             <manifest>
                 <attribute name="Main-Class" value="${main-class}"/>
             </manifest>
