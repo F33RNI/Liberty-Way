@@ -17,11 +17,9 @@
 
     <target name="compile">
         <mkdir dir="${dir.classes}"/>
-        <copy todir="${dir.classes}">
-          <fileset>
-            <fileset dir="${dir.src}" excludes="*.java"/>
-          </fileset>
-        </copy>
+        <copy todir="${dir.classes}" >  
+            <fileset dir="${dir.src}" includes="**"/>  
+        </copy> 
         <javac srcdir="${dir.src}" destdir="${dir.classes}">
           <classpath>
             <pathelement path="${dir.utilities}/jSerialComm-2.6.2.jar"/>
