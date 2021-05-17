@@ -16,8 +16,9 @@ All the code excluding the dependencies block, was written by Pavel Neshumov (Fr
 
 ## AMLS Projects
 
-- **Eitude Project:** https://github.com/XxOinvizioNxX/Eitude
-- **PX4 UDP Connection Project:** https://github.com/Draskown/PX4_UDP_Connection
+- **Liberty-X Project** (Flight controller): https://github.com/XxOinvizioNxX/Liberty-X
+- **Eitude Project** (Platform controller): https://github.com/XxOinvizioNxX/Eitude
+- **PX4 UDP Connection Project** (Deprecated GPS predictor): https://github.com/Draskown/PX4_UDP_Connection
 
 ----------
 
