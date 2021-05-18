@@ -263,7 +263,7 @@ public class PositionHandler {
                             if (telemetryContainer.linkNewWaypointGPS)
                                 waypointStep = 2;
                             sendGPSWaypoint(platformContainer.gpsLatInt, platformContainer.gpsLonInt);
-                            gpsEstimationContainer.arrayOfTrueGPS.add(new gpsEstimationContainer.TrueGPS(platformContainer.gpsLatInt,
+                            gpsEstimationContainer.arrayOfTrueGPS.add(new GPSEstimationContainer.TrueGPS(platformContainer.gpsLatInt,
                                     platformContainer.gpsLonInt));
                         } else {
                             if (telemetryContainer.takeoffDetected)
@@ -291,11 +291,11 @@ public class PositionHandler {
                                 waypointStep = 2;
                             if (distanceIsAcceptable()){
                                 sendGPSWaypoint(platformContainer.gpsLatInt, platformContainer.gpsLonInt);
-                                gpsEstimationContainer.arrayOfTrueGPS.add(new gpsEstimationContainer.TrueGPS(platformContainer.gpsLatInt,
+                                gpsEstimationContainer.arrayOfTrueGPS.add(new GPSEstimationContainer.TrueGPS(platformContainer.gpsLatInt,
                                         platformContainer.gpsLonInt));
                             }
                             else{
-                                gpsEstimationContainer.arrayOfTrueGPS.add(new gpsEstimationContainer.TrueGPS(platformContainer.gpsLatInt,
+                                gpsEstimationContainer.arrayOfTrueGPS.add(new GPSEstimationContainer.TrueGPS(platformContainer.gpsLatInt,
                                         platformContainer.gpsLonInt));
                                 gpsEstimationHandler.Calculate();
                                 if (gpsEstimationContainer.arrayOfEstimatedGPS.size() != 0){
