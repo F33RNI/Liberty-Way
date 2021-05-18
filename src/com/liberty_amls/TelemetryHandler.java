@@ -191,8 +191,9 @@ public class TelemetryHandler implements Runnable {
      * This method calculates current drone's velocity in km/h
      */
     private void CalculateVelocity(){
-        telemetryContainer.loopTime = (System.currentTimeMillis() / 1000.0) - loopTime;
         var loopTime = telemetryContainer.loopTime;
+        loopTime = (System.currentTimeMillis() / 1000.0) - loopTime;
+        telemetryContainer.loopTime = loopTime;
         var trueGPSList = gpsEstimationContainer.arrayOfTrueGPS;
 
         var current_lat = trueGPSList.get(trueGPSList.size() - 1).latitude;

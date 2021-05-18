@@ -37,7 +37,7 @@ public class GPSEstimationHandler {
     /**
      * Handles all of the calculation in order to predict the future GPS coordinate
      */
-    private void Calculate() {
+    public void Calculate() {
         ArrayList<Integer> x_ks = new ArrayList<Integer>();
         ArrayList<Integer> y_ks = new ArrayList<Integer>();
         int lat_error = 0, lon_error = 0;
