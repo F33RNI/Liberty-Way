@@ -30,6 +30,7 @@ public class TelemetryHandler implements Runnable {
     private final TelemetryContainer telemetryContainer;
     private final SerialHandler serialHandler;
     private final UDPHandler udpHandler;
+    private final GPSEstimationContainer gpsEstimationContainer;
     private final byte dataSuffix1, dataSuffix2;
     private final byte[] telemetryBuffer = new byte[30];
     private final int telemetryMaxLostTime;
@@ -39,10 +40,12 @@ public class TelemetryHandler implements Runnable {
     private volatile boolean handleRunning;
 
     TelemetryHandler(TelemetryContainer telemetryContainer, SerialHandler serialHandler,
-                     UDPHandler udpHandler, int telemetryMaxLostTime, byte dataSuffix1, byte dataSuffix2) {
+                     UDPHandler udpHandler, GPSEstimationContainer gpsEstimationContainer,
+                     int telemetryMaxLostTime, byte dataSuffix1, byte dataSuffix2) {
         this.telemetryContainer = telemetryContainer;
         this.serialHandler = serialHandler;
         this.udpHandler = udpHandler;
+        this.gpsEstimationContainer = gpsEstimationContainer;
         this.telemetryMaxLostTime = telemetryMaxLostTime;
         this.dataSuffix1 = dataSuffix1;
         this.dataSuffix2 = dataSuffix2;
@@ -178,6 +181,9 @@ public class TelemetryHandler implements Runnable {
                         break;
                 }
 
+                // Calculate velocity of the drone
+                CalculateVelocity();
+
                 // Increment packets counter
                 telemetryContainer.packetsNumber++;
 
@@ -202,5 +208,34 @@ public class TelemetryHandler implements Runnable {
     public void stop() {
         logger.warn("Turning off drone telemetry reading");
         handleRunning = false;
+    }
+
+    /**
+     * This method calculates current drone's velocity in km/h
+     */
+    private void CalculateVelocity(){
+        var loopTime = telemetryContainer.loopTime;
+        loopTime = (System.currentTimeMillis() / 1000.0) - loopTime;
+        telemetryContainer.loopTime = loopTime;
+        var trueGPSList = gpsEstimationContainer.arrayOfTrueGPS;
+
+        var current_lat = trueGPSList.get(trueGPSList.size() - 1).latitude;
+        var current_lon = trueGPSList.get(trueGPSList.size() - 1).longitude;
+        double velocity_x, velocity_y;
+
+        if (loopTime == 0.0)
+            velocity_x = velocity_y = 0.0;
+        else {
+            velocity_x = 1 / loopTime * Math.abs(current_lat
+                    - trueGPSList.get(trueGPSList.size() - 2).latitude);
+
+            velocity_y = 1 / loopTime * Math.abs(current_lon
+                    - trueGPSList.get(trueGPSList.size() - 2).longitude);
+        }
+
+        velocity_x *= 0.036;
+        velocity_y *= 0.036;
+
+        telemetryContainer.velocity.SetVelocity(velocity_x, velocity_y);
     }
 }
