@@ -263,7 +263,7 @@ public class PositionHandler {
                             if (telemetryContainer.linkNewWaypointGPS)
                                 waypointStep = 2;
                             sendGPSWaypoint(platformContainer.gpsLatInt, platformContainer.gpsLonInt);
-                            gpsEstimationContainer.arrayOfTrueGPS.Add(platformContainer.gpsLatInt,
+                            gpsEstimationContainer.arrayOfTrueGPS.add(platformContainer.gpsLatInt,
                                     platformContainer.gpsLonInt);
                         } else {
                             if (telemetryContainer.takeoffDetected)
@@ -291,16 +291,19 @@ public class PositionHandler {
                                 waypointStep = 2;
                             if (distanceIsAcceptable()){
                                 sendGPSWaypoint(platformContainer.gpsLatInt, platformContainer.gpsLonInt);
-                                gpsEstimationContainer.arrayOfTrueGPS.Add(platformContainer.gpsLatInt,
-                                                                          platformContainer.gpsLonInt);
+                                gpsEstimationContainer.arrayOfTrueGPS.add(platformContainer.gpsLatInt,
+                                                                    platformContainer.gpsLonInt);
                             }
                             else{
-                                gpsEstimationContainer.arrayOfTrueGPS.Add(platformContainer.gpsLatInt,
-                                                                          platformContainer.gpsLonInt);
+                                gpsEstimationContainer.arrayOfTrueGPS.add(platformContainer.gpsLatInt,
+                                        platformContainer.gpsLonInt);
                                 gpsEstimationHandler.Calculate();
-                                sendGPSWaypoint(
-                                        gpsEstimationContainer.arrayOfEstimatedGPS.get(arrayOfEstimatedGPS.size() - 1)
-                                );
+                                if (gpsEstimationContainer.arrayOfEstimatedGPS != 0){
+                                    var estimatedGPSArray = gpsEstimationContainer.arrayOfEstimatedGPS;
+                                    var lastEstimatedGPS = estimatedGPSArray.get(estimatedGPSArray.size() - 1);
+
+                                    sendGPSWaypoint(lastEstimatedGPS.latitude, lastEstimatedGPS.longitude);
+                                }
                             }
                         } else if (waypointStep >= 2) {
                             // Step 2. Wait for both flags to complete
@@ -560,9 +563,27 @@ public class PositionHandler {
      * between the platform and the drone is
      * acceptable enough for the drone to receive
      * non-processed GPS-coordinates
-     * @return
+     * @return Conclusion about whether the drone is close enough
      */
     private boolean distanceIsAcceptable(){
 
+        double lat1 = platformContainer.gpsLatDouble;
+        double lon1 = platformContainer.gpsLonDouble;
+        double lat2 = telemetryContainer.gpsLatDouble;
+        double lon2 = telemetryContainer.gpsLonDouble;
+
+        double dLat = (lat2-lat1) * Math.PI / 180;
+        double dLon = (lon2-lon1) * Math.PI / 180;
+
+        lat1 *= Math.PI / 180;
+        lat2 *= Math.PI / 180;
+
+        double a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                Math.sin(dLon/2) * Math.sin(dLon/2) * Math.cos(lat1) * Math.cos(lat2);
+        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+
+        double distance = (positionContainer.earthRadiusM * c);
+
+        return distance < positionContainer.acceptableDistance;
     }
 }
