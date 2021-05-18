@@ -263,8 +263,8 @@ public class PositionHandler {
                             if (telemetryContainer.linkNewWaypointGPS)
                                 waypointStep = 2;
                             sendGPSWaypoint(platformContainer.gpsLatInt, platformContainer.gpsLonInt);
-                            gpsEstimationContainer.arrayOfTrueGPS.add(platformContainer.gpsLatInt,
-                                    platformContainer.gpsLonInt);
+                            gpsEstimationContainer.arrayOfTrueGPS.add(new gpsEstimationContainer.TrueGPS(platformContainer.gpsLatInt,
+                                    platformContainer.gpsLonInt));
                         } else {
                             if (telemetryContainer.takeoffDetected)
                                 // Switch to WAYP mode if takeoff detected
@@ -291,14 +291,14 @@ public class PositionHandler {
                                 waypointStep = 2;
                             if (distanceIsAcceptable()){
                                 sendGPSWaypoint(platformContainer.gpsLatInt, platformContainer.gpsLonInt);
-                                gpsEstimationContainer.arrayOfTrueGPS.add(platformContainer.gpsLatInt,
-                                                                    platformContainer.gpsLonInt);
+                                gpsEstimationContainer.arrayOfTrueGPS.add(new gpsEstimationContainer.TrueGPS(platformContainer.gpsLatInt,
+                                        platformContainer.gpsLonInt));
                             }
                             else{
-                                gpsEstimationContainer.arrayOfTrueGPS.add(platformContainer.gpsLatInt,
-                                        platformContainer.gpsLonInt);
+                                gpsEstimationContainer.arrayOfTrueGPS.add(new gpsEstimationContainer.TrueGPS(platformContainer.gpsLatInt,
+                                        platformContainer.gpsLonInt));
                                 gpsEstimationHandler.Calculate();
-                                if (gpsEstimationContainer.arrayOfEstimatedGPS != 0){
+                                if (gpsEstimationContainer.arrayOfEstimatedGPS.size() != 0){
                                     var estimatedGPSArray = gpsEstimationContainer.arrayOfEstimatedGPS;
                                     var lastEstimatedGPS = estimatedGPSArray.get(estimatedGPSArray.size() - 1);
 
