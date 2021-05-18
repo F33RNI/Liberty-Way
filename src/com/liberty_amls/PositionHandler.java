@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2021 Frey Hertz (Pavel Neshumov), Liberty-Way Landing System Project
- *
+ * Copyright 2021 The Liberty-Way Landing System Open Source Project
  * This software is part of Autonomous Multirotor Landing System (AMLS) Project
  *
  * Licensed under the GNU Affero General Public License, Version 3.0 (the "License");
@@ -14,11 +13,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- * IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY CLAIM, DAMAGES OR
- * OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
- * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
- * OTHER DEALINGS IN THE SOFTWARE.
  */
 
 package com.liberty_amls;
@@ -37,6 +31,8 @@ public class PositionHandler {
     private final PlatformContainer platformContainer;
     private final TelemetryContainer telemetryContainer;
     private final BlackboxHandler blackboxHandler;
+    private final GPSEstimationContainer gpsEstimationContainer;
+    private final GPSEstimationHandler gpsEstimationHandler;
     private final byte[] directControlData;
     private int waypointStep = 0;
     private int lostCounter = 0;
@@ -55,7 +51,9 @@ public class PositionHandler {
                            PlatformContainer platformContainer,
                            TelemetryContainer telemetryContainer,
                            BlackboxHandler blackboxHandler,
-                           SettingsContainer settingsContainer) {
+                           SettingsContainer settingsContainer,
+                           GPSEstimationContainer gpsEstimationContainer,
+                           GPSEstimationHandler gpsEstimationHandler) {
         this.serialHandler = serialHandler;
         this.udpHandler = udpHandler;
         this.miniPIDX = new MiniPID(0, 0, 0, 0);
@@ -70,6 +68,8 @@ public class PositionHandler {
         this.telemetryContainer = telemetryContainer;
         this.blackboxHandler = blackboxHandler;
         this.settingsContainer = settingsContainer;
+        this.gpsEstimationContainer = gpsEstimationContainer;
+        this.gpsEstimationHandler = gpsEstimationHandler;
 
         positionContainer.setSetpoints(settingsContainer.setpointX, settingsContainer.setpointY, 0,
                 settingsContainer.setpointYaw);
@@ -263,6 +263,8 @@ public class PositionHandler {
                             if (telemetryContainer.linkNewWaypointGPS)
                                 waypointStep = 2;
                             sendGPSWaypoint(platformContainer.gpsLatInt, platformContainer.gpsLonInt);
+                            gpsEstimationContainer.arrayOfTrueGPS.Add(platformContainer.gpsLatInt,
+                                    platformContainer.gpsLonInt);
                         } else {
                             if (telemetryContainer.takeoffDetected)
                                 // Switch to WAYP mode if takeoff detected
@@ -287,7 +289,19 @@ public class PositionHandler {
                             // Step 1. Send gps waypoint
                             if (telemetryContainer.linkNewWaypointGPS)
                                 waypointStep = 2;
-                            sendGPSWaypoint(platformContainer.gpsLatInt, platformContainer.gpsLonInt);
+                            if (distanceIsAcceptable()){
+                                sendGPSWaypoint(platformContainer.gpsLatInt, platformContainer.gpsLonInt);
+                                gpsEstimationContainer.arrayOfTrueGPS.Add(platformContainer.gpsLatInt,
+                                                                          platformContainer.gpsLonInt);
+                            }
+                            else{
+                                gpsEstimationContainer.arrayOfTrueGPS.Add(platformContainer.gpsLatInt,
+                                                                          platformContainer.gpsLonInt);
+                                gpsEstimationHandler.Calculate();
+                                sendGPSWaypoint(
+                                        gpsEstimationContainer.arrayOfEstimatedGPS.get(arrayOfEstimatedGPS.size() - 1)
+                                );
+                            }
                         } else if (waypointStep >= 2) {
                             // Step 2. Wait for both flags to complete
                             waypointStep++;
@@ -539,5 +553,16 @@ public class PositionHandler {
                 pid.get("D").getAsDouble(), pid.get("F").getAsDouble());
         miniPID.setOutputRampRate(pid.get("ramp").getAsDouble());
         miniPID.setOutputLimits(pid.get("limit").getAsDouble());
+    }
+
+    /**
+     * Calculates whether the current distance
+     * between the platform and the drone is
+     * acceptable enough for the drone to receive
+     * non-processed GPS-coordinates
+     * @return
+     */
+    private boolean distanceIsAcceptable(){
+
     }
 }

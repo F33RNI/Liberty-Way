@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2021 Frey Hertz (Pavel Neshumov), Liberty-Way Landing System Project
- *
+ * Copyright 2021 The Liberty-Way Landing System Open Source Project
  * This software is part of Autonomous Multirotor Landing System (AMLS) Project
  *
  * Licensed under the GNU Affero General Public License, Version 3.0 (the "License");
@@ -14,13 +13,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- * IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY CLAIM, DAMAGES OR
- * OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
- * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
- * OTHER DEALINGS IN THE SOFTWARE.
  */
-
 
 package com.liberty_amls;
 
@@ -60,6 +53,8 @@ public class WebAPI {
     private TelemetryContainer telemetryContainer;
     private PlatformContainer platformContainer;
     private PositionContainer positionContainer;
+    private GPSEstimationContainer gpsEstimationContainer;
+    private GPSEstimationHandler gpsEstimationHandler;
 
     /**
      * This class provides a web API. The ability to send and receive data using POST JSON requests
@@ -311,9 +306,15 @@ public class WebAPI {
         blackboxThread.setPriority(Thread.NORM_PRIORITY);
         blackboxThread.start();
 
+        // Create GPSEstimationContainer class for storing GPS coordinates
+        gpsEstimationContainer = new GPSEstimationContainer();
+
+        // Create GPSEstimationHandler class for integrating with the platform
+        gpsEstimationHandler = new GPSEstimationHandler(gpsEstimationContainer, telemetryContainer);
+
         // Create PositionHandler class for to handle the current position
         positionHandler = new PositionHandler(serialHandler, udpHandler, positionContainer, platformContainer,
-                telemetryContainer, blackboxHandler, settingsContainer);
+                telemetryContainer, blackboxHandler, settingsContainer, gpsEstimationContainer, gpsEstimationHandler);
 
         // Set coefficients for MiniPID in PositionHandler class
         positionHandler.loadPIDFromFile();

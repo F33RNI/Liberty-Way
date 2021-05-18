@@ -1,5 +1,5 @@
 /**
- * Copyright 2021 The Liberty-Way Landing System Open Source Project
+ * Copyright 2021 Kabalin, Andrey The Liberty-Way Landing System Open Source Project
  * This software is part of Autonomous Multirotor Landing System (AMLS) Project
  *
  * Licensed under the GNU Affero General Public License, Version 3.0 (the "License");
@@ -15,33 +15,36 @@
  * limitations under the License.
  */
 
-package liberty_amls;
+package com.liberty_amls;
 
 import java.util.ArrayList;
 
 public class GPSEstimationContainer {
     public ArrayList<EstimatedGPS> arrayOfEstimatedGPS;
     public ArrayList<TrueGPS> arrayOfTrueGPS;
+    public double estimationCoefficient;
 
     /**
      * This class contains all data about platform's GPS position
+     * and the coefficient of estimation efficiency
      */
     public GPSEstimationContainer(){
         // initialize ArrayLists
         arrayOfTrueGPS = new ArrayList<>();
         arrayOfEstimatedGPS = new ArrayList<>();
+        estimationCoefficient = 1;
     }
 
 
     static class EstimatedGPS{
-        public final long latitude, longitude;
+        public final int latitude, longitude;
 
         /**
          * This sub-class contains latitude and longitude of 1 predicted GPS coordinate
          * @param lat Predicted latitude
          * @param lon Predicted longitude
          */
-        public EstimatedGPS(long lat, long lon){
+        public EstimatedGPS(int lat, int lon){
             this.latitude = lat;
             this.longitude = lon;
         }
@@ -49,14 +52,14 @@ public class GPSEstimationContainer {
 
 
     static class TrueGPS{
-        public final long latitude, longitude;
+        public final int latitude, longitude;
 
         /**
          * This sub-class contains latitude and longitude of 1 received (true) GPS coordinate
          * @param lat True latitude
          * @param lon True longitude
          */
-        public TrueGPS(long lat, long lon) {
+        public TrueGPS(int lat, int lon) {
             this.latitude = lat;
             this.longitude = lon;
         }

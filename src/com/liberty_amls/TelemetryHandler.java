@@ -1,26 +1,3 @@
-/*
- * Copyright (C) 2021 Frey Hertz (Pavel Neshumov), Liberty-Way Landing System Project
- *
- * This software is part of Autonomous Multirotor Landing System (AMLS) Project
- *
- * Licensed under the GNU Affero General Public License, Version 3.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      https://www.gnu.org/licenses/agpl-3.0.en.html
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- * IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY CLAIM, DAMAGES OR
- * OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
- * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
- * OTHER DEALINGS IN THE SOFTWARE.
- */
-
 package com.liberty_amls;
 
 import org.apache.log4j.Logger;
@@ -30,6 +7,7 @@ public class TelemetryHandler implements Runnable {
     private final TelemetryContainer telemetryContainer;
     private final SerialHandler serialHandler;
     private final UDPHandler udpHandler;
+    private final GPSEstimationContainer gpsEstimationContainer;
     private final byte dataSuffix1, dataSuffix2;
     private final byte[] telemetryBuffer = new byte[30];
     private final int telemetryMaxLostTime;
@@ -39,10 +17,12 @@ public class TelemetryHandler implements Runnable {
     private volatile boolean handleRunning;
 
     TelemetryHandler(TelemetryContainer telemetryContainer, SerialHandler serialHandler,
-                     UDPHandler udpHandler, int telemetryMaxLostTime, byte dataSuffix1, byte dataSuffix2) {
+                     UDPHandler udpHandler, GPSEstimationContainer gpsEstimationContainer,
+                     int telemetryMaxLostTime, byte dataSuffix1, byte dataSuffix2) {
         this.telemetryContainer = telemetryContainer;
         this.serialHandler = serialHandler;
         this.udpHandler = udpHandler;
+        this.gpsEstimationContainer = gpsEstimationContainer;
         this.telemetryMaxLostTime = telemetryMaxLostTime;
         this.dataSuffix1 = dataSuffix1;
         this.dataSuffix2 = dataSuffix2;
@@ -178,6 +158,9 @@ public class TelemetryHandler implements Runnable {
                         break;
                 }
 
+                // Calculate velocity of the drone
+                CalculateVelocity();
+
                 // Increment packets counter
                 telemetryContainer.packetsNumber++;
 
@@ -202,5 +185,33 @@ public class TelemetryHandler implements Runnable {
     public void stop() {
         logger.warn("Turning off drone telemetry reading");
         handleRunning = false;
+    }
+
+    /**
+     * This method calculates current drone's velocity in km/h
+     */
+    private void CalculateVelocity(){
+        telemetryContainer.loopTime = (System.currentTimeMillis() / 1000.0) - loopTime;
+        var loopTime = telemetryContainer.loopTime;
+        var trueGPSList = gpsEstimationContainer.arrayOfTrueGPS;
+
+        var current_lat = trueGPSList.get(trueGPSList.size() - 1).latitude;
+        var current_lon = trueGPSList.get(trueGPSList.size() - 1).longitude;
+        double velocity_x, velocity_y;
+
+        if (loopTime == 0.0)
+            velocity_x = velocity_y = 0.0;
+        else {
+            velocity_x = 1 / loopTime * Math.abs(current_lat
+                    - trueGPSList.get(trueGPSList.size() - 2).latitude);
+
+            velocity_y = 1 / loopTime * Math.abs(current_lon
+                    - trueGPSList.get(trueGPSList.size() - 2).longitude);
+        }
+
+        velocity_x *= 0.036;
+        velocity_y *= 0.036;
+
+        telemetryContainer.velocity.SetVelocity(velocity_x, velocity_y);
     }
 }
