@@ -43,6 +43,7 @@ public class PlatformHandler implements Runnable {
     private double exposureLast = 0;
     private boolean lightsLast = false;
     private volatile boolean opencvStarts = false;
+    private int lastGPSLat = 0, lastGPSLon = 0;
 
     /**
      * This class communicates with the platform via the serial port
@@ -106,6 +107,7 @@ public class PlatformHandler implements Runnable {
             cycleError = false;
             if (checkStatus()) {
                 readPressureAndGPS();
+                calculateSpeed();
                 illuminationController();
                 speedController();
                 writeStatus();
@@ -229,8 +231,13 @@ public class PlatformHandler implements Runnable {
             cycleError = true;
             return;
         }
+
+        lastGPSLat = platformContainer.gpsLatInt;
+        lastGPSLon = platformContainer.gpsLonInt;
+
         platformContainer.gpsLatInt = (int) parseNumberFromGCode(incoming, 'A', 0);
         platformContainer.gpsLonInt = (int) parseNumberFromGCode(incoming, 'O', 0);
+        platformContainer.fillArrays();
 
         platformContainer.gpsLatDouble = platformContainer.gpsLatInt / 1000000.0;
         platformContainer.gpsLonDouble = platformContainer.gpsLonInt / 1000000.0;
@@ -334,5 +341,33 @@ public class PlatformHandler implements Runnable {
         logger.warn("Stopping platform handler");
         handleRunning = false;
         disableLight();
+    }
+
+    /**
+     * This method calculates current platform's velocity in km/h
+     */
+    private void calculateSpeed(){
+        platformContainer.time = platformLastPacketTime;
+        double loopTime = platformLastPacketTime;
+
+        int currentLat = platformContainer.gpsLatInt;
+        int currentLon = platformContainer.gpsLonInt;
+        double speedX, speedY;
+
+        if (loopTime == 0.0)
+            speedX = speedY = 0.0;
+        else {
+            speedX = 1 / loopTime * Math.abs(currentLat - this.lastGPSLat);
+
+            speedY = 1 / loopTime * Math.abs(currentLon - this.lastGPSLon);
+        }
+
+        platformContainer.alphaX = speedX * loopTime;
+        platformContainer.alphaY = speedY * loopTime;
+
+        speedX *= 36;
+        speedY *= 36;
+
+        platformContainer.speed = Math.sqrt(speedX*speedX + speedY*speedY);
     }
 }

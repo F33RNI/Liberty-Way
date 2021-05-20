@@ -24,67 +24,79 @@
 package com.liberty_amls;
 
 import java.util.ArrayList;
-import java.util.IntSummaryStatistics;
+import java.util.DoubleSummaryStatistics;
 
 public class GPSEstimationHandler {
-    private final GPSEstimationContainer gpsEstimationContainer;
-    private final TelemetryContainer telemetryContainer;
+    private final PlatformContainer platformContainer;
+
+    private int estimatedGPSLat = 0, estimatedGPSLon = 0;
 
     /**
      * This class operates with GPS coordinates and predicts the next that the drone will receive
-     * @param gpsEstimationContainer GPS coordinates container
+     * @param platformContainer Container of telemetry's parameters
      */
-    public GPSEstimationHandler(GPSEstimationContainer gpsEstimationContainer,
-                                TelemetryContainer telemetryContainer){
-        this.gpsEstimationContainer = gpsEstimationContainer;
-        this.telemetryContainer = telemetryContainer;
+    public GPSEstimationHandler(PlatformContainer platformContainer){ this.platformContainer = platformContainer; }
+
+    /**
+     * Handles all of the calculations in order to predict the future GPS coordinate
+     */
+    public void calculate() {
+        ArrayList<Double> ksX = new ArrayList<>();
+        ArrayList<Double> ksY = new ArrayList<>();
+        int latError = 0, lonError = 0;
+
+        ArrayList<Integer> trueGPSLat = platformContainer.trueGPSLat;
+        ArrayList<Integer> trueGPSLon = platformContainer.trueGPSLon;
+
+        int currentLat = platformContainer.gpsLatInt;
+        int currentLon = platformContainer.gpsLonInt;
+
+        if (this.estimatedGPSLat != 0 && this.estimatedGPSLon != 0){
+            latError = currentLat - this.estimatedGPSLat;
+            lonError = currentLon - this.estimatedGPSLon;
+        }
+
+        for (int i = 0; i < trueGPSLat.size() - 1; i++){
+            ksX.add(trueGPSLat.get(i + 1) / (double)trueGPSLat.get(i));
+            ksY.add(trueGPSLon.get(i + 1) / (double)trueGPSLon.get(i));
+        }
+
+        DoubleSummaryStatistics stats = ksX.stream().mapToDouble((x) -> x).summaryStatistics();
+        double avgXK = stats.getAverage();
+
+        stats = ksY.stream().mapToDouble((x) -> x).summaryStatistics();
+        double avgYK = stats.getAverage();
+
+        double x_omega = ksX.get(ksX.size() - 1) - avgXK;
+        double y_omega = ksY.get(ksY.size() - 1) - avgYK;
+
+        double alphaX = platformContainer.alphaX;
+        double alphaY = platformContainer.alphaY;
+
+        int eLat = (int) (-alphaX*x_omega + currentLat*avgXK + latError);
+        int eLon = (int) (-alphaY*y_omega + currentLon*avgYK + lonError);
+
+        this.estimatedGPSLat = eLat;
+        this.estimatedGPSLon = eLon;
     }
 
     /**
-     * Handles all of the calculation in order to predict the future GPS coordinate
+     * This method returns the last
+     * GPS coordinate that has been
+     * calculated to be next (latitude)
+     * @return the last EstimatedGPS' latitude
      */
-    public void Calculate() {
-        ArrayList<Integer> x_ks = new ArrayList<Integer>();
-        ArrayList<Integer> y_ks = new ArrayList<Integer>();
-        int lat_error = 0, lon_error = 0;
+    public int getEstimatedGPSLat(){
+        return this.estimatedGPSLat;
+    }
 
-        ArrayList<GPSEstimationContainer.EstimatedGPS> estimatedGPSList =
-                gpsEstimationContainer.arrayOfEstimatedGPS;
-
-        ArrayList<GPSEstimationContainer.TrueGPS> trueGPSList =
-                gpsEstimationContainer.arrayOfTrueGPS;
-
-        int current_lat = trueGPSList.get(trueGPSList.size() - 1).latitude;
-        int current_lon = trueGPSList.get(trueGPSList.size() - 1).longitude;
-
-        if (estimatedGPSList.size() > 0){
-            lat_error = current_lat - estimatedGPSList.get(estimatedGPSList.size() - 1).latitude;
-            lon_error = current_lon - estimatedGPSList.get(estimatedGPSList.size() - 1).longitude;
-        }
-
-        for (int i = 0; i < trueGPSList.size() - 1; i++){
-            x_ks.add(trueGPSList.get(i + 1).latitude / trueGPSList.get(i).latitude);
-            y_ks.add(trueGPSList.get(i + 1).longitude / trueGPSList.get(i).longitude);
-        }
-
-        IntSummaryStatistics stats = x_ks.stream().mapToInt((x) -> x).summaryStatistics();
-        int x_avg_k = (int)stats.getAverage();
-
-        stats = y_ks.stream().mapToInt((x) -> x).summaryStatistics();
-        int y_avg_k = (int)stats.getAverage();
-
-        int x_omega = x_ks.get(x_ks.size() - 1) - x_avg_k;
-        int y_omega = y_ks.get(y_ks.size() - 1) - y_avg_k;
-
-        var velocity_x = telemetryContainer.velocity.velocityX;
-        var velocity_y = telemetryContainer.velocity.velocityY;
-        var freq = telemetryContainer.loopTime;
-
-        double k = gpsEstimationContainer.estimationCoefficient;
-        int e_lat = (int) ((-freq*(velocity_x / 0.036)*x_omega + current_lat*x_avg_k + lat_error) * k);
-        int e_lon = (int) ((-freq*(velocity_y / 0.036)*y_omega + current_lon*y_avg_k + lon_error) * k);
-
-        gpsEstimationContainer.arrayOfEstimatedGPS.add(
-                new GPSEstimationContainer.EstimatedGPS(e_lat, e_lon));
+    /**
+     * This method returns the last
+     * GPS coordinate that has been
+     * calculated to be next (longitude)
+     * @return the last EstimatedGPS' longitude
+     */
+    public int getEstimatedGPSLon(){
+        return this.estimatedGPSLon;
     }
 }

@@ -30,7 +30,6 @@ public class TelemetryHandler implements Runnable {
     private final TelemetryContainer telemetryContainer;
     private final SerialHandler serialHandler;
     private final UDPHandler udpHandler;
-    private final GPSEstimationContainer gpsEstimationContainer;
     private final byte dataSuffix1, dataSuffix2;
     private final byte[] telemetryBuffer = new byte[30];
     private final int telemetryMaxLostTime;
@@ -38,14 +37,13 @@ public class TelemetryHandler implements Runnable {
     private int telemetryBufferPosition = 0;
     private long telemetryLastPacketTime = 0;
     private volatile boolean handleRunning;
+    private int lastGPSLat = 0, lastGPSLon = 0;
 
-    TelemetryHandler(TelemetryContainer telemetryContainer, SerialHandler serialHandler,
-                     UDPHandler udpHandler, GPSEstimationContainer gpsEstimationContainer,
+    TelemetryHandler(TelemetryContainer telemetryContainer, SerialHandler serialHandler, UDPHandler udpHandler,
                      int telemetryMaxLostTime, byte dataSuffix1, byte dataSuffix2) {
         this.telemetryContainer = telemetryContainer;
         this.serialHandler = serialHandler;
         this.udpHandler = udpHandler;
-        this.gpsEstimationContainer = gpsEstimationContainer;
         this.telemetryMaxLostTime = telemetryMaxLostTime;
         this.dataSuffix1 = dataSuffix1;
         this.dataSuffix2 = dataSuffix2;
@@ -75,6 +73,9 @@ public class TelemetryHandler implements Runnable {
         } else if (udpHandler.isUdpPortOpened()) {
             readAndParse(udpHandler.takeSingleByte());
         }
+
+        // Calculate speed of the drone
+        calculateSpeed();
     }
 
     private void readAndParse(byte data) {
@@ -142,6 +143,9 @@ public class TelemetryHandler implements Runnable {
                 // Fix type of GPS
                 telemetryContainer.fixType = ((int) telemetryBuffer[17] & 0xFF);
 
+                this.lastGPSLat = telemetryContainer.gpsLatInt;
+                this.lastGPSLon = telemetryContainer.gpsLonInt;
+
                 // GPS Latitude
                 telemetryContainer.gpsLatInt = ((int) telemetryBuffer[21] & 0xFF)
                         | ((int) telemetryBuffer[20] & 0xFF) << 8
@@ -181,9 +185,6 @@ public class TelemetryHandler implements Runnable {
                         break;
                 }
 
-                // Calculate velocity of the drone
-                CalculateVelocity();
-
                 // Increment packets counter
                 telemetryContainer.packetsNumber++;
 
@@ -213,29 +214,24 @@ public class TelemetryHandler implements Runnable {
     /**
      * This method calculates current drone's velocity in km/h
      */
-    private void CalculateVelocity(){
-        var loopTime = telemetryContainer.loopTime;
-        loopTime = (System.currentTimeMillis() / 1000.0) - loopTime;
-        telemetryContainer.loopTime = loopTime;
-        var trueGPSList = gpsEstimationContainer.arrayOfTrueGPS;
+    private void calculateSpeed(){
+        double loopTime = telemetryLastPacketTime;
 
-        var current_lat = trueGPSList.get(trueGPSList.size() - 1).latitude;
-        var current_lon = trueGPSList.get(trueGPSList.size() - 1).longitude;
-        double velocity_x, velocity_y;
+        int currentLat = telemetryContainer.gpsLatInt;
+        int currentLon = telemetryContainer.gpsLonInt;
+        double speedX, speedY;
 
         if (loopTime == 0.0)
-            velocity_x = velocity_y = 0.0;
+            speedX = speedY = 0.0;
         else {
-            velocity_x = 1 / loopTime * Math.abs(current_lat
-                    - trueGPSList.get(trueGPSList.size() - 2).latitude);
+            speedX = 1 / loopTime * Math.abs(currentLat - this.lastGPSLat);
 
-            velocity_y = 1 / loopTime * Math.abs(current_lon
-                    - trueGPSList.get(trueGPSList.size() - 2).longitude);
+            speedY = 1 / loopTime * Math.abs(currentLon - this.lastGPSLon);
         }
 
-        velocity_x *= 0.036;
-        velocity_y *= 0.036;
+        speedX *= 36;
+        speedY *= 36;
 
-        telemetryContainer.velocity.SetVelocity(velocity_x, velocity_y);
+        telemetryContainer.speed = Math.sqrt(speedX*speedX + speedY*speedY);
     }
 }

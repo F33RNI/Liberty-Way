@@ -37,7 +37,6 @@ public class PositionHandler {
     private final PlatformContainer platformContainer;
     private final TelemetryContainer telemetryContainer;
     private final BlackboxHandler blackboxHandler;
-    private final GPSEstimationContainer gpsEstimationContainer;
     private final GPSEstimationHandler gpsEstimationHandler;
     private final byte[] directControlData;
     private int waypointStep = 0;
@@ -58,7 +57,6 @@ public class PositionHandler {
                            TelemetryContainer telemetryContainer,
                            BlackboxHandler blackboxHandler,
                            SettingsContainer settingsContainer,
-                           GPSEstimationContainer gpsEstimationContainer,
                            GPSEstimationHandler gpsEstimationHandler) {
         this.serialHandler = serialHandler;
         this.udpHandler = udpHandler;
@@ -74,7 +72,6 @@ public class PositionHandler {
         this.telemetryContainer = telemetryContainer;
         this.blackboxHandler = blackboxHandler;
         this.settingsContainer = settingsContainer;
-        this.gpsEstimationContainer = gpsEstimationContainer;
         this.gpsEstimationHandler = gpsEstimationHandler;
 
         positionContainer.setSetpoints(settingsContainer.setpointX, settingsContainer.setpointY, 0,
@@ -269,8 +266,6 @@ public class PositionHandler {
                             if (telemetryContainer.linkNewWaypointGPS)
                                 waypointStep = 2;
                             sendGPSWaypoint(platformContainer.gpsLatInt, platformContainer.gpsLonInt);
-                            gpsEstimationContainer.arrayOfTrueGPS.add(new GPSEstimationContainer.TrueGPS(platformContainer.gpsLatInt,
-                                    platformContainer.gpsLonInt));
                         } else {
                             if (telemetryContainer.takeoffDetected)
                                 // Switch to WAYP mode if takeoff detected
@@ -293,23 +288,21 @@ public class PositionHandler {
                             sendPressureWaypoint(platformContainer.pressure);
                         } else if (waypointStep == 1) {
                             // Step 1. Send gps waypoint
-                            if (telemetryContainer.linkNewWaypointGPS)
+                            if (telemetryContainer.linkNewWaypointGPS) {
                                 waypointStep = 2;
-                            if (distanceIsAcceptable()){
-                                sendGPSWaypoint(platformContainer.gpsLatInt, platformContainer.gpsLonInt);
-                                gpsEstimationContainer.arrayOfTrueGPS.add(new GPSEstimationContainer.TrueGPS(platformContainer.gpsLatInt,
-                                        platformContainer.gpsLonInt));
-                            }
-                            else{
-                                gpsEstimationContainer.arrayOfTrueGPS.add(new GPSEstimationContainer.TrueGPS(platformContainer.gpsLatInt,
-                                        platformContainer.gpsLonInt));
-                                gpsEstimationHandler.Calculate();
-                                if (gpsEstimationContainer.arrayOfEstimatedGPS.size() != 0){
-                                    var estimatedGPSArray = gpsEstimationContainer.arrayOfEstimatedGPS;
-                                    var lastEstimatedGPS = estimatedGPSArray.get(estimatedGPSArray.size() - 1);
+                                gpsEstimationHandler.calculate();
+                                int estimatedGPSLat = gpsEstimationHandler.getEstimatedGPSLat();
+                                int estimatedGPSLon = gpsEstimationHandler.getEstimatedGPSLon();
+                                if (estimatedGPSLat != 0 && estimatedGPSLon != 0) {
+                                    double K = calculateK();
 
-                                    sendGPSWaypoint(lastEstimatedGPS.latitude, lastEstimatedGPS.longitude);
+                                    int droneGPSLat = (int) (estimatedGPSLon * K + platformContainer.gpsLatInt * (K - 1));
+                                    int droneGPSLon = (int) (estimatedGPSLon * K + platformContainer.gpsLonInt * (K - 1));
+
+                                    sendGPSWaypoint(droneGPSLat, droneGPSLon);
                                 }
+                                else
+                                    sendGPSWaypoint(platformContainer.gpsLatInt, platformContainer.gpsLonInt);
                             }
                         } else if (waypointStep >= 2) {
                             // Step 2. Wait for both flags to complete
@@ -569,9 +562,9 @@ public class PositionHandler {
      * between the platform and the drone is
      * acceptable enough for the drone to receive
      * non-processed GPS-coordinates
-     * @return Conclusion about whether the drone is close enough
+     * @return Coefficient of estimation involvement
      */
-    private boolean distanceIsAcceptable(){
+    private double calculateK(){
 
         double lat1 = platformContainer.gpsLatDouble;
         double lon1 = platformContainer.gpsLonDouble;
@@ -588,8 +581,22 @@ public class PositionHandler {
                 Math.sin(dLon/2) * Math.sin(dLon/2) * Math.cos(lat1) * Math.cos(lat2);
         double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
 
-        double distance = (positionContainer.earthRadiusM * c);
+        double distance = (settingsContainer.planetRadius * c);
 
-        return distance < positionContainer.acceptableDistance;
+        if (distance > settingsContainer.notAcceptableDistance)
+            return 1.0;
+        else
+            return mapDouble(distance, 0, settingsContainer.notAcceptableDistance, 0, 1);
+    }
+
+    /**
+     * This method maps the received value
+     * in a new provided range similar to
+     * how it works in Arduino
+     * @return mapped value
+     */
+    private double mapDouble(double value, double inMin, double inMax, double outMin, double outMax)
+    {
+        return (value - inMin) * (outMax - outMin) / (inMax - inMin) + outMin;
     }
 }

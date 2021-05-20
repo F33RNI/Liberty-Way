@@ -23,17 +23,22 @@
 
 package com.liberty_amls;
 
+import java.util.ArrayList;
+
 public class PlatformContainer {
     public boolean platformLost;
     public int packetsNumber;
     public int illumination;
     public double cameraExposure;
     public double speed;
-    public int gpsLatInt, gpsLonInt;
     public double gpsLatDouble, gpsLonDouble;
+    public int gpsLatInt, gpsLonInt;
     public int fixType, satellitesNum;
     public int pressure;
     public boolean gpsNewPositionFlag;
+    public ArrayList<Integer> trueGPSLat, trueGPSLon;
+    public long time;
+    public double alphaX, alphaY;
 
     /**
      * This class contains all data from the platform
@@ -44,14 +49,29 @@ public class PlatformContainer {
         packetsNumber = 0;
         illumination = 0;
         speed = 0;
-        gpsLatInt = 0;
-        gpsLonInt = 0;
         gpsLatDouble = 0;
         gpsLonDouble = 0;
+        gpsLatInt = 0;
+        gpsLonInt = 0;
         pressure = 0;
         fixType = 0;
         satellitesNum = 0;
         gpsNewPositionFlag = false;
         cameraExposure = defaultExposure;
+        trueGPSLat = new ArrayList<>();
+        trueGPSLon = new ArrayList<>();
+        alphaX = alphaY = 0;
+    }
+
+    /**
+     * Fills the arrays of true GPS of the platform
+     */
+    public void fillArrays (){
+        if (this.trueGPSLat.size() > 5){
+            this.trueGPSLat.clear();
+            this.trueGPSLon.clear();
+        }
+        this.trueGPSLon.add(this.gpsLatInt);
+        this.trueGPSLon.add(this.gpsLonInt);
     }
 }

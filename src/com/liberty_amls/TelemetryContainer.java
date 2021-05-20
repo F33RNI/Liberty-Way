@@ -37,8 +37,7 @@ public class TelemetryContainer {
     public double gpsLatDouble, gpsLonDouble;
     public int linkWaypointStep;
     public boolean linkNewWaypointAltitude, linkNewWaypointGPS;
-    public Velocity velocity;
-    public double loopTime;
+    public double speed;
 
     /**
      * This class contains all data from the telemetry
@@ -66,33 +65,6 @@ public class TelemetryContainer {
         linkWaypointStep = 0;
         linkNewWaypointAltitude = false;
         linkNewWaypointGPS = false;
-        velocity = new Velocity();
-        loopTime = System.currentTimeMillis() / 1000.0;
-    }
-
-
-    static class Velocity{
-        public double velocityX, velocityY, overallVelocity;
-
-        /**
-         * This sub-class contains velocity of a drone
-         */
-        public Velocity() {
-            this.velocityX = 0.0;
-            this.velocityY = 0.0;
-            this.overallVelocity = 0.0;
-        }
-
-        /**
-         * This method sets new velocity for the drone
-         * @param vX velocity got based on latitude change
-         * @param vY velocity got based on longitude change
-         */
-        public void SetVelocity(double vX, double vY) {
-            this.velocityX = vX;
-            this.velocityY = vY;
-
-            this.overallVelocity = Math.sqrt(vX*vX + vY*vY);
-        }
+        speed = 0.0;
     }
 }

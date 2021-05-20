@@ -32,7 +32,7 @@ public class PositionContainer {
     // Camera frame coordinates
     public Point frameSetpoint;
     public Point frameCurrent;
-    public int ddcX, ddcY, ddcZ, ddcRoll, ddcPitch, ddcYaw, acceptableDistance, earthRadiusM;
+    public int ddcX, ddcY, ddcZ, ddcRoll, ddcPitch, ddcYaw;
     // 0 - IDLE, 1 - STAB, 2 - LAND, 3 - PREV, 4 - LOST, 5 - TKOF, 6 - WAYP, 7 - DONE
     public int status;
 
@@ -61,8 +61,6 @@ public class PositionContainer {
         ddcPitch = 1500;
         ddcYaw = 1500;
         status = -1;
-        acceptableDistance = 200;
-        earthRadiusM = 6378137;
     }
 
     /**

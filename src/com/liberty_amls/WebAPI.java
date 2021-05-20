@@ -60,8 +60,6 @@ public class WebAPI {
     private TelemetryContainer telemetryContainer;
     private PlatformContainer platformContainer;
     private PositionContainer positionContainer;
-    private GPSEstimationContainer gpsEstimationContainer;
-    private GPSEstimationHandler gpsEstimationHandler;
 
     /**
      * This class provides a web API. The ability to send and receive data using POST JSON requests
@@ -286,14 +284,11 @@ public class WebAPI {
         } else
             logger.warn("No communication with the platform!");
 
-        // Create GPSEstimationContainer class for storing GPS coordinates
-        gpsEstimationContainer = new GPSEstimationContainer();
-
         // Create GPSEstimationHandler class for integrating with the platform
-        gpsEstimationHandler = new GPSEstimationHandler(gpsEstimationContainer, telemetryContainer);
+        GPSEstimationHandler gpsEstimationHandler = new GPSEstimationHandler(platformContainer);
 
         // Create TelemetryHandler class for read the telemetry data
-        telemetryHandler = new TelemetryHandler(telemetryContainer, serialHandler, udpHandler, gpsEstimationContainer,
+        telemetryHandler = new TelemetryHandler(telemetryContainer, serialHandler, udpHandler,
                 settingsContainer.telemetryLostTime, settingsContainer.dataSuffix1, settingsContainer.dataSuffix2);
 
         // Create and start a new thread for the platformHandler if Liberty-Link port is open
@@ -321,7 +316,7 @@ public class WebAPI {
 
         // Create PositionHandler class for to handle the current position
         positionHandler = new PositionHandler(serialHandler, udpHandler, positionContainer, platformContainer,
-                telemetryContainer, blackboxHandler, settingsContainer, gpsEstimationContainer, gpsEstimationHandler);
+                telemetryContainer, blackboxHandler, settingsContainer, gpsEstimationHandler);
 
         // Set coefficients for MiniPID in PositionHandler class
         positionHandler.loadPIDFromFile();
