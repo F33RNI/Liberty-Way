@@ -30,6 +30,7 @@ public class TelemetryHandler implements Runnable {
     private final TelemetryContainer telemetryContainer;
     private final SerialHandler serialHandler;
     private final UDPHandler udpHandler;
+    private final SettingsContainer settingsContainer;
     private final byte dataSuffix1, dataSuffix2;
     private final byte[] telemetryBuffer = new byte[30];
     private final int telemetryMaxLostTime;
@@ -39,7 +40,8 @@ public class TelemetryHandler implements Runnable {
     private volatile boolean handleRunning;
     private int lastGPSLat = 0, lastGPSLon = 0;
 
-    TelemetryHandler(TelemetryContainer telemetryContainer, SerialHandler serialHandler, UDPHandler udpHandler,
+    TelemetryHandler(TelemetryContainer telemetryContainer, SerialHandler serialHandler,
+                     UDPHandler udpHandler, SettingsContainer settingsContainer,
                      int telemetryMaxLostTime, byte dataSuffix1, byte dataSuffix2) {
         this.telemetryContainer = telemetryContainer;
         this.serialHandler = serialHandler;
@@ -47,6 +49,7 @@ public class TelemetryHandler implements Runnable {
         this.telemetryMaxLostTime = telemetryMaxLostTime;
         this.dataSuffix1 = dataSuffix1;
         this.dataSuffix2 = dataSuffix2;
+        this.settingsContainer = settingsContainer;
     }
 
     @Override
@@ -217,20 +220,30 @@ public class TelemetryHandler implements Runnable {
     private void calculateSpeed(){
         double loopTime = telemetryLastPacketTime;
 
-        int currentLat = telemetryContainer.gpsLatInt;
-        int currentLon = telemetryContainer.gpsLonInt;
-        double speedX, speedY;
+        double speedX = 0;
+        double speedY = 0;
+
+        int dLat = telemetryContainer.gpsLatInt - this.lastGPSLat;
+        int dLon = telemetryContainer.gpsLonInt - this.lastGPSLon;
+
+        double a = Math.sin(dLat/2.0) * Math.sin(dLat/2.0) +
+                   Math.sin(dLon/2.0) * Math.sin(dLon/2.0) *
+                   Math.cos(telemetryContainer.gpsLatInt) * Math.cos(this.lastGPSLat);
+
+        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+
+        double distance = (settingsContainer.planetRadius * c);
 
         if (loopTime == 0.0)
             speedX = speedY = 0.0;
         else {
-            speedX = 1 / loopTime * Math.abs(currentLat - this.lastGPSLat);
+            speedX = 1 / loopTime * distance;
 
-            speedY = 1 / loopTime * Math.abs(currentLon - this.lastGPSLon);
+            speedY = 1 / loopTime * distance;
         }
 
-        speedX *= 36;
-        speedY *= 36;
+        speedX *= 3600;
+        speedY *= 3600;
 
         telemetryContainer.speed = Math.sqrt(speedX*speedX + speedY*speedY);
     }

@@ -347,26 +347,35 @@ public class PlatformHandler implements Runnable {
      * This method calculates current platform's velocity in km/h
      */
     private void calculateSpeed(){
-        platformContainer.time = platformLastPacketTime;
         double loopTime = platformLastPacketTime;
 
-        int currentLat = platformContainer.gpsLatInt;
-        int currentLon = platformContainer.gpsLonInt;
-        double speedX, speedY;
+        double speedX = 0;
+        double speedY = 0;
+
+        int dLat = platformContainer.gpsLatInt - this.lastGPSLat;
+        int dLon = platformContainer.gpsLonInt - this.lastGPSLon;
+
+        double a = Math.sin(dLat/2.0) * Math.sin(dLat/2.0) +
+                Math.sin(dLon/2.0) * Math.sin(dLon/2.0) *
+                        Math.cos(platformContainer.gpsLatInt) * Math.cos(this.lastGPSLat);
+
+        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+
+        double distance = (settingsContainer.planetRadius * c);
 
         if (loopTime == 0.0)
             speedX = speedY = 0.0;
         else {
-            speedX = 1 / loopTime * Math.abs(currentLat - this.lastGPSLat);
+            speedX = 1 / loopTime * distance;
 
-            speedY = 1 / loopTime * Math.abs(currentLon - this.lastGPSLon);
+            speedY = 1 / loopTime * distance;
         }
 
-        platformContainer.alphaX = speedX * loopTime;
-        platformContainer.alphaY = speedY * loopTime;
+        platformContainer.alphaX = speedX * loopTime * 100;
+        platformContainer.alphaY = speedY * loopTime * 100;
 
-        speedX *= 36;
-        speedY *= 36;
+        speedX *= 3600;
+        speedY *= 3600;
 
         platformContainer.speed = Math.sqrt(speedX*speedX + speedY*speedY);
     }
