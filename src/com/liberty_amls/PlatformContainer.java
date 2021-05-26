@@ -66,12 +66,12 @@ public class PlatformContainer {
     /**
      * Fills the arrays of true GPS of the platform
      */
-    public void fillArrays (){
+    public void fillArrays (int latitude, int longitude){
         if (this.trueGPSLat.size() > 5){
             this.trueGPSLat.clear();
             this.trueGPSLon.clear();
         }
-        this.trueGPSLon.add(this.gpsLatInt);
-        this.trueGPSLon.add(this.gpsLonInt);
+        this.trueGPSLon.add(latitude);
+        this.trueGPSLon.add(longitude);
     }
 }

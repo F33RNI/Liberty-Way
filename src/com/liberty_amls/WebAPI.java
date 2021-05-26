@@ -284,8 +284,11 @@ public class WebAPI {
         } else
             logger.warn("No communication with the platform!");
 
+        // Create GPSEstimationHandler class for integrating with the platform
+        GPSEstimationHandler gpsEstimationHandler = new GPSEstimationHandler(platformContainer);
+
         // Create TelemetryHandler class for read the telemetry data
-        telemetryHandler = new TelemetryHandler(telemetryContainer, serialHandler, udpHandler,
+        telemetryHandler = new TelemetryHandler(telemetryContainer, serialHandler, udpHandler, settingsContainer,
                 settingsContainer.telemetryLostTime, settingsContainer.dataSuffix1, settingsContainer.dataSuffix2);
 
         // Create and start a new thread for the platformHandler if Liberty-Link port is open
@@ -311,9 +314,9 @@ public class WebAPI {
         blackboxThread.setPriority(Thread.NORM_PRIORITY);
         blackboxThread.start();
 
-        // Create PositionHandler class for to handle the current position with GPSEstimationHandler class
+        // Create PositionHandler class for to handle the current position
         positionHandler = new PositionHandler(serialHandler, udpHandler, positionContainer, platformContainer,
-                telemetryContainer, blackboxHandler, settingsContainer, new GPSEstimationHandler(platformContainer));
+                telemetryContainer, blackboxHandler, settingsContainer, gpsEstimationHandler);
 
         // Set coefficients for MiniPID in PositionHandler class
         positionHandler.loadPIDFromFile();

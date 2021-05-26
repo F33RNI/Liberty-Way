@@ -218,33 +218,29 @@ public class TelemetryHandler implements Runnable {
      * This method calculates current drone's velocity in km/h
      */
     private void calculateSpeed(){
-        double loopTime = telemetryLastPacketTime;
+        double loopTime = System.currentTimeMillis() - telemetryLastPacketTime;
+
+        double distance = Math.sin((telemetryContainer.gpsLatInt - this.lastGPSLat) * Math.PI / 180 / 2.0) *
+                Math.sin((telemetryContainer.gpsLatInt - this.lastGPSLat) * Math.PI / 180 / 2.0) +
+                Math.sin((telemetryContainer.gpsLonInt - this.lastGPSLon) * Math.PI / 180 / 2.0) *
+                        Math.sin((telemetryContainer.gpsLonInt - this.lastGPSLon) * Math.PI / 180 / 2.0) *
+                        Math.cos(telemetryContainer.gpsLatInt) *
+                        Math.cos(this.lastGPSLat);
 
         double speedX = 0;
         double speedY = 0;
 
-        int dLat = telemetryContainer.gpsLatInt - this.lastGPSLat;
-        int dLon = telemetryContainer.gpsLonInt - this.lastGPSLon;
-
-        double a = Math.sin(dLat/2.0) * Math.sin(dLat/2.0) +
-                   Math.sin(dLon/2.0) * Math.sin(dLon/2.0) *
-                   Math.cos(telemetryContainer.gpsLatInt) * Math.cos(this.lastGPSLat);
-
-        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-
-        double distance = (settingsContainer.planetRadius * c);
-
         if (loopTime == 0.0)
             speedX = speedY = 0.0;
         else {
-            speedX = 1 / loopTime * distance;
+            speedX = 1 / loopTime * settingsContainer.planetRadius * 2 * Math.atan2(Math.sqrt(distance), Math.sqrt(1- distance));
 
-            speedY = 1 / loopTime * distance;
+            speedY = 1 / loopTime * settingsContainer.planetRadius * 2 * Math.atan2(Math.sqrt(distance), Math.sqrt(1- distance));
         }
 
         speedX *= 3600;
         speedY *= 3600;
 
-        telemetryContainer.speed = Math.sqrt(speedX*speedX + speedY*speedY);
+        telemetryContainer.speed = Math.sqrt(speedX * speedX + speedY * speedY);
     }
 }

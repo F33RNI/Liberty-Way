@@ -232,12 +232,14 @@ public class PlatformHandler implements Runnable {
             return;
         }
 
-        lastGPSLat = platformContainer.gpsLatInt;
-        lastGPSLon = platformContainer.gpsLonInt;
+        lastGPSLat = platformContainer.trueGPSLat.get(platformContainer.trueGPSLat.size() - 1);
+        lastGPSLon = platformContainer.trueGPSLon.get(platformContainer.trueGPSLon.size() - 1);
 
         platformContainer.gpsLatInt = (int) parseNumberFromGCode(incoming, 'A', 0);
         platformContainer.gpsLonInt = (int) parseNumberFromGCode(incoming, 'O', 0);
-        platformContainer.fillArrays();
+
+        platformContainer.fillArrays((int) parseNumberFromGCode(incoming, 'A', 0),
+                                    (int) parseNumberFromGCode(incoming, 'O', 0));
 
         platformContainer.gpsLatDouble = platformContainer.gpsLatInt / 1000000.0;
         platformContainer.gpsLonDouble = platformContainer.gpsLonInt / 1000000.0;
@@ -347,28 +349,24 @@ public class PlatformHandler implements Runnable {
      * This method calculates current platform's velocity in km/h
      */
     private void calculateSpeed(){
-        double loopTime = platformLastPacketTime;
+        double loopTime = System.currentTimeMillis() - platformLastPacketTime;
+
+        double distance = Math.sin((platformContainer.trueGPSLat.get(platformContainer.trueGPSLat.size() - 1) - this.lastGPSLat) * Math.PI / 180 / 2.0) *
+                Math.sin((platformContainer.trueGPSLat.get(platformContainer.trueGPSLat.size() - 1) - this.lastGPSLat) * Math.PI / 180 / 2.0) +
+                Math.sin((platformContainer.trueGPSLon.get(platformContainer.trueGPSLon.size() - 1) - this.lastGPSLon) * Math.PI / 180 / 2.0) *
+                        Math.sin((platformContainer.trueGPSLon.get(platformContainer.trueGPSLon.size() - 1) - this.lastGPSLon) * Math.PI / 180 / 2.0) *
+                        Math.cos(platformContainer.trueGPSLat.get(platformContainer.trueGPSLat.size() - 1) - this.lastGPSLat * Math.PI / 180) *
+                        Math.cos(this.lastGPSLat);
 
         double speedX = 0;
         double speedY = 0;
 
-        int dLat = platformContainer.gpsLatInt - this.lastGPSLat;
-        int dLon = platformContainer.gpsLonInt - this.lastGPSLon;
-
-        double a = Math.sin(dLat/2.0) * Math.sin(dLat/2.0) +
-                Math.sin(dLon/2.0) * Math.sin(dLon/2.0) *
-                        Math.cos(platformContainer.gpsLatInt) * Math.cos(this.lastGPSLat);
-
-        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-
-        double distance = (settingsContainer.planetRadius * c);
-
         if (loopTime == 0.0)
             speedX = speedY = 0.0;
         else {
-            speedX = 1 / loopTime * distance;
+            speedX = 1 / loopTime * settingsContainer.planetRadius * 2 * Math.atan2(Math.sqrt(distance), Math.sqrt(1- distance));
 
-            speedY = 1 / loopTime * distance;
+            speedY = 1 / loopTime * settingsContainer.planetRadius * 2 * Math.atan2(Math.sqrt(distance), Math.sqrt(1- distance));
         }
 
         platformContainer.alphaX = speedX * loopTime * 100;
@@ -377,6 +375,6 @@ public class PlatformHandler implements Runnable {
         speedX *= 3600;
         speedY *= 3600;
 
-        platformContainer.speed = Math.sqrt(speedX*speedX + speedY*speedY);
+        platformContainer.speed = Math.sqrt(speedX * speedX + speedY * speedY);
     }
 }

@@ -225,9 +225,14 @@ public class SettingsHandler {
 
             // Radius of a current planet that the project operates on
             settingsContainer.planetRadius = jsonSettings.get("planet_radius").getAsInt();
+            if (settingsContainer.planetRadius == 0)
+                exitWithError("Invalid planet radius");
 
             // Distance in which the drone considered far enough to use K = 1
             settingsContainer.notAcceptableDistance = jsonSettings.get("not_acceptable_distance").getAsInt();
+
+            // Debug option for whether to allow prediction of GPS coordinates or not
+            settingsContainer.allowPrediction = jsonSettings.get("allow_prediction").getAsBoolean();
 
             // If all checks are passed
             logger.info("Basic checks passed. Settings loaded");

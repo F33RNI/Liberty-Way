@@ -24,12 +24,17 @@
 package com.liberty_amls;
 
 import java.util.ArrayList;
-import java.util.DoubleSummaryStatistics;
 
 public class GPSEstimationHandler {
     private final PlatformContainer platformContainer;
 
     private int estimatedGPSLat = 0, estimatedGPSLon = 0;
+
+    private final ArrayList<Double> ksX = new ArrayList<>();
+    private final ArrayList<Double> ksY = new ArrayList<>();
+
+    private int latError = 0, lonError = 0;
+    private double sumKX = 0, sumKY = 0;
 
     /**
      * This class operates with GPS coordinates and predicts the next that the drone will receive
@@ -41,43 +46,25 @@ public class GPSEstimationHandler {
      * Handles all of the calculations in order to predict the future GPS coordinate
      */
     public void calculate() {
-        ArrayList<Double> ksX = new ArrayList<>();
-        ArrayList<Double> ksY = new ArrayList<>();
-        int latError = 0, lonError = 0;
-
-        ArrayList<Integer> trueGPSLat = platformContainer.trueGPSLat;
-        ArrayList<Integer> trueGPSLon = platformContainer.trueGPSLon;
-
-        int currentLat = platformContainer.gpsLatInt;
-        int currentLon = platformContainer.gpsLonInt;
-
         if (this.estimatedGPSLat != 0 && this.estimatedGPSLon != 0){
-            latError = currentLat - this.estimatedGPSLat;
-            lonError = currentLon - this.estimatedGPSLon;
+            latError = platformContainer.trueGPSLat.get(platformContainer.trueGPSLat.size() - 1) - this.estimatedGPSLat;
+            lonError = platformContainer.trueGPSLon.get(platformContainer.trueGPSLon.size() - 1) - this.estimatedGPSLon;
         }
 
-        for (int i = 0; i < trueGPSLat.size() - 1; i++){
-            ksX.add(trueGPSLat.get(i + 1) / (double)trueGPSLat.get(i));
-            ksY.add(trueGPSLon.get(i + 1) / (double)trueGPSLon.get(i));
+        ksX.clear(); ksY.clear();
+        for (int i = 0; i < platformContainer.trueGPSLat.size() - 1; i++){
+            ksX.add(platformContainer.trueGPSLat.get(i + 1) / (double)platformContainer.trueGPSLat.get(i));
+            sumKX += platformContainer.trueGPSLat.get(i + 1) / (double)platformContainer.trueGPSLat.get(i);
+            ksY.add(platformContainer.trueGPSLon.get(i + 1) / (double)platformContainer.trueGPSLon.get(i));
+            sumKY += platformContainer.trueGPSLon.get(i + 1) / (double)platformContainer.trueGPSLon.get(i);
         }
 
-        DoubleSummaryStatistics stats = ksX.stream().mapToDouble((x) -> x).summaryStatistics();
-        double avgXK = stats.getAverage();
-
-        stats = ksY.stream().mapToDouble((x) -> x).summaryStatistics();
-        double avgYK = stats.getAverage();
-
-        double x_omega = ksX.get(ksX.size() - 1) - avgXK;
-        double y_omega = ksY.get(ksY.size() - 1) - avgYK;
-
-        double alphaX = platformContainer.alphaX;
-        double alphaY = platformContainer.alphaY;
-
-        int eLat = (int) (-alphaX*x_omega + currentLat*avgXK + latError);
-        int eLon = (int) (-alphaY*y_omega + currentLon*avgYK + lonError);
-
-        this.estimatedGPSLat = eLat;
-        this.estimatedGPSLon = eLon;
+        this.estimatedGPSLat = (int) (-platformContainer.alphaX*(ksX.get(ksX.size() - 1) - sumKX / ksX.size()) +
+                platformContainer.trueGPSLat.get(platformContainer.trueGPSLat.size() - 1)*sumKX / ksX.size() +
+                latError);
+        this.estimatedGPSLon = (int) (-platformContainer.alphaY*(ksY.get(ksY.size() - 1) - sumKY / ksY.size())
+                + platformContainer.trueGPSLon.get(platformContainer.trueGPSLon.size() - 1)*sumKY / ksY.size()
+                + lonError);
     }
 
     /**

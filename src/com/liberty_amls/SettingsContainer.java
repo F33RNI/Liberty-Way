@@ -73,4 +73,5 @@ public class SettingsContainer {
     public short pushOSDAfterFrames;
     public int planetRadius;
     public int notAcceptableDistance;
+    public boolean allowPrediction;
 }

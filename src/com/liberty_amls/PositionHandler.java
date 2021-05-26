@@ -265,7 +265,9 @@ public class PositionHandler {
                             // Step 1. Send gps waypoint
                             if (telemetryContainer.linkNewWaypointGPS)
                                 waypointStep = 2;
-                            sendGPSWaypoint(platformContainer.gpsLatInt, platformContainer.gpsLonInt);
+
+                            sendGPSWaypoint(platformContainer.trueGPSLat.get(platformContainer.trueGPSLat.size() - 1),
+                                    platformContainer.trueGPSLon.get(platformContainer.trueGPSLon.size() - 1));
                         } else {
                             if (telemetryContainer.takeoffDetected)
                                 // Switch to WAYP mode if takeoff detected
@@ -291,18 +293,17 @@ public class PositionHandler {
                             if (telemetryContainer.linkNewWaypointGPS) {
                                 waypointStep = 2;
                                 gpsEstimationHandler.calculate();
-                                int estimatedGPSLat = gpsEstimationHandler.getEstimatedGPSLat();
-                                int estimatedGPSLon = gpsEstimationHandler.getEstimatedGPSLon();
-                                if (estimatedGPSLat != 0 && estimatedGPSLon != 0) {
-                                    double K = calculateK();
+                                if (settingsContainer.allowPrediction) {
+                                    double k = calculateK();
 
-                                    int droneGPSLat = (int) (estimatedGPSLon * K + platformContainer.gpsLatInt * (K - 1));
-                                    int droneGPSLon = (int) (estimatedGPSLon * K + platformContainer.gpsLonInt * (K - 1));
-
-                                    sendGPSWaypoint(droneGPSLat, droneGPSLon);
+                                    sendGPSWaypoint((int) (gpsEstimationHandler.getEstimatedGPSLat() * k +
+                                                            platformContainer.trueGPSLat.get(platformContainer.trueGPSLat.size() - 1) * (k - 1)),
+                                                    (int) (gpsEstimationHandler.getEstimatedGPSLon() * k +
+                                                            platformContainer.trueGPSLon.get(platformContainer.trueGPSLon.size() - 1) * (k - 1)));
                                 }
                                 else
-                                    sendGPSWaypoint(platformContainer.gpsLatInt, platformContainer.gpsLonInt);
+                                    sendGPSWaypoint(platformContainer.trueGPSLat.get(platformContainer.trueGPSLat.size() - 1),
+                                                    platformContainer.trueGPSLon.get(platformContainer.trueGPSLon.size() - 1));
                             }
                         } else if (waypointStep >= 2) {
                             // Step 2. Wait for both flags to complete
@@ -565,28 +566,22 @@ public class PositionHandler {
      * @return Coefficient of estimation involvement
      */
     private double calculateK(){
+        double distance = Math.sin((telemetryContainer.gpsLatInt -
+                platformContainer.trueGPSLat.get(platformContainer.trueGPSLat.size() - 1)) * Math.PI / 180 / 2) *
+                Math.sin((telemetryContainer.gpsLatInt -
+                        platformContainer.trueGPSLat.get(platformContainer.trueGPSLat.size() - 1)) * Math.PI / 180 / 2) +
+                Math.sin((telemetryContainer.gpsLonInt -
+                        platformContainer.trueGPSLon.get(platformContainer.trueGPSLon.size() - 1)) * Math.PI / 180 / 2) *
+                        Math.sin((telemetryContainer.gpsLonInt -
+                                platformContainer.trueGPSLon.get(platformContainer.trueGPSLon.size() - 1)) * Math.PI / 180 / 2)
+                        * Math.cos(platformContainer.trueGPSLon.get(platformContainer.trueGPSLon.size() - 1) * Math.PI / 180)
+                        * Math.cos(telemetryContainer.gpsLatDouble * Math.PI / 180);
 
-        double lat1 = platformContainer.gpsLatDouble;
-        double lon1 = platformContainer.gpsLonDouble;
-        double lat2 = telemetryContainer.gpsLatDouble;
-        double lon2 = telemetryContainer.gpsLonDouble;
-
-        double dLat = (lat2-lat1) * Math.PI / 180;
-        double dLon = (lon2-lon1) * Math.PI / 180;
-
-        lat1 *= Math.PI / 180;
-        lat2 *= Math.PI / 180;
-
-        double a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-                Math.sin(dLon/2) * Math.sin(dLon/2) * Math.cos(lat1) * Math.cos(lat2);
-        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-
-        double distance = (settingsContainer.planetRadius * c);
-
-        if (distance > settingsContainer.notAcceptableDistance)
+        if (settingsContainer.planetRadius * 2 * Math.atan2(Math.sqrt(distance), Math.sqrt(1- distance)) > settingsContainer.notAcceptableDistance)
             return 1.0;
         else
-            return mapDouble(distance, 0, settingsContainer.notAcceptableDistance, 0, 1);
+            return mapDouble(settingsContainer.planetRadius * 2 * Math.atan2(Math.sqrt(distance), Math.sqrt(1- distance)),
+                    0, settingsContainer.notAcceptableDistance, 0, 1);
     }
 
     /**
