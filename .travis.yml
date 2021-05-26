@@ -9,8 +9,8 @@ git:
   depth: 1
   
 branches:
-except:
-  - Draskown-commit-1
+  only:
+    - main
   
 notifications:
   email: false
