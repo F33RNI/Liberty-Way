@@ -16,9 +16,6 @@ notifications:
   email: false
   
 jobs:
-  branches:
-  only:
-    - main
   fast_finish: true
   include:
     - stage: Build
