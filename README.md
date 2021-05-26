@@ -2,8 +2,12 @@
 
 ![Logo](https://github.com/XxOinvizioNxX/Liberty-Way/blob/main/git_images/logo_book.png "Logo")
 
-[![Liberty-Way_beta_3.0.0](https://img.shields.io/badge/Latest_version-beta_3.0.0-informational?logo=Github&style=flat-square "Liberty-Way_beta_3.0.0")](https://github.com/XxOinvizioNxX/Liberty-Way/releases/tag/beta_3.0.0 "Liberty-Way_beta_3.0.0")
-![GitHub All Releases](https://img.shields.io/github/downloads/XxOinvizioNxX/Liberty-Way/total?style=flat-square "GitHub All Releases")
+[![GitHub license](https://img.shields.io/github/license/XxOinvizioNxX/Liberty-Way?color=red)](https://github.com/XxOinvizioNxX/Liberty-Way/blob/main/LICENSE)
+[![GitHub issues](https://img.shields.io/github/issues/XxOinvizioNxX/Liberty-Way?color=orange)](https://github.com/XxOinvizioNxX/Liberty-Way/issues)
+![GitHub All Releases](https://img.shields.io/github/downloads/XxOinvizioNxX/Liberty-Way/total?color=yellow "GitHub All Releases")
+[![Travis (.com)](https://img.shields.io/travis/com/XxOinvizioNxX/Liberty-Way?color=green)](https://www.travis-ci.com/github/XxOinvizioNxX)
+[![GitHub stars](https://img.shields.io/github/stars/XxOinvizioNxX/Liberty-Way?color=blue)](https://github.com/XxOinvizioNxX/Liberty-Way/stargazers)
+[![Liberty-Way_beta_3.0.0](https://img.shields.io/badge/latest_version-beta_3.0.0-informational?logo=Github&color=purple "Liberty-Way_beta_3.0.0")](https://github.com/XxOinvizioNxX/Liberty-Way/releases/tag/beta_3.0.0 "Liberty-Way_beta_3.0.0")
 
 This project was created as a part of project activities subject of Moscow Polytech University by the 181-311 group.
 It also participates in the CopterHack 2021 hackathon from Copter Express.
@@ -16,8 +20,9 @@ All the code excluding the dependencies block, was written by Pavel Neshumov (Fr
 
 ## AMLS Projects
 
-- **Eitude Project:** https://github.com/XxOinvizioNxX/Eitude
-- **PX4 UDP Connection Project:** https://github.com/Draskown/PX4_UDP_Connection
+- **Liberty-X Project** (Flight controller): https://github.com/XxOinvizioNxX/Liberty-X
+- **Eitude Project** (Platform controller): https://github.com/XxOinvizioNxX/Eitude
+- **PX4 UDP Connection Project** (Deprecated GPS predictor): https://github.com/Draskown/PX4_UDP_Connection
 
 ----------
 
