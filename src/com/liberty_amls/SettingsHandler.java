@@ -225,7 +225,7 @@ public class SettingsHandler {
 
             // Radius of a current planet that the project operates on
             settingsContainer.planetRadius = jsonSettings.get("planet_radius").getAsInt();
-            if (settingsContainer.planetRadius == 0)
+            if (settingsContainer.planetRadius <= 0)
                 exitWithError("Invalid planet radius");
 
             // Distance in which the drone considered far enough to use K = 1
