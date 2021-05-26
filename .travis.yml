@@ -1,0 +1,31 @@
+arch: amd64
+
+os: linux
+dist: xenial
+
+language: generic
+
+git:
+  depth: 1
+  
+notifications:
+  email: false
+  
+jobs:
+  fast_finish: true
+  include:
+    - stage: Build
+      name: "Liberty-Way Build"
+      language: java
+      script: ant main
+      
+    - stage: Build
+      name: "Documentation"
+      language: node_js
+      node_js:
+        - "10"
+      before_script:
+        - npm install markdownlint-cli -g
+        - markdownlint -V
+      script:
+        - markdownlint '**/*.md'
