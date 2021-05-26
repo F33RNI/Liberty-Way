@@ -65,6 +65,6 @@ public class TelemetryContainer {
         linkWaypointStep = 0;
         linkNewWaypointAltitude = false;
         linkNewWaypointGPS = false;
-        speed = 0.0;
+        speed = 0;
     }
 }
