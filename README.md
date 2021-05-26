@@ -7,7 +7,7 @@
 ![GitHub All Releases](https://img.shields.io/github/downloads/XxOinvizioNxX/Liberty-Way/total?color=yellow "GitHub All Releases")
 [![GitHub forks](https://img.shields.io/github/forks/XxOinvizioNxX/Liberty-Way?color=green)](https://github.com/XxOinvizioNxX/Liberty-Way/network)
 [![GitHub stars](https://img.shields.io/github/stars/XxOinvizioNxX/Liberty-Way?color=blue)](https://github.com/XxOinvizioNxX/Liberty-Way/stargazers)
-[![Liberty-Way_beta_3.0.0](https://img.shields.io/badge/Latest_version-beta_3.0.0-informational?logo=Github&color=purple "Liberty-Way_beta_3.0.0")](https://github.com/XxOinvizioNxX/Liberty-Way/releases/tag/beta_3.0.0 "Liberty-Way_beta_3.0.0")
+[![Liberty-Way_beta_3.0.0](https://img.shields.io/badge/latest_version-beta_3.0.0-informational?logo=Github&color=purple "Liberty-Way_beta_3.0.0")](https://github.com/XxOinvizioNxX/Liberty-Way/releases/tag/beta_3.0.0 "Liberty-Way_beta_3.0.0")
 
 This project was created as a part of project activities subject of Moscow Polytech University by the 181-311 group.
 It also participates in the CopterHack 2021 hackathon from Copter Express.
