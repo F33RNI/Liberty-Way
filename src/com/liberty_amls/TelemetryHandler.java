@@ -27,13 +27,11 @@ import org.apache.log4j.Logger;
 
 public class TelemetryHandler implements Runnable {
     private final Logger logger = Logger.getLogger(this.getClass().getSimpleName());
+    private final SettingsContainer settingsContainer;
     private final TelemetryContainer telemetryContainer;
     private final SerialHandler serialHandler;
     private final UDPHandler udpHandler;
-    private final SettingsContainer settingsContainer;
-    private final byte dataSuffix1, dataSuffix2;
     private final byte[] telemetryBuffer = new byte[30];
-    private final int telemetryMaxLostTime;
     private byte telemetryBytePrevious = 0;
     private int telemetryBufferPosition = 0;
     private long telemetryLastPacketTime = 0;
@@ -41,14 +39,10 @@ public class TelemetryHandler implements Runnable {
     private int lastGPSLat = 0, lastGPSLon = 0;
 
     TelemetryHandler(TelemetryContainer telemetryContainer, SerialHandler serialHandler,
-                     UDPHandler udpHandler, SettingsContainer settingsContainer,
-                     int telemetryMaxLostTime, byte dataSuffix1, byte dataSuffix2) {
+                     UDPHandler udpHandler, SettingsContainer settingsContainer) {
         this.telemetryContainer = telemetryContainer;
         this.serialHandler = serialHandler;
         this.udpHandler = udpHandler;
-        this.telemetryMaxLostTime = telemetryMaxLostTime;
-        this.dataSuffix1 = dataSuffix1;
-        this.dataSuffix2 = dataSuffix2;
         this.settingsContainer = settingsContainer;
     }
 
@@ -63,7 +57,7 @@ public class TelemetryHandler implements Runnable {
     private void telemetryLoop() {
         // Check lost status
         if (!telemetryContainer.telemetryLost &&
-                System.currentTimeMillis() - telemetryLastPacketTime >= telemetryMaxLostTime) {
+                System.currentTimeMillis() - telemetryLastPacketTime >= settingsContainer.telemetryMaxLostTime) {
             logger.warn("Drone telemetry lost!");
             telemetryContainer.telemetryLost = true;
         }
@@ -83,7 +77,7 @@ public class TelemetryHandler implements Runnable {
 
     private void readAndParse(byte data) {
         telemetryBuffer[telemetryBufferPosition] = data;
-        if (telemetryBytePrevious == dataSuffix1 && telemetryBuffer[telemetryBufferPosition] == dataSuffix2) {
+        if (telemetryBytePrevious == settingsContainer.dataSuffix1 && telemetryBuffer[telemetryBufferPosition] == settingsContainer.dataSuffix2) {
             // If data suffix appears
             // Reset buffer position
             telemetryBufferPosition = 0;
