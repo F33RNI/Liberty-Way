@@ -5,6 +5,10 @@ dist: xenial
 
 language: generic
 
+branches:
+  only:
+    - main
+
 git:
   depth: 1
   
