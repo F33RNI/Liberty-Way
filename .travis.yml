@@ -5,12 +5,12 @@ dist: xenial
 
 language: generic
 
+git:
+  depth: 1
+  
 branches:
   only:
     - main
-
-git:
-  depth: 1
   
 notifications:
   email: false
