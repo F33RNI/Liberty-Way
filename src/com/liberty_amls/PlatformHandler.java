@@ -43,7 +43,6 @@ public class PlatformHandler implements Runnable {
     private double exposureLast = 0;
     private boolean lightsLast = false;
     private volatile boolean opencvStarts = false;
-    private int lastGPSLat = 0, lastGPSLon = 0;
 
     /**
      * This class communicates with the platform via the serial port
@@ -232,9 +231,6 @@ public class PlatformHandler implements Runnable {
             return;
         }
 
-        lastGPSLat = platformContainer.trueGPSLat.get(platformContainer.trueGPSLat.size() - 1);
-        lastGPSLon = platformContainer.trueGPSLon.get(platformContainer.trueGPSLon.size() - 1);
-
         platformContainer.gpsLatInt = (int) parseNumberFromGCode(incoming, 'A', 0);
         platformContainer.gpsLonInt = (int) parseNumberFromGCode(incoming, 'O', 0);
 
@@ -351,12 +347,17 @@ public class PlatformHandler implements Runnable {
     private void calculateSpeed(){
         double loopTime = System.currentTimeMillis() - platformLastPacketTime;
 
-        double distance = Math.sin((platformContainer.trueGPSLat.get(platformContainer.trueGPSLat.size() - 1) - this.lastGPSLat) * Math.PI / 180 / 2.0) *
-                Math.sin((platformContainer.trueGPSLat.get(platformContainer.trueGPSLat.size() - 1) - this.lastGPSLat) * Math.PI / 180 / 2.0) +
-                Math.sin((platformContainer.trueGPSLon.get(platformContainer.trueGPSLon.size() - 1) - this.lastGPSLon) * Math.PI / 180 / 2.0) *
-                        Math.sin((platformContainer.trueGPSLon.get(platformContainer.trueGPSLon.size() - 1) - this.lastGPSLon) * Math.PI / 180 / 2.0) *
-                        Math.cos(platformContainer.trueGPSLat.get(platformContainer.trueGPSLat.size() - 1) - this.lastGPSLat * Math.PI / 180) *
-                        Math.cos(this.lastGPSLat);
+        double distance = Math.sin((platformContainer.trueGPSLat.get(platformContainer.trueGPSLat.size() - 1) -
+                        platformContainer.trueGPSLat.get(platformContainer.trueGPSLat.size() - 2)) * Math.PI / 180 / 2.0) *
+                Math.sin((platformContainer.trueGPSLat.get(platformContainer.trueGPSLat.size() - 1) -
+                        platformContainer.trueGPSLat.get(platformContainer.trueGPSLat.size() - 2)) * Math.PI / 180 / 2.0) +
+                Math.sin((platformContainer.trueGPSLon.get(platformContainer.trueGPSLon.size() - 1) -
+                        platformContainer.trueGPSLon.get(platformContainer.trueGPSLon.size() - 2)) * Math.PI / 180 / 2.0) *
+                Math.sin((platformContainer.trueGPSLon.get(platformContainer.trueGPSLon.size() - 1) -
+                        platformContainer.trueGPSLon.get(platformContainer.trueGPSLon.size() - 2)) * Math.PI / 180 / 2.0) *
+                Math.cos((platformContainer.trueGPSLat.get(platformContainer.trueGPSLat.size() - 1) -
+                        platformContainer.trueGPSLat.get(platformContainer.trueGPSLat.size() - 2)) * Math.PI / 180) *
+                Math.cos(platformContainer.trueGPSLat.get(platformContainer.trueGPSLat.size() - 2));
 
         double speedX = 0;
         double speedY = 0;
