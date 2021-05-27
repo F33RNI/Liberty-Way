@@ -296,9 +296,9 @@ public class PositionHandler {
                             // Step 1. Send gps waypoint
                             if (telemetryContainer.linkNewWaypointGPS) {
                                 waypointStep = 2;
-                                gpsEstimationHandler.calculate();
                                 if (settingsContainer.GPSPredictionAllowed) {
                                     double k = calculateK();
+                                    gpsEstimationHandler.calculate();
 
                                     sendGPSWaypoint((int) (gpsEstimationHandler.getEstimatedGPSLat() * k +
                                                             currentLat * (k - 1)),
