@@ -46,9 +46,12 @@ public class GPSEstimationHandler {
      * Handles all of the calculations in order to predict the future GPS coordinate
      */
     public void calculate() {
+        int currentLat = platformContainer.trueGPSLat.get(platformContainer.trueGPSLat.size() - 1);
+        int currentLon = platformContainer.trueGPSLon.get(platformContainer.trueGPSLon.size() - 1);
+
         if (this.estimatedGPSLat != 0 && this.estimatedGPSLon != 0){
-            latError = platformContainer.trueGPSLat.get(platformContainer.trueGPSLat.size() - 1) - this.estimatedGPSLat;
-            lonError = platformContainer.trueGPSLon.get(platformContainer.trueGPSLon.size() - 1) - this.estimatedGPSLon;
+            latError = currentLat - this.estimatedGPSLat;
+            lonError = currentLon - this.estimatedGPSLon;
         }
 
         ksX.clear(); ksY.clear();
@@ -59,12 +62,10 @@ public class GPSEstimationHandler {
             sumKY += platformContainer.trueGPSLon.get(i + 1) / (double)platformContainer.trueGPSLon.get(i);
         }
 
-        this.estimatedGPSLat = (int) (-platformContainer.alphaX*(ksX.get(ksX.size() - 1) - sumKX / ksX.size()) +
-                platformContainer.trueGPSLat.get(platformContainer.trueGPSLat.size() - 1)*sumKX / ksX.size() +
-                latError);
+        this.estimatedGPSLat = (int) (-platformContainer.alphaX*(ksX.get(ksX.size() - 1) - sumKX / ksX.size())
+                + currentLat*sumKX / ksX.size() + latError);
         this.estimatedGPSLon = (int) (-platformContainer.alphaY*(ksY.get(ksY.size() - 1) - sumKY / ksY.size())
-                + platformContainer.trueGPSLon.get(platformContainer.trueGPSLon.size() - 1)*sumKY / ksY.size()
-                + lonError);
+                + currentLon*sumKY / ksY.size() + lonError);
     }
 
     /**

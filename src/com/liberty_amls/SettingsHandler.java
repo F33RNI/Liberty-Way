@@ -231,8 +231,8 @@ public class SettingsHandler {
             // Distance in which the drone considered far enough to use K = 1
             settingsContainer.notAcceptableDistance = jsonSettings.get("not_acceptable_distance").getAsInt();
 
-            // Debug option for whether to allow prediction of GPS coordinates or not
-            settingsContainer.allowPrediction = jsonSettings.get("allow_prediction").getAsBoolean();
+            // GPS prediction allowed
+            settingsContainer.GPSPredictionAllowed = jsonSettings.get("gps_prediction_allowed").getAsBoolean();
 
             // If all checks are passed
             logger.info("Basic checks passed. Settings loaded");

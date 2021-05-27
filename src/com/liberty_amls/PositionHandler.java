@@ -42,6 +42,7 @@ public class PositionHandler {
     private int waypointStep = 0;
     private int lostCounter = 0;
     private boolean libertyWayEnabled = false, libertyWayEnabledLast = false;
+    private int currentLat, currentLon;
 
     /**
      * This class takes the absolute coordinates of the marker as input,
@@ -213,6 +214,10 @@ public class PositionHandler {
 
         if (!newMarkerPosition) {
             // If no marker detected
+
+            currentLat = platformContainer.trueGPSLat.get(platformContainer.trueGPSLat.size() - 1);
+            currentLon = platformContainer.trueGPSLon.get(platformContainer.trueGPSLon.size() - 1);
+
             switch (positionContainer.status) {
                 case 1:
                     // STAB (In optical stabilization)
@@ -266,8 +271,7 @@ public class PositionHandler {
                             if (telemetryContainer.linkNewWaypointGPS)
                                 waypointStep = 2;
 
-                            sendGPSWaypoint(platformContainer.trueGPSLat.get(platformContainer.trueGPSLat.size() - 1),
-                                    platformContainer.trueGPSLon.get(platformContainer.trueGPSLon.size() - 1));
+                            sendGPSWaypoint(currentLat, currentLon);
                         } else {
                             if (telemetryContainer.takeoffDetected)
                                 // Switch to WAYP mode if takeoff detected
@@ -293,17 +297,16 @@ public class PositionHandler {
                             if (telemetryContainer.linkNewWaypointGPS) {
                                 waypointStep = 2;
                                 gpsEstimationHandler.calculate();
-                                if (settingsContainer.allowPrediction) {
+                                if (settingsContainer.GPSPredictionAllowed) {
                                     double k = calculateK();
 
                                     sendGPSWaypoint((int) (gpsEstimationHandler.getEstimatedGPSLat() * k +
-                                                            platformContainer.trueGPSLat.get(platformContainer.trueGPSLat.size() - 1) * (k - 1)),
+                                                            currentLat * (k - 1)),
                                                     (int) (gpsEstimationHandler.getEstimatedGPSLon() * k +
-                                                            platformContainer.trueGPSLon.get(platformContainer.trueGPSLon.size() - 1) * (k - 1)));
+                                                            currentLon * (k - 1)));
                                 }
                                 else
-                                    sendGPSWaypoint(platformContainer.trueGPSLat.get(platformContainer.trueGPSLat.size() - 1),
-                                                    platformContainer.trueGPSLon.get(platformContainer.trueGPSLon.size() - 1));
+                                    sendGPSWaypoint(currentLat, currentLon);
                             }
                         } else if (waypointStep >= 2) {
                             // Step 2. Wait for both flags to complete
@@ -566,21 +569,20 @@ public class PositionHandler {
      * @return Coefficient of estimation involvement
      */
     private double calculateK(){
-        double distance = Math.sin((telemetryContainer.gpsLatInt -
-                platformContainer.trueGPSLat.get(platformContainer.trueGPSLat.size() - 1)) * Math.PI / 180 / 2) *
-                Math.sin((telemetryContainer.gpsLatInt -
-                        platformContainer.trueGPSLat.get(platformContainer.trueGPSLat.size() - 1)) * Math.PI / 180 / 2) +
-                Math.sin((telemetryContainer.gpsLonInt -
-                        platformContainer.trueGPSLon.get(platformContainer.trueGPSLon.size() - 1)) * Math.PI / 180 / 2) *
-                        Math.sin((telemetryContainer.gpsLonInt -
-                                platformContainer.trueGPSLon.get(platformContainer.trueGPSLon.size() - 1)) * Math.PI / 180 / 2)
-                        * Math.cos(platformContainer.trueGPSLon.get(platformContainer.trueGPSLon.size() - 1) * Math.PI / 180)
-                        * Math.cos(telemetryContainer.gpsLatDouble * Math.PI / 180);
+        double distance = Math.sin((telemetryContainer.gpsLatInt - currentLat) * Math.PI / 180 / 2) *
+                Math.sin((telemetryContainer.gpsLatInt - currentLat) * Math.PI / 180 / 2) +
+                Math.sin((telemetryContainer.gpsLonInt - currentLon) * Math.PI / 180 / 2) *
+                Math.sin((telemetryContainer.gpsLonInt - currentLon) * Math.PI / 180 / 2) *
+                Math.cos(currentLon * Math.PI / 180) *
+                Math.cos(telemetryContainer.gpsLatInt * Math.PI / 180);
 
-        if (settingsContainer.planetRadius * 2 * Math.atan2(Math.sqrt(distance), Math.sqrt(1- distance)) > settingsContainer.notAcceptableDistance)
+        distance = Math.atan2(Math.sqrt(distance), Math.sqrt(1-distance));
+
+        if (settingsContainer.planetRadius * 2 * distance >
+                settingsContainer.notAcceptableDistance)
             return 1.0;
         else
-            return mapDouble(settingsContainer.planetRadius * 2 * Math.atan2(Math.sqrt(distance), Math.sqrt(1- distance)),
+            return mapDouble(settingsContainer.planetRadius * 2 * distance,
                     0, settingsContainer.notAcceptableDistance, 0, 1);
     }
 
