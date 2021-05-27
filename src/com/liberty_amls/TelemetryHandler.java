@@ -218,7 +218,7 @@ public class TelemetryHandler implements Runnable {
      * This method calculates current drone's velocity in km/h
      */
     private void calculateSpeed(){
-        double loopTime = System.currentTimeMillis() - telemetryLastPacketTime;
+        long loopTime = System.currentTimeMillis() - telemetryLastPacketTime;
 
         double distance = Math.sin((telemetryContainer.gpsLatInt - this.lastGPSLat) * Math.PI / 180 / 2.0) *
                 Math.sin((telemetryContainer.gpsLatInt - this.lastGPSLat) * Math.PI / 180 / 2.0) +
@@ -227,17 +227,17 @@ public class TelemetryHandler implements Runnable {
                 Math.cos(telemetryContainer.gpsLatInt) *
                 Math.cos(this.lastGPSLat);
 
-        distance = Math.atan2(Math.sqrt(distance), Math.sqrt(1-distance));
+        distance = Math.atan2(Math.sqrt(distance), Math.sqrt(1 - distance));
 
         double speedX;
         double speedY;
 
-        if (loopTime == 0.0)
+        if (loopTime == 0)
             speedX = speedY = 0.0;
         else {
-            speedX = 1 / loopTime * settingsContainer.planetRadius * 2 * distance;
+            speedX = settingsContainer.planetRadius * 2 * distance / loopTime;
 
-            speedY = 1 / loopTime * settingsContainer.planetRadius * 2 * distance;
+            speedY = settingsContainer.planetRadius * 2 * distance / loopTime;
         }
 
         speedX *= 3600;

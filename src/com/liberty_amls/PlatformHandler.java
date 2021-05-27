@@ -349,7 +349,7 @@ public class PlatformHandler implements Runnable {
      * This method calculates current platform's velocity in km/h
      */
     private void calculateSpeed(){
-        double loopTime = System.currentTimeMillis() - platformLastPacketTime;
+        long loopTime = System.currentTimeMillis() - platformLastPacketTime;
 
         int currentLat = platformContainer.trueGPSLat.get(platformContainer.trueGPSLat.size() - 1);
         int currentLon = platformContainer.trueGPSLon.get(platformContainer.trueGPSLon.size() - 1);
@@ -363,7 +363,7 @@ public class PlatformHandler implements Runnable {
                 Math.cos((currentLat - lastLat) * Math.PI / 180) *
                 Math.cos(lastLat);
 
-        distance = Math.atan2(Math.sqrt(distance), Math.sqrt(1- distance));
+        distance = Math.atan2(Math.sqrt(distance), Math.sqrt(1 - distance));
 
         double speedX;
         double speedY;
@@ -371,9 +371,9 @@ public class PlatformHandler implements Runnable {
         if (loopTime == 0.0)
             speedX = speedY = 0.0;
         else {
-            speedX = 1 / loopTime * settingsContainer.planetRadius * 2 * distance;
+            speedX = settingsContainer.planetRadius * 2 * distance / loopTime;
 
-            speedY = 1 / loopTime * settingsContainer.planetRadius * 2 * distance;
+            speedY = settingsContainer.planetRadius * 2 * distance / loopTime;
         }
 
         platformContainer.alphaX = speedX * loopTime * 100;
