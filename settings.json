@@ -43,5 +43,8 @@
   "setpoint_yaw": 0.0,
   "data_suffix_1": "L",
   "data_suffix_2": "X",
-  "push_osd_after_frames": 2
+  "push_osd_after_frames": 2,
+  "planet_radius": 6378137,
+  "not_acceptable_distance": 200,
+  "gps_prediction_allowed": true
 }
