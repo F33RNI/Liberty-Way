@@ -106,6 +106,7 @@ public class PlatformHandler implements Runnable {
             cycleError = false;
             if (checkStatus()) {
                 readPressureAndGPS();
+                calculateSpeed();
                 illuminationController();
                 speedController();
                 writeStatus();
@@ -229,8 +230,16 @@ public class PlatformHandler implements Runnable {
             cycleError = true;
             return;
         }
+
         platformContainer.gpsLatInt = (int) parseNumberFromGCode(incoming, 'A', 0);
         platformContainer.gpsLonInt = (int) parseNumberFromGCode(incoming, 'O', 0);
+
+        if (platformContainer.trueGPSLat.size() >= 5){
+            platformContainer.trueGPSLat.clear();
+            platformContainer.trueGPSLon.clear();
+        }
+        platformContainer.trueGPSLat.add((int) parseNumberFromGCode(incoming, 'A', 0));
+        platformContainer.trueGPSLon.add((int) parseNumberFromGCode(incoming, '0', 0));
 
         platformContainer.gpsLatDouble = platformContainer.gpsLatInt / 1000000.0;
         platformContainer.gpsLonDouble = platformContainer.gpsLonInt / 1000000.0;
@@ -334,5 +343,45 @@ public class PlatformHandler implements Runnable {
         logger.warn("Stopping platform handler");
         handleRunning = false;
         disableLight();
+    }
+
+    /**
+     * This method calculates current platform's velocity in km/h
+     */
+    private void calculateSpeed(){
+        long loopTime = System.currentTimeMillis() - platformLastPacketTime;
+
+        int currentLat = platformContainer.trueGPSLat.get(platformContainer.trueGPSLat.size() - 1);
+        int currentLon = platformContainer.trueGPSLon.get(platformContainer.trueGPSLon.size() - 1);
+        int lastLat = platformContainer.trueGPSLat.get(platformContainer.trueGPSLat.size() - 2);
+        int lastLon = platformContainer.trueGPSLon.get(platformContainer.trueGPSLon.size() - 2);
+
+        double distance = Math.sin((currentLat - lastLat) * Math.PI / 180 / 2.0) *
+                Math.sin((currentLat - lastLat) * Math.PI / 180 / 2.0) +
+                Math.sin((currentLon - lastLon) * Math.PI / 180 / 2.0) *
+                Math.sin((currentLon - lastLon) * Math.PI / 180 / 2.0) *
+                Math.cos((currentLat - lastLat) * Math.PI / 180) *
+                Math.cos(lastLat);
+
+        distance = Math.atan2(Math.sqrt(distance), Math.sqrt(1 - distance));
+
+        double speedX;
+        double speedY;
+
+        if (loopTime == 0.0)
+            speedX = speedY = 0.0;
+        else {
+            speedX = settingsContainer.planetRadius * 2 * distance / loopTime;
+
+            speedY = settingsContainer.planetRadius * 2 * distance / loopTime;
+        }
+
+        platformContainer.alphaX = speedX * loopTime * 100;
+        platformContainer.alphaY = speedY * loopTime * 100;
+
+        speedX *= 3600;
+        speedY *= 3600;
+
+        platformContainer.speed = Math.sqrt(speedX * speedX + speedY * speedY);
     }
 }

@@ -37,10 +37,12 @@ public class PositionHandler {
     private final PlatformContainer platformContainer;
     private final TelemetryContainer telemetryContainer;
     private final BlackboxHandler blackboxHandler;
+    private final GPSEstimationHandler gpsEstimationHandler;
     private final byte[] directControlData;
     private int waypointStep = 0;
     private int lostCounter = 0;
     private boolean libertyWayEnabled = false, libertyWayEnabledLast = false;
+    private int currentLat, currentLon;
 
     /**
      * This class takes the absolute coordinates of the marker as input,
@@ -55,7 +57,8 @@ public class PositionHandler {
                            PlatformContainer platformContainer,
                            TelemetryContainer telemetryContainer,
                            BlackboxHandler blackboxHandler,
-                           SettingsContainer settingsContainer) {
+                           SettingsContainer settingsContainer,
+                           GPSEstimationHandler gpsEstimationHandler) {
         this.serialHandler = serialHandler;
         this.udpHandler = udpHandler;
         this.miniPIDX = new MiniPID(0, 0, 0, 0);
@@ -70,6 +73,7 @@ public class PositionHandler {
         this.telemetryContainer = telemetryContainer;
         this.blackboxHandler = blackboxHandler;
         this.settingsContainer = settingsContainer;
+        this.gpsEstimationHandler = gpsEstimationHandler;
 
         positionContainer.setSetpoints(settingsContainer.setpointX, settingsContainer.setpointY, 0,
                 settingsContainer.setpointYaw);
@@ -210,6 +214,10 @@ public class PositionHandler {
 
         if (!newMarkerPosition) {
             // If no marker detected
+
+            currentLat = platformContainer.trueGPSLat.get(platformContainer.trueGPSLat.size() - 1);
+            currentLon = platformContainer.trueGPSLon.get(platformContainer.trueGPSLon.size() - 1);
+
             switch (positionContainer.status) {
                 case 1:
                     // STAB (In optical stabilization)
@@ -262,7 +270,8 @@ public class PositionHandler {
                             // Step 1. Send gps waypoint
                             if (telemetryContainer.linkNewWaypointGPS)
                                 waypointStep = 2;
-                            sendGPSWaypoint(platformContainer.gpsLatInt, platformContainer.gpsLonInt);
+
+                            sendGPSWaypoint(currentLat, currentLon);
                         } else {
                             if (telemetryContainer.takeoffDetected)
                                 // Switch to WAYP mode if takeoff detected
@@ -285,9 +294,20 @@ public class PositionHandler {
                             sendPressureWaypoint(platformContainer.pressure);
                         } else if (waypointStep == 1) {
                             // Step 1. Send gps waypoint
-                            if (telemetryContainer.linkNewWaypointGPS)
+                            if (telemetryContainer.linkNewWaypointGPS) {
                                 waypointStep = 2;
-                            sendGPSWaypoint(platformContainer.gpsLatInt, platformContainer.gpsLonInt);
+                                if (settingsContainer.GPSPredictionAllowed) {
+                                    double k = calculateK();
+                                    gpsEstimationHandler.calculate();
+
+                                    sendGPSWaypoint((int) (gpsEstimationHandler.getEstimatedGPSLat() * k +
+                                                            currentLat * (k - 1)),
+                                                    (int) (gpsEstimationHandler.getEstimatedGPSLon() * k +
+                                                            currentLon * (k - 1)));
+                                }
+                                else
+                                    sendGPSWaypoint(currentLat, currentLon);
+                            }
                         } else if (waypointStep >= 2) {
                             // Step 2. Wait for both flags to complete
                             waypointStep++;
@@ -539,5 +559,41 @@ public class PositionHandler {
                 pid.get("D").getAsDouble(), pid.get("F").getAsDouble());
         miniPID.setOutputRampRate(pid.get("ramp").getAsDouble());
         miniPID.setOutputLimits(pid.get("limit").getAsDouble());
+    }
+
+    /**
+     * Calculates whether the current distance
+     * between the platform and the drone is
+     * acceptable enough for the drone to receive
+     * non-processed GPS-coordinates
+     * @return Coefficient of estimation involvement
+     */
+    private double calculateK(){
+        double distance = Math.sin((telemetryContainer.gpsLatInt - currentLat) * Math.PI / 180 / 2) *
+                Math.sin((telemetryContainer.gpsLatInt - currentLat) * Math.PI / 180 / 2) +
+                Math.sin((telemetryContainer.gpsLonInt - currentLon) * Math.PI / 180 / 2) *
+                Math.sin((telemetryContainer.gpsLonInt - currentLon) * Math.PI / 180 / 2) *
+                Math.cos(currentLon * Math.PI / 180) *
+                Math.cos(telemetryContainer.gpsLatInt * Math.PI / 180);
+
+        distance = Math.atan2(Math.sqrt(distance), Math.sqrt(1-distance));
+
+        if (settingsContainer.planetRadius * 2 * distance >
+                settingsContainer.notAcceptableDistance)
+            return 1.0;
+        else
+            return mapDouble(settingsContainer.planetRadius * 2 * distance,
+                    0, settingsContainer.notAcceptableDistance, 0, 1);
+    }
+
+    /**
+     * This method maps the received value
+     * in a new provided range similar to
+     * how it works in Arduino
+     * @return mapped value
+     */
+    private double mapDouble(double value, double inMin, double inMax, double outMin, double outMax)
+    {
+        return (value - inMin) * (outMax - outMin) / (inMax - inMin) + outMin;
     }
 }

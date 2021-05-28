@@ -30,6 +30,7 @@ public class TelemetryHandler implements Runnable {
     private final TelemetryContainer telemetryContainer;
     private final SerialHandler serialHandler;
     private final UDPHandler udpHandler;
+    private final SettingsContainer settingsContainer;
     private final byte dataSuffix1, dataSuffix2;
     private final byte[] telemetryBuffer = new byte[30];
     private final int telemetryMaxLostTime;
@@ -37,15 +38,18 @@ public class TelemetryHandler implements Runnable {
     private int telemetryBufferPosition = 0;
     private long telemetryLastPacketTime = 0;
     private volatile boolean handleRunning;
+    private int lastGPSLat = 0, lastGPSLon = 0;
 
     TelemetryHandler(TelemetryContainer telemetryContainer, SerialHandler serialHandler,
-                     UDPHandler udpHandler, int telemetryMaxLostTime, byte dataSuffix1, byte dataSuffix2) {
+                     UDPHandler udpHandler, SettingsContainer settingsContainer,
+                     int telemetryMaxLostTime, byte dataSuffix1, byte dataSuffix2) {
         this.telemetryContainer = telemetryContainer;
         this.serialHandler = serialHandler;
         this.udpHandler = udpHandler;
         this.telemetryMaxLostTime = telemetryMaxLostTime;
         this.dataSuffix1 = dataSuffix1;
         this.dataSuffix2 = dataSuffix2;
+        this.settingsContainer = settingsContainer;
     }
 
     @Override
@@ -72,6 +76,9 @@ public class TelemetryHandler implements Runnable {
         } else if (udpHandler.isUdpPortOpened()) {
             readAndParse(udpHandler.takeSingleByte());
         }
+
+        // Calculate speed of the drone
+        calculateSpeed();
     }
 
     private void readAndParse(byte data) {
@@ -139,6 +146,9 @@ public class TelemetryHandler implements Runnable {
                 // Fix type of GPS
                 telemetryContainer.fixType = ((int) telemetryBuffer[17] & 0xFF);
 
+                this.lastGPSLat = telemetryContainer.gpsLatInt;
+                this.lastGPSLon = telemetryContainer.gpsLonInt;
+
                 // GPS Latitude
                 telemetryContainer.gpsLatInt = ((int) telemetryBuffer[21] & 0xFF)
                         | ((int) telemetryBuffer[20] & 0xFF) << 8
@@ -202,5 +212,37 @@ public class TelemetryHandler implements Runnable {
     public void stop() {
         logger.warn("Turning off drone telemetry reading");
         handleRunning = false;
+    }
+
+    /**
+     * This method calculates current drone's velocity in km/h
+     */
+    private void calculateSpeed(){
+        long loopTime = System.currentTimeMillis() - telemetryLastPacketTime;
+
+        double distance = Math.sin((telemetryContainer.gpsLatInt - this.lastGPSLat) * Math.PI / 180 / 2.0) *
+                Math.sin((telemetryContainer.gpsLatInt - this.lastGPSLat) * Math.PI / 180 / 2.0) +
+                Math.sin((telemetryContainer.gpsLonInt - this.lastGPSLon) * Math.PI / 180 / 2.0) *
+                Math.sin((telemetryContainer.gpsLonInt - this.lastGPSLon) * Math.PI / 180 / 2.0) *
+                Math.cos(telemetryContainer.gpsLatInt) *
+                Math.cos(this.lastGPSLat);
+
+        distance = Math.atan2(Math.sqrt(distance), Math.sqrt(1 - distance));
+
+        double speedX;
+        double speedY;
+
+        if (loopTime == 0)
+            speedX = speedY = 0.0;
+        else {
+            speedX = settingsContainer.planetRadius * 2 * distance / loopTime;
+
+            speedY = settingsContainer.planetRadius * 2 * distance / loopTime;
+        }
+
+        speedX *= 3600;
+        speedY *= 3600;
+
+        telemetryContainer.speed = Math.sqrt(speedX * speedX + speedY * speedY);
     }
 }

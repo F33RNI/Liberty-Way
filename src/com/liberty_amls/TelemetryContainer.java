@@ -37,6 +37,7 @@ public class TelemetryContainer {
     public double gpsLatDouble, gpsLonDouble;
     public int linkWaypointStep;
     public boolean linkNewWaypointAltitude, linkNewWaypointGPS;
+    public double speed;
 
     /**
      * This class contains all data from the telemetry
@@ -64,5 +65,6 @@ public class TelemetryContainer {
         linkWaypointStep = 0;
         linkNewWaypointAltitude = false;
         linkNewWaypointGPS = false;
+        speed = 0;
     }
 }

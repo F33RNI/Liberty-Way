@@ -71,4 +71,7 @@ public class SettingsContainer {
     public byte dataSuffix1;
     public byte dataSuffix2;
     public short pushOSDAfterFrames;
+    public int planetRadius;
+    public int notAcceptableDistance;
+    public boolean GPSPredictionAllowed;
 }
