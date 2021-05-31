@@ -41,15 +41,14 @@ public class TelemetryHandler implements Runnable {
     private int lastGPSLat = 0, lastGPSLon = 0;
 
     TelemetryHandler(TelemetryContainer telemetryContainer, SerialHandler serialHandler,
-                     UDPHandler udpHandler, SettingsContainer settingsContainer,
-                     int telemetryMaxLostTime, byte dataSuffix1, byte dataSuffix2) {
+                     UDPHandler udpHandler, SettingsContainer settingsContainer) {
         this.telemetryContainer = telemetryContainer;
         this.serialHandler = serialHandler;
         this.udpHandler = udpHandler;
-        this.telemetryMaxLostTime = telemetryMaxLostTime;
-        this.dataSuffix1 = dataSuffix1;
-        this.dataSuffix2 = dataSuffix2;
         this.settingsContainer = settingsContainer;
+        this.telemetryMaxLostTime = settingsContainer.telemetryLostTime;
+        this.dataSuffix1 = settingsContainer.dataSuffix1;
+        this.dataSuffix2 = settingsContainer.dataSuffix2;
     }
 
     @Override
