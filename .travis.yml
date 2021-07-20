@@ -30,8 +30,8 @@ jobs:
         - ino core install arduino:avr
         - ino core list
         - ino lib install 'LiquidCrystal' 'Adafruit NeoPixel'
-        - cd Eitude/src/main
-        - ino compile --fqbn arduino:avr:uno main.ino
+        - cd Eitude
+        - ino compile --fqbn arduino:avr:uno Eitude.ino
       
     - stage: Build
       name: 'Liberty-Way Build'
