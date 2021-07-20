@@ -19,17 +19,18 @@ jobs:
   fast_finish: true
   include:
     - stage: Build
-      name: "Liberty-Way Build"
-      language: java
-      script: ant main
-      
-    - stage: Build
-      name: "Documentation"
-      language: node_js
-      node_js:
-        - "10"
+      name: 'Eitude Build'
+      language: c
       before_script:
-        - npm install markdownlint-cli -g
-        - markdownlint -V
+        - wget https://github.com/arduino/arduino-cli/releases/download/0.18.3/arduino-cli_0.18.3_Linux_64bit.tar.gz
+        - tar -xf arduino-cli_0.18.3_Linux_64bit.tar.gz
+        - sudo mv arduino-cli /usr/bin/ino
       script:
-        - markdownlint '**/*.md'
+        - ino core update-index
+        - ino core install arduino:avr
+        - ino core list
+        - ino lib install 'LiquidCrystal' 'Adafruit NeoPixel'
+        - cd Eitude/src/main
+        - ino compile --fqbn arduino:avr:uno main.ino
+      
+    
