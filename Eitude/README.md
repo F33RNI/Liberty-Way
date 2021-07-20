@@ -13,11 +13,11 @@ Eitude AMLS Platform Controller © 2021 Pavel Neshumov (Frey Hertz)
 
 - **Liberty-Way Project:** https://github.com/XxOinvizioNxX/Liberty-Way
 - **Liberty-X Project** (Flight controller): https://github.com/XxOinvizioNxX/Liberty-X
-- **PX4 UDP Connection Project:** https://github.com/Draskown/PX4_UDP_Connection 
+- **PX4 UDP Connection Project:** https://github.com/Draskown/PX4_UDP_Connection
 
 ----------
 
-This is to be a fully functioning part of the AMLS system from the side of the platform. 
+This is to be a fully functioning part of the AMLS system from the side of the platform.
 
 Controller will be operating with such data as its own GPS location, level of illumination around it, its speed and the data that would be sent from the drone which is descripted in _Data packet structure paragraph_ in Liberty-Way Project.
 
