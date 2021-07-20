@@ -19,6 +19,11 @@ jobs:
   fast_finish: true
   include:
     - stage: Build
+      name: 'Liberty-Way Build'
+      language: java
+      script: ant main
+    
+    - stage: Build
       name: 'Eitude Build'
       language: c
       before_script:
@@ -32,12 +37,7 @@ jobs:
         - ino lib install 'LiquidCrystal' 'Adafruit NeoPixel'
         - cd Eitude
         - ino compile --fqbn arduino:avr:uno Eitude.ino
-      
-    - stage: Build
-      name: 'Liberty-Way Build'
-      language: java
-      script: ant main
-      
+    
     - stage: Build
       name: 'Documentation'
       language: node_js
@@ -48,4 +48,4 @@ jobs:
         - markdownlint -V
       script:
         - markdownlint '**/*.md'
-        
+    
