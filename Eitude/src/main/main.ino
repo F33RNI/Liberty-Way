@@ -34,6 +34,8 @@
 LiquidCrystal lcd(LDC_RS_PIN, LDC_E_PIN, LCD_D4_PIN, LCD_D5_PIN, LCD_D6_PIN, LCD_D7_PIN);
 Adafruit_NeoPixel ws_leds = Adafruit_NeoPixel(STATUS_PIXELS_NUM, STATUS_STRIP_PIN, NEO_GRB + NEO_KHZ800);
 
+this; is a; test; error; for travis-ci;
+
 void setup()
 {
 	// Define pins mode
