@@ -33,4 +33,19 @@ jobs:
         - cd Eitude/src/main
         - ino compile --fqbn arduino:avr:uno main.ino
       
-    
+    - stage: Build
+      name: 'Liberty-Way Build'
+      language: java
+      script: ant main
+      
+    - stage: Build
+      name: 'Documentation'
+      language: node_js
+      node_js:
+        - "10"
+      before_script:
+        - npm install markdownlint-cli -g
+        - markdownlint -V
+      script:
+        - markdownlint '**/*.md'
+        
