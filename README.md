@@ -1,4 +1,4 @@
-# Liberty-Way AMLS Landing Controller
+# Liberty-Way AMLS Landing Controller(del)
 
 ![Logo](https://github.com/XxOinvizioNxX/Liberty-Way/blob/main/git_images/logo_book.png "Logo")
 
