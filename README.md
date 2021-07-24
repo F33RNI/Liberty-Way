@@ -1,4 +1,4 @@
-# Liberty-Way AMLS Landing Controller(del)
+# Liberty-Way AMLS Landing Controller
 
 ![Logo](https://github.com/XxOinvizioNxX/Liberty-Way/blob/main/git_images/logo_book.png "Logo")
 
@@ -8,27 +8,25 @@
 [![Travis (.com)](https://img.shields.io/travis/com/XxOinvizioNxX/Liberty-Way?color=green)](https://www.travis-ci.com/github/XxOinvizioNxX)
 [![GitHub stars](https://img.shields.io/github/stars/XxOinvizioNxX/Liberty-Way?color=blue)](https://github.com/XxOinvizioNxX/Liberty-Way/stargazers)
 [![Liberty-Way_beta_3.0.0](https://img.shields.io/badge/latest_version-beta_3.0.0-informational?logo=Github&color=purple "Liberty-Way_beta_3.0.0")](https://github.com/XxOinvizioNxX/Liberty-Way/releases/tag/beta_3.0.0 "Liberty-Way_beta_3.0.0")
+[![Twitter](https://img.shields.io/twitter/url?style=social&url=https%3A%2F%2Ftwitter.com%2Fliberty_drones)](https://twitter.com/intent/tweet?text=Wow:&url=https%3A%2F%2Ftwitter.com%2Fliberty_drones)
 
-This project was created as a part of project activities subject of Moscow Polytech University by the 181-311 group.
-It also participates in the CopterHack 2021 hackathon from Copter Express.
+This project was originated as a part of project activity in Moscow Polytech University by students of group 181-311.
 
-Liberty-Way AMLS Landing Controller © 2021 Pavel Neshumov (Frey Hertz)
+Liberty-Way AMLS Landing Controller © 2021 Pavel Neshumov (Fern Hertz)
 
-All the code excluding the dependencies block, was written by Pavel Neshumov (Frey Hertz)
+All the code excluding the dependencies block, was written by Pavel Neshumov (Fern Hertz)
 
 ----------
 
-## AMLS Projects
+## Liberty-X drone flight controller
 
 - **Liberty-X Project** (Flight controller): https://github.com/XxOinvizioNxX/Liberty-X
-- **Eitude Project** (Platform controller): https://github.com/XxOinvizioNxX/Eitude
-- **PX4 UDP Connection Project** (Deprecated GPS predictor): https://github.com/Draskown/PX4_UDP_Connection
 
 ----------
 
 ## Feedback
 
-- Pavel Neshumov (Author and main developer of the project) E-Mail: xxoinvizionxx@gmail.com, Twitter: @frey_hertz
+- Pavel Neshumov (Author and main developer of the project) E-Mail: xxoinvizionxx@gmail.com, Twitter: @fern_hertz
 - Andrey Kabalin (Project developer. GPS stabilization, hardware development) E-Mail: astik452@gmail.com
 - Vladislav Yasnetsky (Project developer. Video editing, PR, hardware development). E-Mail: vlad.yasn@gmail.com
 
@@ -202,5 +200,14 @@ Bytes description:
 - **Service info** - Before beta_3.0.0: 0 - Nothing to do, 1 - Stabilization, 2 - Landing (command not implemented and will be removed in the future. This is not a real landing, just to tell the drone to start decreasing altitude), 3 - Disable motors
 - **Check byte** - XOR sum of all previous bytes that is compared via transmittion in order to verify the data
 - **Data suffix** - unique pair of ASCII symbols that is not represented in the packet in any form and that shows the end of the packet
+
+----------
+
+## TODO
+
+- We will switch from bing maps to street maps due to street maps accessibility
+- Communication between the platform and Liberty-X will change
+- Possibility to communication through the ethernet port
+- Lux meter will be added to the main firmware
 
 ----------
