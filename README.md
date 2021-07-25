@@ -26,7 +26,7 @@ All the code excluding the dependencies block, was written by Pavel Neshumov (Fe
 
 ## Liberty-X Eitude
 
-- **Liberty-X Project** (Flight controller): https://github.com/XxOinvizioNxX/Liberty-X
+- **AMLS platform** (Platform): https://github.com/XxOinvizioNxX/Liberty-Way/tree/main/Eitude
 
 ----------
 
