@@ -24,6 +24,12 @@ All the code excluding the dependencies block, was written by Pavel Neshumov (Fe
 
 ----------
 
+## Liberty-X Eitude
+
+- **Liberty-X Project** (Flight controller): https://github.com/XxOinvizioNxX/Liberty-X
+
+----------
+
 ## Feedback
 
 - Pavel Neshumov (Author and main developer of the project) E-Mail: xxoinvizionxx@gmail.com, Twitter: @fern_hertz
