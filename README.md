@@ -24,7 +24,7 @@ All the code excluding the dependencies block, was written by Pavel Neshumov (Fe
 
 ----------
 
-## Liberty-X Eitude
+## Liberty-Way Eitude
 
 - **AMLS platform** (Platform): https://github.com/XxOinvizioNxX/Liberty-Way/tree/main/Eitude
 
