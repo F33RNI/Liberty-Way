@@ -209,6 +209,14 @@ Bytes description:
 
 ----------
 
+| Byte N         	| Link command == 1   	|   	| 0           	| 1           	| 2             	| 3            	| 4          	| 5          	| 6               	| 7               	| 8            	| 9             	| 10                	| 11                	|
+|----------------	|---------------------	|---	|-------------	|-------------	|---------------	|--------------	|------------	|------------	|-----------------	|-----------------	|--------------	|---------------	|-------------------	|-------------------	|
+| Description    	| direct_roll_control 	|   	| Roll byte 1 	| Roll byte 2 	| Pitch byte 1  	| Pitch byte 2 	| Yaw byte 1 	| Yaw byte 2 	| Altitude byte 1 	| Altitude byte 2 	| Link command 	| Check byte    	| Data suffix 1 (L) 	| Data suffix 2 (X) 	|
+| Structure      	|        -->          	|   	| 1000-2000   	| 1000-2000   	| 1000-2000     	| 1000-2000    	| 1000-2000  	| 1000-2000  	| 1000-2000       	| 1000-2000       	| 0-1          	| XOR check sum 	| L                 	| X                 	|
+|                	|                     	|   	|             	|             	|               	|              	|            	|            	|                 	|                 	|              	|               	|                   	|                   	|
+| Example in HEX 	|        -->          	|   	| 0x05        	| 0xDC        	| 0x05          	| 0xDC         	| 0x05       	| 0xDC       	| 0x05            	| 0xDC            	| 0x00         	| 0x00          	| 0x4C              	| 0x58              	|
+| Example in DEC 	|        -->          	|   	| 1500        	| 1500        	| 1500          	| 1500         	| 1500       	| 1500       	| 1500            	| 1500            	| 0            	| 0             	| 76                	| 88                	|
+
 ## TODO
 
 - We will switch from bing maps to street maps due to street maps accessibility
