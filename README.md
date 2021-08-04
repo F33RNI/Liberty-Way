@@ -205,7 +205,7 @@ In IDLE mode, the drone does not perform any new calculations and simply continu
 
 The payload bytes must be equal to 0, the Link Command byte is equal to 0, then the check-sum (0) and 2 bytes of the end of the packet.
 
-The table below shows the detailed structure of the package
+The table below shows the detailed structure of the packet
 
 | Byte N | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
@@ -217,11 +217,11 @@ The table below shows the detailed structure of the package
 ----------
 
 ### Direct control (Link command 1)
-In direct control mode, the values for the roll, pitch, yaw and throttle axes are transmitted to the drone. In fact, with these packages, the drone is controlled as from a remote control.
+In direct control mode, the values for the roll, pitch, yaw and throttle axes are transmitted to the drone. In fact, with these packets, the drone is controlled as from a remote control.
 
 The payload bytes are in big-endian order (2 bytes per value), then the Link Command byte is equal to 1, then the check-sum and 2 bytes of the end of the packet.
 
-The table below shows the detailed structure of the package
+The table below shows the detailed structure of the packet
 
 | Byte N | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
