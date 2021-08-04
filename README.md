@@ -232,8 +232,8 @@ The table below shows the detailed structure of the packet
 | Example in HEX | 0x04 | 0xB0 | 0x06 | 0xA4 | 0x05 | 0xDC | 0x05 | 0xE5 | 0x01 | 0x2E | 0xEE | 0xEE |
 
 ----------
-### GPS waypoint (Link command 2)
-In GPS waypoint mode, drone reand current preassure value.
+### Pressure Waypoint (Link command 2)
+In Pressure Waypoint mode, drone reands current preassure value.
 The payload bytes are in big-endian order (4 bytes for value), then the Link Command byte is equal to 2, then the check-sum and 2 bytes of the end of the packet.
 
 The table below shows the detailed structure of the packet
@@ -248,14 +248,19 @@ The table below shows the detailed structure of the packet
 
 ----------
 
-If link command == 3 sends gps waypoint to the drone by latitude and longitude.
+### GPS waypoint (Link command 3)
+In GPS waypoint mode, drone reands current gps waypoint to the drone by latitude and longitude.
+The payload bytes are in big-endian order (4 bytes per value), then the Link Command byte is equal to 3, then the check-sum and 2 bytes of the end of the packet.
 
-| Byte N         	|        -->         	| 0         	| 1     	| 2     	| 3     	| 4        	| 5     	| 6     	| 7     	| 8                    	| 9               	| 10            	| 11            	|
-|----------------	|--------------------	|-----------	|-------	|-------	|-------	|----------	|-------	|-------	|-------	|----------------------	|-----------------	|---------------	|---------------	|
-| Name           	| sendGPSWaypoint    	| Lat 1     	| Lat 2 	| Lat 3 	| Lat 4 	| Lon 1    	| Lon 2 	| Lon 3 	| Lon 4 	| Link command byte    	| Check byte      	| Pocket end    	| Pocket end    	|
-| Value          	|        -->         	| 55588735  	|       	|       	|       	| 37627801 	|       	|       	|       	| 3                    	| 208             	|               	|               	|
-| Description    	| Sends gps waypoint 	|           	|       	|       	|       	|          	|       	|       	|       	| Current command vlue 	| Bytes value XOR 	| Data suffix 1 	| Data suffix 2 	|
-| Example in HEX 	|        -->         	| 0x00      	| 0x54  	| 0xD2  	| 0x5A  	| 0x00     	| 0x39  	| 0x6A  	| 0x5C  	| 0x03                 	| 0xD0            	| 0xEE          	| 0xEE          	|
+The table below shows the detailed structure of the packet
+
+| Byte N         | 0              | 1              | 2              | 3              | 4              | 5              | 6              | 7              | 8                 | 9              | 10                        | 11                        |
+|----------------|----------------|----------------|----------------|----------------|----------------|----------------|----------------|----------------|-------------------|----------------|---------------------------|---------------------------|
+| Byte name      | Payload byte 0 | Payload byte 1 | Payload byte 2 | Payload byte 3 | Payload byte 4 | Payload byte 5 | Payload byte 6 | Payload byte 7 | Link command byte | XOR Check sum  | Pocket suffix 1           | Pocket suffix 2           |
+| Description    | Lat low byte   | Lat low byte   | Lat high byte  | Lat high byte  | Lon low byte   | Lon low byte   | Lon high byte  | Lon high byte  |                   |                | Specified in the settings | Specified in the settings |
+| Value in DEC   | 55588735       |                |                |                | 37627801       |                |                |                |                   |                | 238                       | 238                       |
+| Example in HEX | 0x00           | 0x54           | 0xD2           | 0x5A           | 0x00           | 0x39           | 0x6A           | 0x5C           | 0x03              | 0xD0           | 0xEE                      | 0xEE                      |
+| Example in DEC | 0              | 84             | 210            | 90             | 0              | 57             | 106            | 92             | 3                 | 208            | 238                       | 238                       |
 
 ----------
 
