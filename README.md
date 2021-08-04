@@ -232,8 +232,11 @@ The table below shows the detailed structure of the packet
 | Example in HEX | 0x04 | 0xB0 | 0x06 | 0xA4 | 0x05 | 0xDC | 0x05 | 0xE5 | 0x01 | 0x2E | 0xEE | 0xEE |
 
 ----------
+### GPS waypoint (Link command 2)
+In GPS waypoint mode, drone reand current preassure value.
+The payload bytes are in big-endian order (4 bytes for value), then the Link Command byte is equal to 2, then the check-sum and 2 bytes of the end of the packet.
 
-If link command == 2 sends pressure waypoint to the drone.
+The table below shows the detailed structure of the packet
 
 | Byte N         | 0                 | 1                 | 2                  | 3                  | 4              | 5              | 6              | 7              | 8                 | 9              | 10                        | 11                        |
 |----------------|-------------------|-------------------|--------------------|--------------------|----------------|----------------|----------------|----------------|-------------------|----------------|---------------------------|---------------------------|
