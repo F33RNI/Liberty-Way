@@ -211,61 +211,82 @@ Bytes description:
 
 ## Pocket parameters
 
-| Byte N         	|        -->           	| 0      	| 1      	| 2      	| 3      	| 4      	| 5      	| 6      	| 7      	| 8                    	| 9               	| 10            	| 11            	|
-|----------------	|----------------------	|--------	|--------	|--------	|--------	|--------	|--------	|--------	|--------	|----------------------	|-----------------	|---------------	|---------------	|
-| Name           	| sendIDLE             	|        	|        	|        	|        	|        	|        	|        	|        	| Link command byte    	| Check byte      	| Pocket end    	| Pocket end    	|
-| Value          	|        -->           	| 0      	| 0      	| 0      	| 0      	| 0      	| 0      	| 0      	| 0      	| 0                    	| 0               	|               	|               	|
-| Description    	| Disables all systems 	| Sets 0 	| Sets 0 	| Sets 0 	| Sets 0 	| Sets 0 	| Sets 0 	| Sets 0 	| Sets 0 	| Current command vlue 	| Bytes value XOR 	| Data suffix 1 	| Data suffix 2 	|
-|                	|                      	|        	|        	|        	|        	|        	|        	|        	|        	|                      	|                 	|               	|               	|
-| Example in HEX 	|        -->           	| 0x00   	| 0x00   	| 0x00   	| 0x00   	| 0x00   	| 0x00   	| 0x00   	| 0x00   	| 0x00                 	| 0x00            	| 0xEE          	| 0xEE          	|
+----------
 
-| Byte N         	|        -->                                        	| 0           	| 1           	| 2           	| 3           	| 4           	| 5           	| 6           	| 7           	| 8                    	| 9               	| 10            	| 11            	|
-|----------------	|---------------------------------------------------	|-------------	|-------------	|-------------	|-------------	|-------------	|-------------	|-------------	|-------------	|----------------------	|-----------------	|---------------	|---------------	|
-| Name           	| sendDDC                                           	| ddcRoll 1   	| ddcRoll 2   	| ddcPitch 1  	| ddcPitch 2  	| ddcYaw 1    	| ddcYaw 2    	| ddcZ 1      	| ddcZ 2      	| Link command byte    	| Check byte      	| Pocket end    	| Pocket end    	|
-| Value          	|        -->                                        	| 1500        	| 1500        	| 1500        	| 1500        	| 1500        	| 1500        	| 1500        	| 1500        	| 1                    	| 1               	|               	|               	|
-| Description    	| Sends corrections for drone optical stabilization 	| 1000 - 2000 	| 1000 - 2000 	| 1000 - 2000 	| 1000 - 2000 	| 1000 - 2000 	| 1000 - 2000 	| 1000 - 2000 	| 1000 - 2000 	| Current command vlue 	| Bytes value XOR 	| Data suffix 1 	| Data suffix 2 	|
-|                	| if 1500 drone maintains it's position             	|             	|             	|             	|             	|             	|             	|             	|             	|                      	|                 	|               	|               	|
-| Example in HEX 	|        -->                                        	| 0x05        	| 0xDC        	| 0x05        	| 0xDC        	| 0x05        	| 0xDC        	| 0x05        	| 0xDC        	| 0x01                 	| 0x01            	| 0xEE          	| 0xEE          	|
+If link command == 0 drone continues current operation.
+
+| Byte N         	|        -->                  	| 0    	| 1    	| 2    	| 3    	| 4    	| 5    	| 6    	| 7    	| 8                    	| 9               	| 10            	| 11            	|
+|----------------	|-----------------------------	|------	|------	|------	|------	|------	|------	|------	|------	|----------------------	|-----------------	|---------------	|---------------	|
+| Name           	| sendIDLE                    	|      	|      	|      	|      	|      	|      	|      	|      	| Link command byte    	| Check byte      	| Pocket end    	| Pocket end    	|
+| Value          	|        -->                  	| 0    	| 0    	| 0    	| 0    	| 0    	| 0    	| 0    	| 0    	| 0                    	| 0               	|               	|               	|
+| Description    	| Continues current operation 	|      	|      	|      	|      	|      	|      	|      	|      	| Current command vlue 	| Bytes value XOR 	| Data suffix 1 	| Data suffix 2 	|
+| Example in HEX 	|        -->                  	| 0x00 	| 0x00 	| 0x00 	| 0x00 	| 0x00 	| 0x00 	| 0x00 	| 0x00 	| 0x00                 	| 0x00            	| 0xEE          	| 0xEE          	|
+
+----------
+
+If link command == 1 sends corrections for drone optical stabilization. If 1500 drone maintains it's position.
+
+| Byte N         	|        -->                	| 0           	| 1           	| 2           	| 3           	| 4           	| 5           	| 6           	| 7           	| 8                    	| 9               	| 10            	| 11            	|
+|----------------	|---------------------------	|-------------	|-------------	|-------------	|-------------	|-------------	|-------------	|-------------	|-------------	|----------------------	|-----------------	|---------------	|---------------	|
+| Name           	| sendDDC                   	| ddcRoll 1   	| ddcRoll 2   	| ddcPitch 1  	| ddcPitch 2  	| ddcYaw 1    	| ddcYaw 2    	| ddcZ 1      	| ddcZ 2      	| Link command byte    	| Check byte      	| Pocket end    	| Pocket end    	|
+| Value          	|        -->                	| 1500        	| 1500        	| 1500        	| 1500        	| 1500        	| 1500        	| 1500        	| 1500        	| 1                    	| 1               	|               	|               	|
+| Description    	| Stabilization corrections 	| 1000 - 2000 	| 1000 - 2000 	| 1000 - 2000 	| 1000 - 2000 	| 1000 - 2000 	| 1000 - 2000 	| 1000 - 2000 	| 1000 - 2000 	| Current command vlue 	| Bytes value XOR 	| Data suffix 1 	| Data suffix 2 	|
+| Example in HEX 	|        -->                	| 0x05        	| 0xDC        	| 0x05        	| 0xDC        	| 0x05        	| 0xDC        	| 0x05        	| 0xDC        	| 0x01                 	| 0x01            	| 0xEE          	| 0xEE          	|
+
+----------
+
+If link command == 2 sends pressure waypoint to the drone.
 
 | Byte N         	|        -->           	| 0          	| 1          	| 2          	| 3          	| 4    	| 5    	| 6    	| 7    	| 8                    	| 9               	| 10            	| 11            	|
 |----------------	|----------------------	|------------	|------------	|------------	|------------	|------	|------	|------	|------	|----------------------	|-----------------	|---------------	|---------------	|
 | Name           	| sendPressureWaypoint 	| pressure 0 	| pressure 1 	| pressure 2 	| pressure 3 	| -    	| -    	| -    	| -    	| Link command byte    	| Check byte      	| Pocket end    	| Pocket end    	|
 | Value          	|        -->           	| 101,000    	|            	|            	|            	| -    	| -    	| -    	| -    	| 2                    	| 1               	|               	|               	|
-| Description    	|                      	|            	|            	|            	|            	|      	|      	|      	|      	| Current command vlue 	| Bytes value XOR 	| Data suffix 1 	| Data suffix 2 	|
-|                	|                      	|            	|            	|            	|            	|      	|      	|      	|      	|                      	|                 	|               	|               	|
+| Description    	| Pressure waypoint    	|            	|            	|            	|            	|      	|      	|      	|      	| Current command vlue 	| Bytes value XOR 	| Data suffix 1 	| Data suffix 2 	|
 | Example in HEX 	|        -->           	| 0x00       	| 0x01       	| 0x8A       	| 0x88       	| 0x00 	| 0x00 	| 0x00 	| 0x00 	| 0x02                 	| 0x01            	| 0xEE          	| 0xEE          	|
 
-| Byte N         	|        -->         	| 0                  	| 1     	| 2     	| 3     	| 4                 	| 5     	| 6     	| 7     	| 8                    	| 9               	| 10            	| 11            	|
-|----------------	|--------------------	|--------------------	|-------	|-------	|-------	|-------------------	|-------	|-------	|-------	|----------------------	|-----------------	|---------------	|---------------	|
-| Name           	| sendGPSWaypoint    	| Lat 1              	| Lat 2 	| Lat 3 	| Lat 4 	| Lon 1             	| Lon 2 	| Lon 3 	| Lon 4 	| Link command byte    	| Check byte      	| Pocket end    	| Pocket end    	|
-| Value          	|        -->         	| 55.58873537104966  	|       	|       	|       	| 37.62780192420667 	|       	|       	|       	| 3                    	| 208             	|               	|               	|
-| Description    	| Sends gps waypoint 	|                    	|       	|       	|       	|                   	|       	|       	|       	| Current command vlue 	| Bytes value XOR 	| Data suffix 1 	| Data suffix 2 	|
-|                	|                    	|                    	|       	|       	|       	|                   	|       	|       	|       	|                      	|                 	|               	|               	|
-| Example in HEX 	|        -->         	| 0x00               	| 0x54  	| 0xD2  	| 0x5A  	| 0x00              	| 0x39  	| 0x6A  	| 0x5C  	| 0x03                 	| 0xD0            	| 0xEE          	| 0xEE          	|
+----------
 
-| Byte N         	|        -->                              	| 0    	| 1    	| 2    	| 3    	| 4    	| 5    	| 6    	| 7    	| 8                    	| 9               	| 10            	| 11            	|
-|----------------	|-----------------------------------------	|------	|------	|------	|------	|------	|------	|------	|------	|----------------------	|-----------------	|---------------	|---------------	|
-| Name           	| sendMotorsStop                          	|      	|      	|      	|      	|      	|      	|      	|      	| Link command byte    	| Check byte      	| Pocket end    	| Pocket end    	|
-| Value          	|        -->                              	| 0    	| 0    	| 0    	| 0    	| 0    	| 0    	| 0    	| 0    	| 4                    	| 4               	|               	|               	|
-| Description    	| Sends a command to  turn off the motors 	|      	|      	|      	|      	|      	|      	|      	|      	| Current command vlue 	| Bytes value XOR 	| Data suffix 1 	| Data suffix 2 	|
-|                	|                                         	|      	|      	|      	|      	|      	|      	|      	|      	|                      	|                 	|               	|               	|
-| Example in HEX 	|        -->                              	| 0x00 	| 0x00 	| 0x00 	| 0x5A 	| 0x00 	| 0x00 	| 0x00 	| 0x00 	| 0x04                 	| 0x4             	| 0xEE          	| 0xEE          	|
+If link command == 3 sends gps waypoint to the drone by latitude and longitude.
 
-| Byte N         	|        -->                                                          	| 0    	| 1    	| 2    	| 3    	| 4    	| 5    	| 6    	| 7    	| 8                    	| 9               	| 10            	| 11            	|
-|----------------	|---------------------------------------------------------------------	|------	|------	|------	|------	|------	|------	|------	|------	|----------------------	|-----------------	|---------------	|---------------	|
-| Name           	| sendStartSequence                                                   	|      	|      	|      	|      	|      	|      	|      	|      	| Link command byte    	| Check byte      	| Pocket end    	| Pocket end    	|
-| Value          	|        -->                                                          	| 0    	| 0    	| 0    	| 0    	| 0    	| 0    	| 0    	| 0    	| 5                    	| 5               	|               	|               	|
-| Description    	| Sends a command to  turn off the motors And Sending takeoff command 	|      	|      	|      	|      	|      	|      	|      	|      	| Current command vlue 	| Bytes value XOR 	| Data suffix 1 	| Data suffix 2 	|
-|                	|                                                                     	|      	|      	|      	|      	|      	|      	|      	|      	|                      	|                 	|               	|               	|
-| Example in HEX 	|        -->                                                          	| 0x00 	| 0x00 	| 0x00 	| 0x5A 	| 0x00 	| 0x00 	| 0x00 	| 0x00 	| 0x05                 	| 0x5             	| 0xEE          	| 0xEE          	|
+| Byte N         	|        -->         	| 0         	| 1     	| 2     	| 3     	| 4        	| 5     	| 6     	| 7     	| 8                    	| 9               	| 10            	| 11            	|
+|----------------	|--------------------	|-----------	|-------	|-------	|-------	|----------	|-------	|-------	|-------	|----------------------	|-----------------	|---------------	|---------------	|
+| Name           	| sendGPSWaypoint    	| Lat 1     	| Lat 2 	| Lat 3 	| Lat 4 	| Lon 1    	| Lon 2 	| Lon 3 	| Lon 4 	| Link command byte    	| Check byte      	| Pocket end    	| Pocket end    	|
+| Value          	|        -->         	| 55588735  	|       	|       	|       	| 37627801 	|       	|       	|       	| 3                    	| 208             	|               	|               	|
+| Description    	| Sends gps waypoint 	|           	|       	|       	|       	|          	|       	|       	|       	| Current command vlue 	| Bytes value XOR 	| Data suffix 1 	| Data suffix 2 	|
+| Example in HEX 	|        -->         	| 0x00      	| 0x54  	| 0xD2  	| 0x5A  	| 0x00     	| 0x39  	| 0x6A  	| 0x5C  	| 0x03                 	| 0xD0            	| 0xEE          	| 0xEE          	|
 
-| Byte N         	|        -->                                                                  	| 0    	| 1    	| 2    	| 3    	| 4    	| 5    	| 6    	| 7    	| 8                    	| 9               	| 10            	| 11            	|
-|----------------	|-----------------------------------------------------------------------------	|------	|------	|------	|------	|------	|------	|------	|------	|----------------------	|-----------------	|---------------	|---------------	|
-| Name           	| sendAbort                                                                   	|      	|      	|      	|      	|      	|      	|      	|      	| Link command byte    	| Check byte      	| Pocket end    	| Pocket end    	|
-| Value          	|        -->                                                                  	| 0    	| 0    	| 0    	| 0    	| 0    	| 0    	| 0    	| 0    	| 6                    	| 6               	|               	|               	|
-| Description    	| Sends abort command to the drone  Clears flags,  resets direct corrections, 	|      	|      	|      	|      	|      	|      	|      	|      	| Current command vlue 	| Bytes value XOR 	| Data suffix 1 	| Data suffix 2 	|
-|                	| waypoint flags and sharply jumps up to prevent a collision                  	|      	|      	|      	|      	|      	|      	|      	|      	|                      	|                 	|               	|               	|
-| Example in HEX 	|        -->                                                                  	| 0x00 	| 0x00 	| 0x00 	| 0x5A 	| 0x00 	| 0x00 	| 0x00 	| 0x00 	| 0x06                 	| 0x6             	| 0xEE          	| 0xEE          	|
+----------
+
+If link command == 4 sends a command to turn off the motors.
+
+| Byte N         	|        -->           	| 0    	| 1    	| 2    	| 3    	| 4    	| 5    	| 6    	| 7    	| 8                    	| 9               	| 10            	| 11            	|
+|----------------	|----------------------	|------	|------	|------	|------	|------	|------	|------	|------	|----------------------	|-----------------	|---------------	|---------------	|
+| Name           	| sendMotorsStop       	|      	|      	|      	|      	|      	|      	|      	|      	| Link command byte    	| Check byte      	| Pocket end    	| Pocket end    	|
+| Value          	|        -->           	| 0    	| 0    	| 0    	| 0    	| 0    	| 0    	| 0    	| 0    	| 4                    	| 4               	|               	|               	|
+| Description    	| turns off the motors 	|      	|      	|      	|      	|      	|      	|      	|      	| Current command vlue 	| Bytes value XOR 	| Data suffix 1 	| Data suffix 2 	|
+| Example in HEX 	|        -->           	| 0x00 	| 0x00 	| 0x00 	| 0x00 	| 0x00 	| 0x00 	| 0x00 	| 0x00 	| 0x04                 	| 0x4             	| 0xEE          	| 0xEE          	|
+
+----------
+
+If link command == 5 sends a command to turn off the motors and sends takeoff command.
+
+| Byte N         	|        -->        	| 0    	| 1    	| 2    	| 3    	| 4    	| 5    	| 6    	| 7    	| 8                    	| 9               	| 10            	| 11            	|
+|----------------	|-------------------	|------	|------	|------	|------	|------	|------	|------	|------	|----------------------	|-----------------	|---------------	|---------------	|
+| Name           	| sendStartSequence 	|      	|      	|      	|      	|      	|      	|      	|      	| Link command byte    	| Check byte      	| Pocket end    	| Pocket end    	|
+| Value          	|        -->        	| 0    	| 0    	| 0    	| 0    	| 0    	| 0    	| 0    	| 0    	| 5                    	| 5               	|               	|               	|
+| Description    	| Sends takeoff     	|      	|      	|      	|      	|      	|      	|      	|      	| Current command vlue 	| Bytes value XOR 	| Data suffix 1 	| Data suffix 2 	|
+| Example in HEX 	|        -->        	| 0x00 	| 0x00 	| 0x00 	| 0x5A 	| 0x00 	| 0x00 	| 0x00 	| 0x00 	| 0x05                 	| 0x5             	| 0xEE          	| 0xEE          	|
+
+----------
+
+If link command == 6 Sends abort command to the drone clears flags, resets direct corrections, waypoint flags and sharply jumps up to prevent a collision.
+
+| Byte N         	|        -->  	| 0    	| 1    	| 2    	| 3    	| 4    	| 5    	| 6    	| 7    	| 8                    	| 9               	| 10            	| 11            	|
+|----------------	|-------------	|------	|------	|------	|------	|------	|------	|------	|------	|----------------------	|-----------------	|---------------	|---------------	|
+| Name           	| sendAbort   	|      	|      	|      	|      	|      	|      	|      	|      	| Link command byte    	| Check byte      	| Pocket end    	| Pocket end    	|
+| Value          	|        -->  	| 0    	| 0    	| 0    	| 0    	| 0    	| 0    	| 0    	| 0    	| 6                    	| 6               	|               	|               	|
+| Description    	| Sends abort 	|      	|      	|      	|      	|      	|      	|      	|      	| Current command vlue 	| Bytes value XOR 	| Data suffix 1 	| Data suffix 2 	|
+| Example in HEX 	|        -->  	| 0x00 	| 0x00 	| 0x00 	| 0x5A 	| 0x00 	| 0x00 	| 0x00 	| 0x00 	| 0x06                 	| 0x6             	| 0xEE          	| 0xEE          	|
 
 ## TODO
 
