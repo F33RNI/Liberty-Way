@@ -10,7 +10,7 @@
 [![Liberty-Way_beta_3.0.0](https://img.shields.io/badge/latest_version-beta_3.0.0-informational?logo=Github&color=purple "Liberty-Way_beta_3.0.0")](https://github.com/XxOinvizioNxX/Liberty-Way/releases/tag/beta_3.0.0 "Liberty-Way_beta_3.0.0")
 [![Twitter](https://img.shields.io/twitter/url?style=social&url=https%3A%2F%2Ftwitter.com%2Fliberty_drones)](https://twitter.com/intent/tweet?text=Wow:&url=https%3A%2F%2Ftwitter.com%2Fliberty_drones)
 
-This project was originated as a part of project activity in Moscow Polytech University by students of group 181-311.
+This project is a part of project activity in Moscow Polytech University by students of group 181-311.
 
 Liberty-Way AMLS Landing Controller © 2021 Pavel Neshumov (Fern Hertz)
 
@@ -18,13 +18,12 @@ All the code excluding the dependencies block, was written by Pavel Neshumov (Fe
 
 ----------
 
-## Liberty-X drone flight controller
+## More projects
+### Liberty-X drone flight controller
 
 - **Liberty-X Project** (Flight controller): https://github.com/XxOinvizioNxX/Liberty-X
 
-----------
-
-## Liberty-Way Eitude
+### Liberty-Way Eitude
 
 - **AMLS platform** (Platform): https://github.com/XxOinvizioNxX/Liberty-Way/tree/main/Eitude
 
@@ -32,7 +31,7 @@ All the code excluding the dependencies block, was written by Pavel Neshumov (Fe
 
 ## Feedback
 
-- Pavel Neshumov (Author and main developer of the project) E-Mail: xxoinvizionxx@gmail.com, Twitter: @fern_hertz
+- Pavel Neshumov (Author and CEO of the project) E-Mail: xxoinvizionxx@gmail.com, Twitter: @fern_hertz
 - Andrey Kabalin (Project developer. GPS stabilization, hardware development) E-Mail: astik452@gmail.com
 - Vladislav Yasnetsky (Project developer. Video editing, PR, hardware development). E-Mail: vlad.yasn@gmail.com
 
@@ -41,7 +40,6 @@ All the code excluding the dependencies block, was written by Pavel Neshumov (Fe
 - BTC: `bc1qd2j53p9nplxcx4uyrv322t3mg0t93pz6m5lnft`
 - ZEC: `t1Jb5tH61zcSTy2QyfsxftUEWHikdSYpPoz`
 - ETH: `0x284E6121362ea1C69528eDEdc309fC8b90fA5578`
-- XCH (CHIA): `xch1dnm87ennt63sssnmzzmh8ggf3s2jjxd6pt4rhkzyhg4tyfhah0ts43zkct`
 
 ----------
 
@@ -100,7 +98,7 @@ The dependencies are certificated by following licenses:
 
 ## Logotype
 
-AMLS and Liberty-X logo was designed by Pavel Neshumov
+AMLS and Liberty-X logo was designed by Pavel Neshumov (Fern Hertz)
 
 ----------
 
