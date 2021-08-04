@@ -190,46 +190,46 @@ These are the PID regulation parameters for each processed axle (x, y, z and yaw
 
 ## Data packet structure
 
-This is the structure of a packet that is being sent to the drone for execution of a PID controller arguments:
+Structure of Liberty-Link packets that Liberty-Way sends to the drone
 
-![Packet](https://github.com/XxOinvizioNxX/Liberty-Way/blob/main/git_images/data_structure.png "Data packet")
+Each packet consists of 12 bytes. The first 8 bytes are the payload. Next comes 1 byte Link Command, which tells the drone what to do with this packet. Then 1 byte XOR of the check-sum of the previous 9 bytes. At the end there are 2 bytes indicating the end of the packet (indicated in three. By default it is 0xEE).
 
-Bytes description:
+For each packet sent (even IDLE), the drone returns 1 or several bytes (the number is specified in the Liberty-X settings) of telemetry.
 
-- **Roll bytes** - Roll correction values
-- **Pitch bytes** - Pitch correction values
-- **Yaw bytes** - Yaw correction values
-- **Altitude bytes** - Altitude correction values
-- **Service info** - Sets the drone state. After beta_3.0.0: 0 - IDLE, 1 - Direct control, 2 - Pressure (altitude) setpoint, 3 - GPS setpoint, 4 - Turn off the motors, 5 - Start Liberty Way sequence, 6 - Abort Liberty Way sequence.
-- **Service info** - Before beta_3.0.0: 0 - Nothing to do, 1 - Stabilization, 2 - Landing (command not implemented and will be removed in the future. This is not a real landing, just to tell the drone to start decreasing altitude), 3 - Disable motors
-- **Check byte** - XOR sum of all previous bytes that is compared via transmittion in order to verify the data
-- **Data suffix** - unique pair of ASCII symbols that is not represented in the packet in any form and that shows the end of the packet
+All data that is sent to the drone or comes from the drone (telemetry) is arranged in big-endian order.
 
 ----------
 
-## Pocket parameters
+### IDLE (Link command 0)
+In IDLE mode, the drone does not perform any new calculations and simply continues its flight in the previous mode.
+
+The payload bytes must be equal to 0, the Link Command byte is equal to 0, then the check-sum (0) and 2 bytes of the end of the packet.
+
+The table below shows the detailed structure of the package
+
+| Byte N | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| Byte name | Payload byte 0 | Payload byte 1 | Payload byte 2 | Payload byte 3 | Payload byte 4 | Payload byte 5 | Payload byte 6 | Payload byte 7 | Link command byte | XOR check-sum | Packet suffix 1 | Packet suffix 1 |
+| Description for IDLE | Should be 0 | Should be 0 | Should be 0 | Should be 0 | Should be 0 | Should be 0 | Should be 0 | Should be 0 | 0 | 0 | Specified in the settings | Specified in the settings |
+| Value in DEC | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 238 | 238 |
+| Value in HEX | 0x00 | 0x00 | 0x00 | 0x00 | 0x00 | 0x00 | 0x00 | 0x00 | 0x00 | 0x00 | 0xEE | 0xEE |
 
 ----------
 
-If link command == 0 drone continues current operation.
+### Direct control (Link command 1)
+In direct control mode, the values for the roll, pitch, yaw and throttle axes are transmitted to the drone. In fact, with these packages, the drone is controlled as from a remote control.
 
-| Byte N         	|        -->                  	| 0    	| 1    	| 2    	| 3    	| 4    	| 5    	| 6    	| 7    	| 8                    	| 9               	| 10            	| 11            	|
-|----------------	|-----------------------------	|------	|------	|------	|------	|------	|------	|------	|------	|----------------------	|-----------------	|---------------	|---------------	|
-| Name           	| sendIDLE                    	|      	|      	|      	|      	|      	|      	|      	|      	| Link command byte    	| Check byte      	| Pocket end    	| Pocket end    	|
-| Value          	|        -->                  	| 0    	| 0    	| 0    	| 0    	| 0    	| 0    	| 0    	| 0    	| 0                    	| 0               	|               	|               	|
-| Description    	| Continues current operation 	|      	|      	|      	|      	|      	|      	|      	|      	| Current command vlue 	| Bytes value XOR 	| Data suffix 1 	| Data suffix 2 	|
-| Example in HEX 	|        -->                  	| 0x00 	| 0x00 	| 0x00 	| 0x00 	| 0x00 	| 0x00 	| 0x00 	| 0x00 	| 0x00                 	| 0x00            	| 0xEE          	| 0xEE          	|
+The payload bytes are in big-endian order (2 bytes per value), then the Link Command byte is equal to 1, then the check-sum and 2 bytes of the end of the packet.
 
-----------
+The table below shows the detailed structure of the package
 
-If link command == 1 sends corrections for drone optical stabilization. If 1500 drone maintains it's position.
-
-| Byte N         	|        -->                	| 0           	| 1           	| 2           	| 3           	| 4           	| 5           	| 6           	| 7           	| 8                    	| 9               	| 10            	| 11            	|
-|----------------	|---------------------------	|-------------	|-------------	|-------------	|-------------	|-------------	|-------------	|-------------	|-------------	|----------------------	|-----------------	|---------------	|---------------	|
-| Name           	| sendDDC                   	| ddcRoll 1   	| ddcRoll 2   	| ddcPitch 1  	| ddcPitch 2  	| ddcYaw 1    	| ddcYaw 2    	| ddcZ 1      	| ddcZ 2      	| Link command byte    	| Check byte      	| Pocket end    	| Pocket end    	|
-| Value          	|        -->                	| 1500        	| 1500        	| 1500        	| 1500        	| 1500        	| 1500        	| 1500        	| 1500        	| 1                    	| 1               	|               	|               	|
-| Description    	| Stabilization corrections 	| 1000 - 2000 	| 1000 - 2000 	| 1000 - 2000 	| 1000 - 2000 	| 1000 - 2000 	| 1000 - 2000 	| 1000 - 2000 	| 1000 - 2000 	| Current command vlue 	| Bytes value XOR 	| Data suffix 1 	| Data suffix 2 	|
-| Example in HEX 	|        -->                	| 0x05        	| 0xDC        	| 0x05        	| 0xDC        	| 0x05        	| 0xDC        	| 0x05        	| 0xDC        	| 0x01                 	| 0x01            	| 0xEE          	| 0xEE          	|
+| Byte N | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| Byte name | Payload byte 0 | Payload byte 1 | Payload byte 2 | Payload byte 3 | Payload byte 4 | Payload byte 5 | Payload byte 6 | Payload byte 7 | Link command byte | XOR check-sum | Packet suffix 1 | Packet suffix 1 |
+| Description for Direct control | Roll high byte | Roll low byte | Pitch high byte | Pitch low byte | Yaw high byte | Yaw low byte | Throttle high byte | Throttle low byte | 1 |  | Specified in the settings | Specified in the settings |
+| Value in DEC | 1000-2000 |  | 1000-2000 |  | 1000-2000 |  | 1000-2000 |  | 1 |  | 238 | 238 |
+| Example in DEC | 1200 |  | 1700 |  | 1500 |  | 1509 |  | 1 | 46 | 238 | 238 |
+| Example in HEX | 0x04 | 0xB0 | 0x06 | 0xA4 | 0x05 | 0xDC | 0x05 | 0xE5 | 0x01 | 0x2E | 0xEE | 0xEE |
 
 ----------
 
@@ -285,6 +285,8 @@ If link command == 6 Sends abort command to the drone clears flags, resets direc
 | Value          	|        -->  	| 0    	| 0    	| 0    	| 0    	| 0    	| 0    	| 0    	| 0    	| 6                    	| 6               	|               	|               	|
 | Description    	| Sends abort 	|      	|      	|      	|      	|      	|      	|      	|      	| Current command vlue 	| Bytes value XOR 	| Data suffix 1 	| Data suffix 2 	|
 | Example in HEX 	|        -->  	| 0x00 	| 0x00 	| 0x00 	| 0x5A 	| 0x00 	| 0x00 	| 0x00 	| 0x00 	| 0x06                 	| 0x6             	| 0xEE          	| 0xEE          	|
+
+----------
 
 ## TODO
 
