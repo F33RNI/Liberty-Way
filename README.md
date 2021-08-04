@@ -209,7 +209,7 @@ The table below shows the detailed structure of the packet
 
 | Byte N | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
-| Byte name | Payload byte 0 | Payload byte 1 | Payload byte 2 | Payload byte 3 | Payload byte 4 | Payload byte 5 | Payload byte 6 | Payload byte 7 | Link command byte | XOR check-sum | Packet suffix 1 | Packet suffix 1 |
+| Byte name | Payload byte 0 | Payload byte 1 | Payload byte 2 | Payload byte 3 | Payload byte 4 | Payload byte 5 | Payload byte 6 | Payload byte 7 | Link command byte | XOR check-sum | Packet suffix 1 | Packet suffix 2 |
 | Description for IDLE | Should be 0 | Should be 0 | Should be 0 | Should be 0 | Should be 0 | Should be 0 | Should be 0 | Should be 0 | 0 | 0 | Specified in the settings | Specified in the settings |
 | Value in DEC | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 238 | 238 |
 | Value in HEX | 0x00 | 0x00 | 0x00 | 0x00 | 0x00 | 0x00 | 0x00 | 0x00 | 0x00 | 0x00 | 0xEE | 0xEE |
@@ -225,7 +225,7 @@ The table below shows the detailed structure of the packet
 
 | Byte N | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
-| Byte name | Payload byte 0 | Payload byte 1 | Payload byte 2 | Payload byte 3 | Payload byte 4 | Payload byte 5 | Payload byte 6 | Payload byte 7 | Link command byte | XOR check-sum | Packet suffix 1 | Packet suffix 1 |
+| Byte name | Payload byte 0 | Payload byte 1 | Payload byte 2 | Payload byte 3 | Payload byte 4 | Payload byte 5 | Payload byte 6 | Payload byte 7 | Link command byte | XOR check-sum | Packet suffix 1 | Packet suffix 2 |
 | Description for Direct control | Roll high byte | Roll low byte | Pitch high byte | Pitch low byte | Yaw high byte | Yaw low byte | Throttle high byte | Throttle low byte | 1 |  | Specified in the settings | Specified in the settings |
 | Value in DEC | 1000-2000 |  | 1000-2000 |  | 1000-2000 |  | 1000-2000 |  | 1 |  | 238 | 238 |
 | Example in DEC | 1200 |  | 1700 |  | 1500 |  | 1509 |  | 1 | 46 | 238 | 238 |
