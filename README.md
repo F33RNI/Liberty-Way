@@ -235,13 +235,13 @@ The table below shows the detailed structure of the packet
 
 If link command == 2 sends pressure waypoint to the drone.
 
-| Byte N         | 0              | 1              | 2              | 3              | 4              | 5              | 6              | 7              | 8                    | 9               | 10                        | 11                        |
-|----------------|----------------|----------------|----------------|----------------|----------------|----------------|----------------|----------------|----------------------|-----------------|---------------------------|---------------------------|
-| Byte name      | Payload byte 0 | Payload byte 1 | Payload byte 2 | Payload byte 3 | Payload byte 4 | Payload byte 5 | Payload byte 6 | Payload byte 7 | Link command byte    | Check byte      | Pocket suffix 1           | Pocket suffix 2           |
-| Description    | pressure low byte     | pressure low byte    | pressure high byte     | pressure high byte     | -              | -              | -              | -              |                      |                 | Specified in the settings | Specified in the settings |
-| Value in DEC   | 101,000        |                |                |                |                |                |                |                | Current command vlue | Bytes value XOR | 238                       | 238                       |
-| Example in HEX | 0x00           | 0x01           | 0x8A           | 0x88           | 0x00           | 0x00           | 0x00           | 0x00           | 0x02                 | 0x01            | 0xEE                      | 0xEE                      |
-| Example in DEC | 0              | 1              | 138            | 136            | 0              | 0              | 0              | 0              | 2                    | 1               | 238                       | 238                       |
+| Byte N         | 0                 | 1                 | 2                  | 3                  | 4              | 5              | 6              | 7              | 8                 | 9              | 10                        | 11                        |
+|----------------|-------------------|-------------------|--------------------|--------------------|----------------|----------------|----------------|----------------|-------------------|----------------|---------------------------|---------------------------|
+| Byte name      | Payload byte 0    | Payload byte 1    | Payload byte 2     | Payload byte 3     | Payload byte 4 | Payload byte 5 | Payload byte 6 | Payload byte 7 | Link command byte | XOR Check sum  | Pocket suffix 1           | Pocket suffix 2           |
+| Description    | pressure low byte | pressure low byte | pressure high byte | pressure high byte | -              | -              | -              | -              |                   |                | Specified in the settings | Specified in the settings |
+| Value in DEC   | 101,000           |                   |                    |                    |                |                |                |                |                   |                | 238                       | 238                       |
+| Example in HEX | 0x00              | 0x01              | 0x8A               | 0x88               | 0x00           | 0x00           | 0x00           | 0x00           | 0x02              | 0x01           | 0xEE                      | 0xEE                      |
+| Example in DEC | 0                 | 1                 | 138                | 136                | 0              | 0              | 0              | 0              | 2                 | 1              | 238                       | 238                       |
 
 ----------
 
