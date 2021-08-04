@@ -264,14 +264,19 @@ The table below shows the detailed structure of the packet
 
 ----------
 
-If link command == 4 sends a command to turn off the motors.
+### Motors Stop (Link command 4)
+In Motors Stop mode, drone stops action and turns off motors.
+The payload bytes are in big-endian order, then the Link Command byte is equal to 4, then the check-sum and 2 bytes of the end of the packet.
 
-| Byte N         	|        -->           	| 0    	| 1    	| 2    	| 3    	| 4    	| 5    	| 6    	| 7    	| 8                    	| 9               	| 10            	| 11            	|
-|----------------	|----------------------	|------	|------	|------	|------	|------	|------	|------	|------	|----------------------	|-----------------	|---------------	|---------------	|
-| Name           	| sendMotorsStop       	|      	|      	|      	|      	|      	|      	|      	|      	| Link command byte    	| Check byte      	| Pocket end    	| Pocket end    	|
-| Value          	|        -->           	| 0    	| 0    	| 0    	| 0    	| 0    	| 0    	| 0    	| 0    	| 4                    	| 4               	|               	|               	|
-| Description    	| turns off the motors 	|      	|      	|      	|      	|      	|      	|      	|      	| Current command vlue 	| Bytes value XOR 	| Data suffix 1 	| Data suffix 2 	|
-| Example in HEX 	|        -->           	| 0x00 	| 0x00 	| 0x00 	| 0x00 	| 0x00 	| 0x00 	| 0x00 	| 0x00 	| 0x04                 	| 0x4             	| 0xEE          	| 0xEE          	|
+The table below shows the detailed structure of the packet
+
+| Byte N                      | 0              | 1              | 2              | 3              | 4              | 5              | 6              | 7              | 8                 | 9              | 10                        | 11                        |
+|-----------------------------|----------------|----------------|----------------|----------------|----------------|----------------|----------------|----------------|-------------------|----------------|---------------------------|---------------------------|
+| Byte name                   | Payload byte 0 | Payload byte 1 | Payload byte 2 | Payload byte 3 | Payload byte 4 | Payload byte 5 | Payload byte 6 | Payload byte 7 | Link command byte | XOR Check sum  | Pocket suffix 1           | Pocket suffix 2           |
+| Description for Motors Stop | Should be 0    | Should be 0    | Should be 0    | Should be 0    | Should be 0    | Should be 0    | Should be 0    | Should be 0    |                   |                | Specified in the settings | Specified in the settings |
+| Value in DEC                | 0              | 0              | 0              | 0              | 0              | 0              | 0              | 0              |                   |                | 238                       | 238                       |
+| Example in HEX              | 0x00           | 0x00           | 0x00           | 0x00           | 0x00           | 0x00           | 0x00           | 0x00           | 0x04              | 0x04           | 0xEE                      | 0xEE                      |
+| Example in DEC              | 0              | 0              | 0              | 0              | 0              | 0              | 0              | 0              | 4                 | 4              | 238                       | 238                       |
 
 ----------
 
