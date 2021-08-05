@@ -7,6 +7,8 @@ This project is currently part of the AMLS (Autonomous Multicopter Landing Syste
 
 Sonarus I2C ultrasonic rangefinder © 2021 Pavel Neshumov (Fern Hertz)
 
+![Sonarus](/git_images/sonarus.jpg "Sonarus")
+
 ----------
 
 Sonarus is a system consisting of two HC-SR04 ultrasonic rangefinders connected to an Atmega328 microcontroller (Arduino).
