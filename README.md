@@ -1,6 +1,6 @@
 # Liberty-Way AMLS Landing Controller
 
-![Logo](https://github.com/XxOinvizioNxX/Liberty-Way/blob/main/git_images/logo_book.png "Logo")
+![Logo](/git_images/logo_book.png "Logo")
 
 [![GitHub license](https://img.shields.io/github/license/XxOinvizioNxX/Liberty-Way?color=red)](https://github.com/XxOinvizioNxX/Liberty-Way/blob/main/LICENSE)
 [![GitHub issues](https://img.shields.io/github/issues/XxOinvizioNxX/Liberty-Way?color=orange)](https://github.com/XxOinvizioNxX/Liberty-Way/issues)
