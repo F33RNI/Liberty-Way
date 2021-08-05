@@ -34,7 +34,7 @@ jobs:
         - ino core update-index
         - ino core install arduino:avr
         - ino core list
-        - ino lib install 'LiquidCrystal' 'Adafruit NeoPixel'
+        - ino lib install 'EtherCard' 'Adafruit NeoPixel'
         - cd Eitude
         - ino compile --fqbn arduino:avr:uno Eitude.ino
     
