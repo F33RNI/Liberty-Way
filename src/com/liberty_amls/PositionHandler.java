@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Frey Hertz (Pavel Neshumov), Liberty-Way Landing System Project
+ * Copyright (C) 2021 Fern Hertz (Pavel Neshumov), Liberty-Way Landing System Project
  *
  * This software is part of Autonomous Multirotor Landing System (AMLS) Project
  *
@@ -30,50 +30,38 @@ import org.apache.log4j.Logger;
 public class PositionHandler {
     private final Logger logger = Logger.getLogger(this.getClass().getSimpleName());
     private final SettingsContainer settingsContainer;
-    private final SerialHandler serialHandler;
-    private final UDPHandler udpHandler;
+    private final LinkSender linkSender;
     private final MiniPID miniPIDX, miniPIDY, miniPIDZ, miniPIDYaw;
     private final PositionContainer positionContainer;
     private final PlatformContainer platformContainer;
     private final TelemetryContainer telemetryContainer;
     private final BlackboxHandler blackboxHandler;
-    private final GPSEstimationHandler gpsEstimationHandler;
-    private final byte[] directControlData;
     private int waypointStep = 0;
     private int lostCounter = 0;
-    private boolean libertyWayEnabled = false, libertyWayEnabledLast = false;
-    private int currentLat, currentLon;
+    private boolean libertyWayEnabled = false;
 
     /**
      * This class takes the absolute coordinates of the marker as input,
      * passes them through the PID controllers,
      * generates Direct Control values and sends them to the drone via the Serial port or UDP
-     * @param serialHandler SerialHandler class object to send data
-     * @param udpHandler UDPHandler class object to send data
+     * @param linkSender LinkSender class object to send data
      */
-    public PositionHandler(SerialHandler serialHandler,
-                           UDPHandler udpHandler,
+    public PositionHandler(LinkSender linkSender,
                            PositionContainer positionContainer,
                            PlatformContainer platformContainer,
                            TelemetryContainer telemetryContainer,
                            BlackboxHandler blackboxHandler,
-                           SettingsContainer settingsContainer,
-                           GPSEstimationHandler gpsEstimationHandler) {
-        this.serialHandler = serialHandler;
-        this.udpHandler = udpHandler;
+                           SettingsContainer settingsContainer) {
+        this.linkSender = linkSender;
         this.miniPIDX = new MiniPID(0, 0, 0, 0);
         this.miniPIDY = new MiniPID(0, 0, 0, 0);
         this.miniPIDZ = new MiniPID(0, 0, 0, 0);
         this.miniPIDYaw = new MiniPID(0, 0, 0, 0);
-        this.directControlData = new byte[12];
-        directControlData[10] = settingsContainer.dataSuffix1;
-        directControlData[11] = settingsContainer.dataSuffix2;
         this.positionContainer = positionContainer;
         this.platformContainer = platformContainer;
         this.telemetryContainer = telemetryContainer;
         this.blackboxHandler = blackboxHandler;
         this.settingsContainer = settingsContainer;
-        this.gpsEstimationHandler = gpsEstimationHandler;
 
         positionContainer.setSetpoints(settingsContainer.setpointX, settingsContainer.setpointY, 0,
                 settingsContainer.setpointYaw);
@@ -100,6 +88,10 @@ public class PositionHandler {
      * @param yaw estimated marker Yaw angle (if newMarkerPosition)
      */
     public void proceedPosition(boolean newMarkerPosition, double x, double y, double z, double yaw) {
+        // Find distance between drone and platform
+        positionContainer.distance = (int) SpeedHandler.distanceOnGeoid(telemetryContainer.gps,
+                platformContainer.gps, settingsContainer.planetRadius);
+
         // Reset DDC values (1500 = no correction)
         positionContainer.ddcX = 1500;
         positionContainer.ddcY = 1500;
@@ -111,8 +103,15 @@ public class PositionHandler {
             resetPIDs();
 
         // Begin Liberty Way sequence if libertyWayEnabled, IDLE mode and platform and drone are available
-        if (!settingsContainer.onlyOpticalStabilization && libertyWayEnabled && positionContainer.status == 0
-                && !platformContainer.platformLost && !telemetryContainer.telemetryLost) {
+        if (!settingsContainer.onlyOpticalStabilization
+                && libertyWayEnabled
+                && positionContainer.status == 0
+                && !telemetryContainer.telemetryLost
+                && !platformContainer.platformLost
+                && telemetryContainer.errorStatus == 0
+                && platformContainer.errorStatus == 0
+                && telemetryContainer.satellitesNum >= settingsContainer.minSatellitesNumStart
+                && platformContainer.satellitesNum >= settingsContainer.minSatellitesNumStart) {
             logger.warn("Caution! Starting LibertyWay sequence! Motor start possible!");
             positionContainer.status = 5;
         }
@@ -145,7 +144,7 @@ public class PositionHandler {
                     if (telemetryContainer.takeoffDetected) {
                         // Turn off the motors
                         logger.warn("Landed successfully! Turning off the motors.");
-                        sendMotorsStop();
+                        linkSender.sendMotorsStop();
                     } else
                         positionContainer.status = 7;
                 }
@@ -208,16 +207,21 @@ public class PositionHandler {
             positionContainer.ddcZ += miniPIDZ.getOutput(positionContainer.z);
             positionContainer.ddcYaw += miniPIDYaw.getOutput(positionContainer.yaw);
 
+            // Calculate roll and pitch corrections
+            double yawSin = Math.sin(Math.toRadians(-positionContainer.yaw));
+            double yawCos = Math.cos(Math.toRadians(-positionContainer.yaw));
+            positionContainer.ddcRoll = (int)((positionContainer.ddcX - 1500) * yawSin
+                    + (positionContainer.ddcY - 1500) * yawCos + 1500);
+            positionContainer.ddcPitch = (int)((positionContainer.ddcX - 1500) * yawCos
+                    - (positionContainer.ddcY - 1500) * yawSin + 1500);
+
             // Send direct correction to the drone
-            sendDDC();
+            linkSender.sendDDC(positionContainer.ddcRoll, positionContainer.ddcPitch,
+                    positionContainer.ddcZ, positionContainer.ddcYaw);
         }
 
         if (!newMarkerPosition) {
             // If no marker detected
-
-            currentLat = platformContainer.trueGPSLat.get(platformContainer.trueGPSLat.size() - 1);
-            currentLon = platformContainer.trueGPSLon.get(platformContainer.trueGPSLon.size() - 1);
-
             switch (positionContainer.status) {
                 case 1:
                     // STAB (In optical stabilization)
@@ -241,86 +245,57 @@ public class PositionHandler {
                         positionContainer.ddcYaw = 1500;
                         // Send abort command
                         logger.warn("Sending abort command");
-                        sendAbort();
+                        linkSender.sendAbort();
                         positionContainer.status = 4;
                     }
                     break;
                 case 4:
                     // LOST
-                    if (!settingsContainer.onlyOpticalStabilization &&
-                            !telemetryContainer.telemetryLost && !platformContainer.platformLost) {
+                    if (!settingsContainer.onlyOpticalStabilization && !platformContainer.platformLost) {
                         // Enter WAYP loop if optical stabilization has been lost
                         logger.warn("Switching to WAYP mode");
-                        sendIDLE();
+                        linkSender.sendIDLE();
                         positionContainer.status = 6;
                     } else {
                         // Send abort command
-                        sendAbort();
+                        linkSender.sendAbort();
                     }
                     break;
                 case 5:
                     // TKOF
-                    if (!platformContainer.platformLost && !telemetryContainer.telemetryLost) {
-                        if (waypointStep == 0) {
-                            // Step 0. Send altitude waypoint
-                            if (telemetryContainer.linkNewWaypointAltitude)
-                                waypointStep = 1;
-                            sendPressureWaypoint(platformContainer.pressure);
-                        } else if (waypointStep == 1) {
-                            // Step 1. Send gps waypoint
-                            if (telemetryContainer.linkNewWaypointGPS)
-                                waypointStep = 2;
-
-                            sendGPSWaypoint(currentLat, currentLon);
-                        } else {
-                            if (telemetryContainer.takeoffDetected)
-                                // Switch to WAYP mode if takeoff detected
-                                positionContainer.status = 6;
-                            else
-                                // Send command to begin Liberty Way sequence (take off)
-                                sendStartSequence();
-                            waypointStep = 0;
-                        }
-                    } else
-                        sendIDLE();
-                    break;
                 case 6:
                     // WAYP
-                    if (!platformContainer.platformLost && !telemetryContainer.telemetryLost) {
-                        if (waypointStep == 0) {
-                            // Step 0. Send altitude waypoint
-                            if (telemetryContainer.linkNewWaypointAltitude)
-                                waypointStep = 1;
-                            sendPressureWaypoint(platformContainer.pressure);
-                        } else if (waypointStep == 1) {
+                    if (!platformContainer.platformLost) {
+                        // If platform connected
+                        waypointStep++;
+                        if (waypointStep == 1) {
                             // Step 1. Send gps waypoint
-                            if (telemetryContainer.linkNewWaypointGPS) {
-                                waypointStep = 2;
-                                if (settingsContainer.GPSPredictionAllowed) {
-                                    double k = calculateK();
-                                    gpsEstimationHandler.calculate();
+                            linkSender.sendGPSWaypoint(platformContainer.gps);
+                        } else if (waypointStep == 2) {
+                            // Step 2. Send altitude waypoint
+                            linkSender.sendPressureWaypoint(platformContainer.pressure);
+                        } else if (waypointStep == 3) {
+                            // Step 3. Send command to begin Liberty Way sequence (take off)
+                            linkSender.sendStartSequence();
+                        } else {
+                            // Other steps. IDLE state (telemetry receiving)
+                            linkSender.sendIDLE();
 
-                                    sendGPSWaypoint((int) (gpsEstimationHandler.getEstimatedGPSLat() * k +
-                                                            currentLat * (k - 1)),
-                                                    (int) (gpsEstimationHandler.getEstimatedGPSLon() * k +
-                                                            currentLon * (k - 1)));
-                                }
-                                else
-                                    sendGPSWaypoint(currentLat, currentLon);
-                            }
-                        } else if (waypointStep >= 2) {
-                            // Step 2. Wait for both flags to complete
-                            waypointStep++;
-                            if (waypointStep > 4)
-                                waypointStep = 0;
-                            sendIDLE();
+                            // Reset counter
+                            waypointStep = 0;
                         }
-                    } else
-                        sendIDLE();
+                    } else {
+                        // If platform lost
+                        // Reset counter
+                        waypointStep = 0;
+
+                        // Send abort command
+                        linkSender.sendAbort();
+                    }
                     break;
                 default:
-                    sendIDLE();
                     // Other modes
+                    linkSender.sendIDLE();
                     break;
             }
         }
@@ -336,190 +311,23 @@ public class PositionHandler {
      * Enables or disables main Liberty-Way sequence
      */
     public void setLibertyWayEnabled(boolean libertyWayEnabled) {
-        this.libertyWayEnabled = libertyWayEnabled;
-        if (libertyWayEnabled != libertyWayEnabledLast) {
-            if (libertyWayEnabled) {
-                if (!telemetryContainer.telemetryLost && telemetryContainer.takeoffDetected)
+        if (libertyWayEnabled != this.libertyWayEnabled) {
+            if (this.libertyWayEnabled) {
+                // Disable Liberty-Way
+                if (telemetryContainer.takeoffDetected)
                     // Send abort command if closed in flight
-                    sendAbort();
+                    linkSender.sendAbort();
                 else
                     // Send IDLE command in other cases
-                    sendIDLE();
+                    linkSender.sendIDLE();
             } else
-                sendIDLE();
+                linkSender.sendIDLE();
             // Reset current status to IDLE
             positionContainer.status = 0;
             // Reset waypoints step
             waypointStep = 0;
         }
-        libertyWayEnabledLast = libertyWayEnabled;
-    }
-
-    /**
-     * Sends IDLE command to the drone (disables all corrections and requests telemetry)
-     * Link command = 0
-     */
-    private void sendIDLE() {
-        // Reset "body" bytes
-        for (int i = 0; i <= 7; i++)
-            directControlData[i] = 0;
-
-        // Link command
-        directControlData[8] = (byte) 0;
-
-        // Transmit data
-        pushLinkData();
-    }
-
-    /**
-     * Sends direct corrections (from positionContainer) to the drone (optical stabilization & landing)
-     * Link command = 1
-     */
-    private void sendDDC() {
-        // Convert X and Y to Roll and Pitch
-        double yawSin = Math.sin(Math.toRadians(-positionContainer.yaw));
-        double yawCos = Math.cos(Math.toRadians(-positionContainer.yaw));
-        positionContainer.ddcPitch = (int)((positionContainer.ddcX - 1500) * yawCos
-                - (positionContainer.ddcY - 1500) * yawSin + 1500);
-        positionContainer.ddcRoll = (int)((positionContainer.ddcX - 1500) * yawSin
-                + (positionContainer.ddcY - 1500) * yawCos + 1500);
-
-        // Form the DDC data package
-        // Roll
-        directControlData[0] = (byte) ((positionContainer.ddcRoll >> 8) & 0xFF);
-        directControlData[1] = (byte) (positionContainer.ddcRoll & 0xFF);
-        // Pitch
-        directControlData[2] = (byte) ((positionContainer.ddcPitch >> 8) & 0xFF);
-        directControlData[3] = (byte) (positionContainer.ddcPitch & 0xFF);
-        // Yaw
-        directControlData[4] = (byte) ((positionContainer.ddcYaw >> 8) & 0xFF);
-        directControlData[5] = (byte) (positionContainer.ddcYaw & 0xFF);
-        // Throttle
-        directControlData[6] = (byte) ((positionContainer.ddcZ >> 8) & 0xFF);
-        directControlData[7] = (byte) (positionContainer.ddcZ & 0xFF);
-        // Link command (1 - direct control)
-        directControlData[8] = (byte) 1;
-
-        // Transmit direct control data
-        pushLinkData();
-    }
-
-    /**
-     * Sends pressure waypoint to the drone
-     * Link command = 2
-     * @param pressure atm. pressure in Pascals
-     */
-    private void sendPressureWaypoint(int pressure) {
-        // Pressure waypoint
-        directControlData[0] = (byte) ((pressure >> 24) & 0xFF);
-        directControlData[1] = (byte) ((pressure >> 16) & 0xFF);
-        directControlData[2] = (byte) ((pressure >> 8) & 0xFF);
-        directControlData[3] = (byte) (pressure & 0xFF);
-
-        // Empty other part of the packet
-        directControlData[4] = 0;
-        directControlData[5] = 0;
-        directControlData[6] = 0;
-        directControlData[7] = 0;
-
-        // Link command
-        directControlData[8] = (byte) 2;
-
-        // Transmit pressure waypoint
-        pushLinkData();
-    }
-
-    /**
-     * Sends gps waypoint
-     * Link command = 3
-     * @param latInt signed integer latitude (from -90000000 to 90000000)
-     * @param lonInt signed integer longitude (from -180000000 to 180000000)
-     */
-    private void sendGPSWaypoint(int latInt, int lonInt) {
-        // Lat
-        directControlData[0] = (byte) ((latInt >> 24) & 0xFF);
-        directControlData[1] = (byte) ((latInt >> 16) & 0xFF);
-        directControlData[2] = (byte) ((latInt >> 8) & 0xFF);
-        directControlData[3] = (byte) (latInt & 0xFF);
-
-        // Lon
-        directControlData[4] = (byte) ((lonInt >> 24) & 0xFF);
-        directControlData[5] = (byte) ((lonInt >> 16) & 0xFF);
-        directControlData[6] = (byte) ((lonInt >> 8) & 0xFF);
-        directControlData[7] = (byte) (lonInt & 0xFF);
-
-        // Link command
-        directControlData[8] = (byte) 3;
-
-        // Transmit GPS coordinates
-        pushLinkData();
-    }
-
-    /**
-     * Sends a command to turn off the motors.
-     * Link command = 4
-     */
-    private void sendMotorsStop() {
-        // Reset "body" bytes
-        for (int i = 0; i <= 7; i++)
-            directControlData[i] = 0;
-
-        // Link command
-        directControlData[8] = (byte) 4;
-
-        // Transmit data
-        pushLinkData();
-    }
-
-    /**
-     * Sends a command to turn off the motors.
-     * Link command = 5
-     */
-    private void sendStartSequence() {
-        logger.warn("Sending start command");
-        // Reset "body" bytes
-        for (int i = 0; i <= 7; i++)
-            directControlData[i] = 0;
-
-        // Link command
-        directControlData[8] = (byte) 5;
-
-        // Transmit data
-        pushLinkData();
-    }
-
-    /**
-     * Sends abort command to the drone
-     * (Clears flags, resets direct corrections, waypoint flags and sharply jumps up to prevent a collision)
-     * Link command = 6
-     */
-    private void sendAbort() {
-        // Reset "body" bytes
-        for (int i = 0; i <= 7; i++)
-            directControlData[i] = 0;
-
-        // Link command
-        directControlData[8] = (byte) 6;
-
-        // Transmit data
-        pushLinkData();
-    }
-
-    /**
-     * Pushes bytes buffer to Liberty-Link port via Serial or UDP
-     */
-    private void pushLinkData() {
-        // Check byte
-        byte checkByte = 0;
-        for (int i = 0; i <= 8; i++)
-            checkByte = (byte) (checkByte ^ directControlData[i]);
-        directControlData[9] = checkByte;
-
-        // Transmit data
-        serialHandler.setLinkData(directControlData);
-        udpHandler.setUdpData(directControlData);
-        serialHandler.pushLinkData();
-        udpHandler.pushData();
+        this.libertyWayEnabled = libertyWayEnabled;
     }
 
     /**
@@ -559,41 +367,5 @@ public class PositionHandler {
                 pid.get("D").getAsDouble(), pid.get("F").getAsDouble());
         miniPID.setOutputRampRate(pid.get("ramp").getAsDouble());
         miniPID.setOutputLimits(pid.get("limit").getAsDouble());
-    }
-
-    /**
-     * Calculates whether the current distance
-     * between the platform and the drone is
-     * acceptable enough for the drone to receive
-     * non-processed GPS-coordinates
-     * @return Coefficient of estimation involvement
-     */
-    private double calculateK(){
-        double distance = Math.sin((telemetryContainer.gpsLatInt - currentLat) * Math.PI / 180 / 2) *
-                Math.sin((telemetryContainer.gpsLatInt - currentLat) * Math.PI / 180 / 2) +
-                Math.sin((telemetryContainer.gpsLonInt - currentLon) * Math.PI / 180 / 2) *
-                Math.sin((telemetryContainer.gpsLonInt - currentLon) * Math.PI / 180 / 2) *
-                Math.cos(currentLon * Math.PI / 180) *
-                Math.cos(telemetryContainer.gpsLatInt * Math.PI / 180);
-
-        distance = Math.atan2(Math.sqrt(distance), Math.sqrt(1-distance));
-
-        if (settingsContainer.planetRadius * 2 * distance >
-                settingsContainer.notAcceptableDistance)
-            return 1.0;
-        else
-            return mapDouble(settingsContainer.planetRadius * 2 * distance,
-                    0, settingsContainer.notAcceptableDistance, 0, 1);
-    }
-
-    /**
-     * This method maps the received value
-     * in a new provided range similar to
-     * how it works in Arduino
-     * @return mapped value
-     */
-    private double mapDouble(double value, double inMin, double inMax, double outMin, double outMax)
-    {
-        return (value - inMin) * (outMax - outMin) / (inMax - inMin) + outMin;
     }
 }

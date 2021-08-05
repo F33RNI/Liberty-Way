@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Frey Hertz (Pavel Neshumov), Liberty-Way Landing System Project
+ * Copyright (C) 2021 Fern Hertz (Pavel Neshumov), Liberty-Way Landing System Project
  *
  * This software is part of Autonomous Multirotor Landing System (AMLS) Project
  *
@@ -27,7 +27,7 @@ import java.util.ArrayList;
 
 public class SettingsContainer {
     public float markerSize;
-    public double defaultExposure;
+    public double maxExposure;
     public double landingAlt;
     public boolean landingAllowed;
     public boolean onlyOpticalStabilization;
@@ -49,11 +49,11 @@ public class SettingsContainer {
     public boolean videoStreamEnabledByDefault;
     public boolean blackboxEnabled;
     public int serialReconnectTime;
+    public int udpTimeout;
     public int telemetryLostTime;
     public int platformLostTime;
     public int platformLightEnableThreshold;
     public int platformLightDisableThreshold;
-    public int platformReplyTimeout;
     public int platformLoopTimer;
     public int fpsMeasurePeriod;
     public int adaptiveThreshConstant;
@@ -65,13 +65,16 @@ public class SettingsContainer {
     public double landingDecrement;
     public double allowedLandingRangeXY;
     public double allowedLandingRangeYaw;
+    public short minSatellitesNumStart;
+    public short minSatellitesNum;
     public double setpointX;
     public double setpointY;
     public double setpointYaw;
-    public byte dataSuffix1;
-    public byte dataSuffix2;
+    public byte droneDataSuffix1;
+    public byte droneDataSuffix2;
+    public byte platformDataSuffix1;
+    public byte platformDataSuffix2;
     public short pushOSDAfterFrames;
-    public int planetRadius;
-    public int notAcceptableDistance;
-    public boolean GPSPredictionAllowed;
+    public double planetRadius;
+    public double speedFilter;
 }

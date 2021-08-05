@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Frey Hertz (Pavel Neshumov), Liberty-Way Landing System Project
+ * Copyright (C) 2021 Fern Hertz (Pavel Neshumov), Liberty-Way Landing System Project
  *
  * This software is part of Autonomous Multirotor Landing System (AMLS) Project
  *
@@ -24,6 +24,7 @@
 package com.liberty_amls;
 
 public class TelemetryContainer {
+    public final GPS gps;
     public boolean telemetryLost;
     public int packetsNumber;
     public int errorStatus, flightMode;
@@ -33,21 +34,20 @@ public class TelemetryContainer {
     public int altitude, takeoffThrottle;
     public boolean takeoffDetected, headingLock;
     public int fixType, satellitesNum;
-    public int gpsLatInt, gpsLonInt;
-    public double gpsLatDouble, gpsLonDouble;
     public int linkWaypointStep;
-    public boolean linkNewWaypointAltitude, linkNewWaypointGPS;
+    public double illumination;
     public double speed;
 
     /**
      * This class contains all data from the telemetry
      */
     TelemetryContainer() {
+        gps = new GPS();
         telemetryLost = true;
         errorStatus = 0;
         flightMode = 1;
-        batteryVoltage = 0;
-        temperature = 0;
+        batteryVoltage = 0.0;
+        temperature = 0.0;
         angleRoll = 0;
         anglePitch = 0;
         angleYaw = 0;
@@ -58,13 +58,8 @@ public class TelemetryContainer {
         headingLock = false;
         fixType = 0;
         satellitesNum = 0;
-        gpsLatInt = 0;
-        gpsLonInt = 0;
-        gpsLatDouble = 0;
-        gpsLonDouble = 0;
         linkWaypointStep = 0;
-        linkNewWaypointAltitude = false;
-        linkNewWaypointGPS = false;
-        speed = 0;
+        illumination = 0.0;
+        speed = 0.0;
     }
 }

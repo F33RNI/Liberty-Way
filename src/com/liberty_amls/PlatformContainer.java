@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Frey Hertz (Pavel Neshumov), Liberty-Way Landing System Project
+ * Copyright (C) 2021 Fern Hertz (Pavel Neshumov), Liberty-Way Landing System Project
  *
  * This software is part of Autonomous Multirotor Landing System (AMLS) Project
  *
@@ -23,43 +23,35 @@
 
 package com.liberty_amls;
 
-import java.util.ArrayList;
-
 public class PlatformContainer {
+    public final GPS gps;
+    public int errorStatus;
     public boolean platformLost;
     public int packetsNumber;
-    public int illumination;
+    public double illumination;
     public double cameraExposure;
-    public double speed;
-    public double gpsLatDouble, gpsLonDouble;
-    public int gpsLatInt, gpsLonInt;
     public int fixType, satellitesNum;
     public int pressure;
-    public boolean gpsNewPositionFlag;
-    public ArrayList<Integer> trueGPSLat, trueGPSLon;
-    public long time;
-    public double alphaX, alphaY;
+    public double speed;
+    public boolean backlight;
+    public int gripsCommand;
 
     /**
      * This class contains all data from the platform
-     * @param defaultExposure Camera exposure specified in the settings.
      */
-    PlatformContainer(double defaultExposure) {
+    PlatformContainer() {
+        gps = new GPS();
+        errorStatus = 0;
         platformLost = true;
         packetsNumber = 0;
-        illumination = 0;
+        illumination = 0.0;
         speed = 0;
-        gpsLatDouble = 0;
-        gpsLonDouble = 0;
-        gpsLatInt = 0;
-        gpsLonInt = 0;
         pressure = 0;
         fixType = 0;
         satellitesNum = 0;
-        gpsNewPositionFlag = false;
-        cameraExposure = defaultExposure;
-        trueGPSLat = new ArrayList<>();
-        trueGPSLon = new ArrayList<>();
-        alphaX = alphaY = 0;
+        cameraExposure = 0;
+        speed = 0.0;
+        backlight = false;
+        gripsCommand = 0;
     }
 }

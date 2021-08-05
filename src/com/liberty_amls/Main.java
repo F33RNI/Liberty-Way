@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Frey Hertz (Pavel Neshumov), Liberty-Way Landing System Project
+ * Copyright (C) 2021 Fern Hertz (Pavel Neshumov), Liberty-Way Landing System Project
  *
  * This software is part of Autonomous Multirotor Landing System (AMLS) Project
  *
@@ -28,7 +28,7 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 
 public class Main {
-    private static final String version = "beta_3.0.0";
+    private static final String version = "beta_3.5.0";
     public static final Logger logger = Logger.getLogger(Main.class.getSimpleName());
 
     public static void main(String[] args) {
