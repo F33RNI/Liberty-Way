@@ -15,6 +15,15 @@ git:
 notifications:
   email: false
   
+before_script:
+      - wget https://github.com/arduino/arduino-cli/releases/download/0.18.3/arduino-cli_0.18.3_Linux_64bit.tar.gz
+      - tar -xf arduino-cli_0.18.3_Linux_64bit.tar.gz
+      - sudo mv arduino-cli /usr/bin/ino
+      - ino core update-index
+      - ino core install arduino:avr
+      - ino core list
+      - ino lib install 'EtherCard' 'Adafruit NeoPixel'
+  
 jobs:
   fast_finish: true
   include:
@@ -26,29 +35,14 @@ jobs:
     - stage: Build
       name: 'Eitude Build'
       language: c
-      before_script:
-        - wget https://github.com/arduino/arduino-cli/releases/download/0.18.3/arduino-cli_0.18.3_Linux_64bit.tar.gz
-        - tar -xf arduino-cli_0.18.3_Linux_64bit.tar.gz
-        - sudo mv arduino-cli /usr/bin/ino
       script:
-        - ino core update-index
-        - ino core install arduino:avr
-        - ino core list
-        - ino lib install 'EtherCard' 'Adafruit NeoPixel'
         - cd Eitude
         - ino compile --fqbn arduino:avr:uno Eitude.ino
         
     - stage: Build
       name: 'Sonarus Build'
       language: c
-      before_script:
-        - wget https://github.com/arduino/arduino-cli/releases/download/0.18.3/arduino-cli_0.18.3_Linux_64bit.tar.gz
-        - tar -xf arduino-cli_0.18.3_Linux_64bit.tar.gz
-        - sudo mv arduino-cli /usr/bin/ino
       script:
-        - ino core update-index
-        - ino core install arduino:avr
-        - ino core list
         - cd Sonarus
         - ino compile --fqbn arduino:avr:uno Sonarus.ino
         
