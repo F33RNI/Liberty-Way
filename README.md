@@ -232,84 +232,93 @@ The table below shows the detailed structure of the packet
 | Example in HEX | 0x04 | 0xB0 | 0x06 | 0xA4 | 0x05 | 0xDC | 0x05 | 0xE5 | 0x01 | 0x2E | 0xEE | 0xEE |
 
 ----------
+
 ### Pressure Waypoint (Link command 2)
-In Pressure Waypoint mode, drone reands current preassure value.
+The pressure waypoint is used at the end of the Liberty-Way sequence when the drone descends over the platform. 4 bytes transmit atmospheric pressure (in Pascals) to the drone.
+
 The payload bytes are in big-endian order (4 bytes for value), then the Link Command byte is equal to 2, then the check-sum and 2 bytes of the end of the packet.
 
 The table below shows the detailed structure of the packet
 
-| Byte N         | 0                 | 1                 | 2                  | 3                  | 4              | 5              | 6              | 7              | 8                 | 9              | 10                        | 11                        |
-|----------------|-------------------|-------------------|--------------------|--------------------|----------------|----------------|----------------|----------------|-------------------|----------------|---------------------------|---------------------------|
-| Byte name      | Payload byte 0    | Payload byte 1    | Payload byte 2     | Payload byte 3     | Payload byte 4 | Payload byte 5 | Payload byte 6 | Payload byte 7 | Link command byte | XOR Check sum  | Pocket suffix 1           | Pocket suffix 2           |
-| Description for Pressure Waypoint    | pressure low byte | pressure low byte | pressure high byte | pressure high byte | -              | -              | -              | -              |                   |                | Specified in the settings | Specified in the settings |
-| Value in DEC   | 101,000           |                   |                    |                    |                |                |                |                |                   |                | 238                       | 238                       |
-| Example in HEX | 0x00              | 0x01              | 0x8A               | 0x88               | 0x00           | 0x00           | 0x00           | 0x00           | 0x02              | 0x01           | 0xEE                      | 0xEE                      |
-| Example in DEC | 0                 | 1                 | 138                | 136                | 0              | 0              | 0              | 0              | 2                 | 1              | 238                       | 238                       |
+| Byte N | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| Byte name | Payload byte 0 | Payload byte 1 | Payload byte 2 | Payload byte 3 | Payload byte 4 | Payload byte 5 | Payload byte 6 | Payload byte 7 | Link command byte | XOR check-sum | Packet suffix 1 | Packet suffix 1 |
+| Description for Pressure waypoint | Pressure 1 byte | Pressure 2 byte | Pressure 3 byte | Pressure 4 byte | Should be 0 | Should be 0 | Should be 0 | Should be 0 | 2 |  | Specified in the settings | Specified in the settings |
+| Value in DEC | 1000-120000 |  |  |  | 0 | 0 | 0 | 0 | 2 |  | 238 | 238 |
+| Example in DEC | 101000 |  | 1700 |  | 0 | 0 | 0 | 0 | 2 | 46 | 238 | 238 |
+| Example in HEX | 0x00 | 0x01 | 0x8A | 0x88 | 0x00 | 0x00 | 0x00 | 0x00 | 0x02 | 0x01 | 0xEE | 0xEE |
 
 ----------
 
 ### GPS waypoint (Link command 3)
-In GPS waypoint mode, drone reands current gps waypoint to the drone by latitude and longitude.
+
+The GPS waypoint sets the coordinates to which the drone should arrive. Both coordinates (latitude and longitude) are transmitted at once in integer values, 4 bytes for each coordinate (the range is indicated in the table).
+
 The payload bytes are in big-endian order (4 bytes per value), then the Link Command byte is equal to 3, then the check-sum and 2 bytes of the end of the packet.
 
 The table below shows the detailed structure of the packet
 
-| Byte N         | 0              | 1              | 2              | 3              | 4              | 5              | 6              | 7              | 8                 | 9              | 10                        | 11                        |
-|----------------|----------------|----------------|----------------|----------------|----------------|----------------|----------------|----------------|-------------------|----------------|---------------------------|---------------------------|
-| Byte name      | Payload byte 0 | Payload byte 1 | Payload byte 2 | Payload byte 3 | Payload byte 4 | Payload byte 5 | Payload byte 6 | Payload byte 7 | Link command byte | XOR Check sum  | Pocket suffix 1           | Pocket suffix 2           |
-| Description for GPS waypoint    | Lat low byte   | Lat low byte   | Lat high byte  | Lat high byte  | Lon low byte   | Lon low byte   | Lon high byte  | Lon high byte  |                   |                | Specified in the settings | Specified in the settings |
-| Value in DEC   | 55588735       |                |                |                | 37627801       |                |                |                |                   |                | 238                       | 238                       |
-| Example in HEX | 0x00           | 0x54           | 0xD2           | 0x5A           | 0x00           | 0x39           | 0x6A           | 0x5C           | 0x03              | 0xD0           | 0xEE                      | 0xEE                      |
-| Example in DEC | 0              | 84             | 210            | 90             | 0              | 57             | 106            | 92             | 3                 | 208            | 238                       | 238                       |
+| Byte N | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| Byte name | Payload byte 0 | Payload byte 1 | Payload byte 2 | Payload byte 3 | Payload byte 4 | Payload byte 5 | Payload byte 6 | Payload byte 7 | Link command byte | XOR check-sum | Packet suffix 1 | Packet suffix 1 |
+| Description for GPS waypoint | Latitude 1 byte | Latitude 2 byte | Latitude 3 byte | Latitude 4 byte | Longitude 1 byte | Longitude 2 byte | Longitude 3 byte | Longitude 4 byte | 3 |  | Specified in the settings | Specified in the settings |
+| Value in DEC | -90000000-90000000 |  |  |  | -180000000-180000000 |  |  |  | 3 |  | 238 | 238 |
+| Example in DEC | 55588735 |  |  |  | 37627801 |  |  |  | 3 | 208 | 238 | 238 |
+| Example in HEX | 0x00 | 0x54 | 0xD2 | 0x5A | 0x00 | 0x39 | 0x6A | 0x5C | 0x03 | 0xD0 | 0xEE | 0xEE |
 
 ----------
 
-### Motors Stop (Link command 4)
-In Motors Stop mode, drone stops action and turns off motors.
+### Motors stop (Link command 4)
+
+In Motors Stop mode, drone stops action and turns off the motors.
+
 The payload bytes are in big-endian order, then the Link Command byte is equal to 4, then the check-sum and 2 bytes of the end of the packet.
 
 The table below shows the detailed structure of the packet
 
-| Byte N                      | 0              | 1              | 2              | 3              | 4              | 5              | 6              | 7              | 8                 | 9              | 10                        | 11                        |
-|-----------------------------|----------------|----------------|----------------|----------------|----------------|----------------|----------------|----------------|-------------------|----------------|---------------------------|---------------------------|
-| Byte name                   | Payload byte 0 | Payload byte 1 | Payload byte 2 | Payload byte 3 | Payload byte 4 | Payload byte 5 | Payload byte 6 | Payload byte 7 | Link command byte | XOR Check sum  | Pocket suffix 1           | Pocket suffix 2           |
-| Description for Motors Stop | Should be 0    | Should be 0    | Should be 0    | Should be 0    | Should be 0    | Should be 0    | Should be 0    | Should be 0    |                   |                | Specified in the settings | Specified in the settings |
-| Value in DEC                | 0              | 0              | 0              | 0              | 0              | 0              | 0              | 0              |                   |                | 238                       | 238                       |
-| Example in HEX              | 0x00           | 0x00           | 0x00           | 0x00           | 0x00           | 0x00           | 0x00           | 0x00           | 0x04              | 0x04           | 0xEE                      | 0xEE                      |
-| Example in DEC              | 0              | 0              | 0              | 0              | 0              | 0              | 0              | 0              | 4                 | 4              | 238                       | 238                       |
+| Byte N | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| Byte name | Payload byte 0 | Payload byte 1 | Payload byte 2 | Payload byte 3 | Payload byte 4 | Payload byte 5 | Payload byte 6 | Payload byte 7 | Link command byte | XOR check-sum | Packet suffix 1 | Packet suffix 1 |
+| Description for Motors stop | Should be 0 | Should be 0 | Should be 0 | Should be 0 | Should be 0 | Should be 0 | Should be 0 | Should be 0 | 4 | 4 | Specified in the settings | Specified in the settings |
+| Value in DEC | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 4 | 4 | 238 | 238 |
+| Example in DEC | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 4 | 4 | 238 | 238 |
+| Example in HEX | 0x00 | 0x00 | 0x00 | 0x00 | 0x00 | 0x00 | 0x00 | 0x00 | 0x04 | 0x04 | 0xEE | 0xEE |
 
 ----------
 
-### Start Sequene (Link command 5)
-In Start Sequene mode, drone prepares to take off.
-The payload bytes are in big-endian order, then the Link Command byte is equal to 4, then the check-sum and 2 bytes of the end of the packet.
+### Start Liberty-Way sequence (Link command 5)
+
+In Start Sequene mode, drone starts the Liberty-Way sequence and prepares to take off.
+
+The payload bytes are in big-endian order, then the Link Command byte is equal to 5, then the check-sum and 2 bytes of the end of the packet.
 
 The table below shows the detailed structure of the packet
 
-| Byte N                        | 0              | 1              | 2              | 3              | 4              | 5              | 6              | 7              | 8                 | 9              | 10                        | 11                        |
-|-------------------------------|----------------|----------------|----------------|----------------|----------------|----------------|----------------|----------------|-------------------|----------------|---------------------------|---------------------------|
-| Byte name                     | Payload byte 0 | Payload byte 1 | Payload byte 2 | Payload byte 3 | Payload byte 4 | Payload byte 5 | Payload byte 6 | Payload byte 7 | Link command byte | XOR Check sum  | Pocket suffix 1           | Pocket suffix 2           |
-| Description for Start Sequene | Should be 0    | Should be 0    | Should be 0    | Should be 0    | Should be 0    | Should be 0    | Should be 0    | Should be 0    |                   |                | Specified in the settings | Specified in the settings |
-| Value in DEC                  | 0              | 0              | 0              | 0              | 0              | 0              | 0              | 0              |                   |                | 238                       | 238                       |
-| Example in HEX                | 0x00           | 0x00           | 0x00           | 0x00           | 0x00           | 0x00           | 0x00           | 0x00           | 0x05              | 0x05           | 0xEE                      | 0xEE                      |
-| Example in DEC                | 0              | 0              | 0              | 0              | 0              | 0              | 0              | 0              | 5                 | 5              | 238                       | 238                       |
+| Byte N | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| Byte name | Payload byte 0 | Payload byte 1 | Payload byte 2 | Payload byte 3 | Payload byte 4 | Payload byte 5 | Payload byte 6 | Payload byte 7 | Link command byte | XOR check-sum | Packet suffix 1 | Packet suffix 1 |
+| Description for Start sequence | Should be 0 | Should be 0 | Should be 0 | Should be 0 | Should be 0 | Should be 0 | Should be 0 | Should be 0 | 5 | 5 | Specified in the settings | Specified in the settings |
+| Value in DEC | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 5 | 5 | 238 | 238 |
+| Example in DEC | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 5 | 5 | 238 | 238 |
+| Example in HEX | 0x00 | 0x00 | 0x00 | 0x00 | 0x00 | 0x00 | 0x00 | 0x00 | 0x05 | 0x05 | 0xEE | 0xEE |
 
 ----------
 
 ### Abort (Link command 6)
 
 In Abort mode, drone clears flags, resets direct corrections, waypoint flags and sharply jumps up to prevent possible collision due to loss of visual contact with the platform.
-The payload bytes are in big-endian order, then the Link Command byte is equal to 4, then the check-sum and 2 bytes of the end of the packet.
+
+The payload bytes are in big-endian order, then the Link Command byte is equal to 6, then the check-sum and 2 bytes of the end of the packet.
 
 The table below shows the detailed structure of the packet
 
-| Byte N                | 0              | 1              | 2              | 3              | 4              | 5              | 6              | 7              | 8                 | 9              | 10                        | 11                        |
-|-----------------------|----------------|----------------|----------------|----------------|----------------|----------------|----------------|----------------|-------------------|----------------|---------------------------|---------------------------|
-| Byte name             | Payload byte 0 | Payload byte 1 | Payload byte 2 | Payload byte 3 | Payload byte 4 | Payload byte 5 | Payload byte 6 | Payload byte 7 | Link command byte | XOR Check sum  | Pocket suffix 1           | Pocket suffix 2           |
-| Description for Abort | Should be 0    | Should be 0    | Should be 0    | Should be 0    | Should be 0    | Should be 0    | Should be 0    | Should be 0    |                   |                | Specified in the settings | Specified in the settings |
-| Value in DEC          | 0              | 0              | 0              | 0              | 0              | 0              | 0              | 0              |                   |                | 238                       | 238                       |
-| Example in HEX        | 0x00           | 0x00           | 0x00           | 0x00           | 0x00           | 0x00           | 0x00           | 0x00           | 0x06              | 0x06           | 0xEE                      | 0xEE                      |
-| Example in DEC        | 0              | 0              | 0              | 0              | 0              | 0              | 0              | 0              | 6                 | 6              | 238                       | 238                       |
+| Byte N | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| Byte name | Payload byte 0 | Payload byte 1 | Payload byte 2 | Payload byte 3 | Payload byte 4 | Payload byte 5 | Payload byte 6 | Payload byte 7 | Link command byte | XOR check-sum | Packet suffix 1 | Packet suffix 1 |
+| Description for Abort | Should be 0 | Should be 0 | Should be 0 | Should be 0 | Should be 0 | Should be 0 | Should be 0 | Should be 0 | 6 | 6 | Specified in the settings | Specified in the settings |
+| Value in DEC | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 6 | 6 | 238 | 238 |
+| Example in DEC | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 6 | 6 | 238 | 238 |
+| Example in HEX | 0x00 | 0x00 | 0x00 | 0x00 | 0x00 | 0x00 | 0x00 | 0x00 | 0x06 | 0x06 | 0xEE | 0xEE |
 
 ----------
 
