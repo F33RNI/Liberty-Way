@@ -151,6 +151,9 @@ function parseTelemetry(telemetry) {
 	/* System status */
 	document.getElementById("status").innerHTML = telemetry.status;
 
+	/* Distance between drone and platform */
+	document.getElementById("distance").innerHTML = telemetry.distance + " m";
+
 	/* Drone telemetry */
 	document.getElementById("drone_packets").innerHTML = telemetry.drone_packets;
 	document.getElementById("flight_mode").innerHTML = telemetry.flight_mode;
@@ -159,14 +162,15 @@ function parseTelemetry(telemetry) {
 	document.getElementById("drone_satellites").innerHTML = telemetry.drone_satellites;
 	document.getElementById("drone_lat").innerHTML = telemetry.drone_lat;
 	document.getElementById("drone_lon").innerHTML = telemetry.drone_lon;
+	document.getElementById("drone_speed").innerHTML = telemetry.drone_speed + " km/h";
 
 	/* Platform telemetry */
 	document.getElementById("platform_packets").innerHTML = telemetry.platform_packets;
-	document.getElementById("platform_speed").innerHTML = telemetry.platform_speed + " km/h";
 	document.getElementById("platform_pressure").innerHTML = telemetry.platform_pressure + " Pa";
 	document.getElementById("platform_satellites").innerHTML = telemetry.platform_satellites;
 	document.getElementById("platform_lat").innerHTML = telemetry.platform_lat;
 	document.getElementById("platform_lon").innerHTML = telemetry.platform_lon;
+	document.getElementById("platform_speed").innerHTML = telemetry.platform_speed + " km/h";
 
 	putTelemetryOnMap(telemetry);
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Frey Hertz (Pavel Neshumov), AMLS Platform controller
+ * Copyright (C) 2021 Fern Hertz (Pavel Neshumov), Eitude AMLS Platform controller
  * This software is part of Autonomous Multirotor Landing System (AMLS) Project
  *
  * Licensed under the GNU Affero General Public License, Version 3.0 (the "License");
@@ -21,42 +21,13 @@
  */
 
 /// <summary>
-/// Fills buffer with the received data
+/// Enables or disables backlight according to backlight_state
 /// </summary>
-void serial_reader(void) {
-	while (Serial.available() > 0) {
-		char c = Serial.read();
-		if (sofar < BUFFER_SIZE - 1) {
-			buffer[sofar++] = c;
-		}
-		else {
-			sofar = 0;
-			Serial.flush();
-		}
-		if ((c == '\n') || (c == '\r')) {
-			buffer[sofar] = 0;
-
-			// Check if buffer is empty
-			if (sofar < 2) {
-				sofar = 0;
-				break;
-			}
-
-			// Process current command
-			gcode_handler();
-
-			// Send ready sign
-			serial_ready();
-
-			// Reset buffer
-			sofar = 0;
-		}
-	}
-}
-
-/// <summary>
-/// Prints ready sign to the serial port
-/// </summary>
-void serial_ready(void) {
-	Serial.print(F(">"));
+void backlight(void) {
+	if (backlight_state && !digitalRead(LIGHTS_PIN))
+		// Enable backlight
+		digitalWrite(LIGHTS_PIN, 1);
+	else if (!backlight_state && digitalRead(LIGHTS_PIN))
+		// Disable backlight
+		digitalWrite(LIGHTS_PIN, 0);
 }

@@ -23,87 +23,91 @@
 
 :root {
 	font-size: 1.8vh;
-	
+
 	--color-page-background: #000;
 	--color-containers-background: repeating-linear-gradient(#2228, #2228 2px, #0008 2px, #0008 4px);
-	
+
 	/*--color-global-primary-h: 202; --color-global-primary-s: 61%; --color-global-primary-l: 71%;
 	--color-global-secondary-h: 294; --color-global-secondary-s: 51%; --color-global-secondary-l: 71%;*/
-	
+
 	/*--color-global-primary-h: 180; --color-global-primary-s: 82%; --color-global-primary-l: 70%;
 	--color-global-secondary-h: 6; --color-global-secondary-s: 100%; --color-global-secondary-l: 65%;*/
-	
+
 	/*--color-global-primary-h: 190; --color-global-primary-s: 80%; --color-global-primary-l: 70%;
 	--color-global-secondary-h: 350; --color-global-secondary-s: 100%; --color-global-secondary-l: 65%;*/
-	
+
 	/*--color-global-primary-h: 205; --color-global-primary-s: 100%; --color-global-primary-l: 80%;
 	--color-global-secondary-h: 337; --color-global-secondary-s: 100%; --color-global-secondary-l: 80%;*/
-	
-	--color-global-primary-h: 202; --color-global-primary-s: 100%; --color-global-primary-l: 80%;
-	--color-global-secondary-h: 331; --color-global-secondary-s: 73%; --color-global-secondary-l: 60%;
-	
+
+	--color-global-primary-h: 202;
+	--color-global-primary-s: 100%;
+	--color-global-primary-l: 80%;
+	--color-global-secondary-h: 331;
+	--color-global-secondary-s: 73%;
+	--color-global-secondary-l: 60%;
+
 	--color-global-text: #fff;
-	
+
 	--color-timeline-secondary: #888;
 	--color-select-option-background: #000;
 	--color-input-background: #0000;
-	
+
 	--color-global-alpha: 0.5;
 	--color-global-background-s: 0.6;
 	--color-global-background-l: 0.55;
-	
+
 	--color-global-hover-alpha: 0.8;
 	--color-global-background-hover-s: 0.8;
 	--color-global-background-hover-l: 0.7;
-	
+
 	--color-global-primary-hsl: hsl(var(--color-global-primary-h), var(--color-global-primary-s), var(--color-global-primary-l));
-	--color-global-primary-hsla: hsla(var(--color-global-primary-h), 
+	--color-global-primary-hsla: hsla(var(--color-global-primary-h),
 	calc(var(--color-global-primary-s) * var(--color-global-background-s)),
-	calc(var(--color-global-primary-l) * var(--color-global-background-l)), 
+	calc(var(--color-global-primary-l) * var(--color-global-background-l)),
 	var(--color-global-alpha));
-	--color-global-primary-hsla-hover: hsla(var(--color-global-primary-h), 
-	calc(var(--color-global-primary-s) * var(--color-global-background-hover-s)), 
-	calc(var(--color-global-primary-l) * var(--color-global-background-hover-l)), 
+	--color-global-primary-hsla-hover: hsla(var(--color-global-primary-h),
+	calc(var(--color-global-primary-s) * var(--color-global-background-hover-s)),
+	calc(var(--color-global-primary-l) * var(--color-global-background-hover-l)),
 	var(--color-global-hover-alpha));
-	
+
 	--color-global-secondary-hsl: hsl(var(--color-global-secondary-h), var(--color-global-secondary-s), var(--color-global-secondary-l));
-	--color-global-secondary-hsla: hsla(var(--color-global-secondary-h), 
+	--color-global-secondary-hsla: hsla(var(--color-global-secondary-h),
 	calc(var(--color-global-secondary-s) * var(--color-global-background-s)),
-	calc(var(--color-global-secondary-l) * var(--color-global-background-l)), 
+	calc(var(--color-global-secondary-l) * var(--color-global-background-l)),
 	var(--color-global-alpha));
-	--color-global-secondary-hsla-hover: hsla(var(--color-global-secondary-h), 
-	calc(var(--color-global-primary-s) * var(--color-global-background-hover-s)), 
-	calc(var(--color-global-primary-l) * var(--color-global-background-hover-l)), 
+	--color-global-secondary-hsla-hover: hsla(var(--color-global-secondary-h),
+	calc(var(--color-global-primary-s) * var(--color-global-background-hover-s)),
+	calc(var(--color-global-primary-l) * var(--color-global-background-hover-l)),
 	var(--color-global-hover-alpha));
-	
+
 	--color-containers-border: linear-gradient(var(--color-global-secondary-hsl), var(--color-global-primary-hsl));
 	--color-containers-glow: var(--color-global-primary-hsl);
-  
+
 	--color-timeline-primary: var(--color-global-primary-hsl);
-	
+
 	--color-timeline-tickmarks: var(--color-global-text);
-  
+
 	--color-labels-text: var(--color-global-text);
-	
+
 	--color-select-text: var(--color-global-primary-hsl);
 	--color-select-background-hover: var(--color-global-primary-hsla-hover);
 	--color-select-option-text: var(--color-global-primary-hsl);
-	
+
 	--color-input-border: var(--color-global-secondary-hsl);
-	
+
 	--color-input-mark: var(--color-global-secondary-hsl);
-  
+
 	--color-button-blue-border: var(--color-global-primary-hsl);
 	--color-button-blue-background: var(--color-global-primary-hsla);
 	--color-button-blue-background-hover: var(--color-global-primary-hsla-hover);
 	--color-button-blue-text: var(--color-global-primary-hsl);
-  
+
 	--color-button-red-border: var(--color-global-secondary-hsl);
 	--color-button-red-background: var(--color-global-secondary-hsla);
 	--color-button-red-background-hover: var(--color-global-secondary-hsla-hover);
 	--color-button-red-text: var(--color-global-secondary-hsl);
 }
-@font-face{
+@font-face {
 	font-family: 'Blender Pro Book';
 	src: url('Blender_Pro_Book.otf');
 	font-weight: normal;
@@ -184,33 +188,34 @@ input[type="checkbox"] + label {
 
 input[type="radio"] + label::before,
 input[type="checkbox"] + label::before {
-   content: '';
-   display: inline-block;
-   vertical-align: -25%;
-   height: 2ex;
-   width: 2ex;
-   background-color: var(--color-input-background);
-   border: 1px solid var(--color-input-border);
-   border-radius: 0;
-   margin-right: 0.5em;
+	content: '';
+	display: inline-block;
+	vertical-align: -25%;
+	height: 2ex;
+	width: 2ex;
+	background-color: var(--color-input-background);
+	border: 1px solid var(--color-input-border);
+	border-radius: 0;
+	margin-right: 0.5em;
 }
 
+input[type="radio"]:checked + label::after,
 input[type="checkbox"]:checked + label::after {
-   content: '';
-   position: absolute;
-   width: 1.2ex;
-   height: 0.4ex;
-   background: rgba(0, 0, 0, 0);
-   top: 0.9ex;
-   left: 0.4ex;
-   border: 2px solid var(--color-input-mark);
-   border-top: none;
-   border-right: none;
-   -webkit-transform: rotate(-45deg);
-   -moz-transform: rotate(-45deg);
-   -o-transform: rotate(-45deg);
-   -ms-transform: rotate(-45deg);
-   transform: rotate(-45deg);
+	content: '';
+	position: absolute;
+	width: 1.2ex;
+	height: 0.4ex;
+	background: rgba(0, 0, 0, 0);
+	top: 0.9ex;
+	left: 0.4ex;
+	border: 2px solid var(--color-input-mark);
+	border-top: none;
+	border-right: none;
+	-webkit-transform: rotate(-45deg);
+	-moz-transform: rotate(-45deg);
+	-o-transform: rotate(-45deg);
+	-ms-transform: rotate(-45deg);
+	transform: rotate(-45deg);
 }
 
 select {

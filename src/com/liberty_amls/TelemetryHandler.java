@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Frey Hertz (Pavel Neshumov), Liberty-Way Landing System Project
+ * Copyright (C) 2021 Fern Hertz (Pavel Neshumov), Liberty-Way Landing System Project
  *
  * This software is part of Autonomous Multirotor Landing System (AMLS) Project
  *
@@ -27,16 +27,16 @@ import org.apache.log4j.Logger;
 
 public class TelemetryHandler implements Runnable {
     private final Logger logger = Logger.getLogger(this.getClass().getSimpleName());
+    private final SettingsContainer settingsContainer;
     private final TelemetryContainer telemetryContainer;
     private final SerialHandler serialHandler;
     private final UDPHandler udpHandler;
-    private final SettingsContainer settingsContainer;
-    private final byte[] telemetryBuffer = new byte[30];
+    private final SpeedHandler speedHandler;
+    private final byte[] telemetryBuffer = new byte[31];
     private byte telemetryBytePrevious = 0;
     private int telemetryBufferPosition = 0;
     private long telemetryLastPacketTime = 0;
     private volatile boolean handleRunning;
-    private int lastGPSLat = 0, lastGPSLon = 0;
 
     TelemetryHandler(TelemetryContainer telemetryContainer, SerialHandler serialHandler,
                      UDPHandler udpHandler, SettingsContainer settingsContainer) {
@@ -44,11 +44,13 @@ public class TelemetryHandler implements Runnable {
         this.serialHandler = serialHandler;
         this.udpHandler = udpHandler;
         this.settingsContainer = settingsContainer;
+        this.speedHandler = new SpeedHandler(settingsContainer);
     }
 
     @Override
     public void run() {
         // Set loop flag
+        logger.info("Starting main loop");
         handleRunning = true;
         while (handleRunning)
             telemetryLoop();
@@ -63,22 +65,19 @@ public class TelemetryHandler implements Runnable {
         }
 
         // Read and parse data from Liberty-Link or UDP port
-        byte[] tempBuffer = serialHandler.readDataFromLink();
+        byte[] tempBuffer = serialHandler.readData();
         if (tempBuffer != null && tempBuffer.length > 0) {
             for (byte tempByte : tempBuffer)
                 readAndParse(tempByte);
-        } else if (udpHandler.isUdpPortOpened()) {
+        } else if (udpHandler.isUdpPortOpened() && udpHandler.getBufferSize() > 0) {
             readAndParse(udpHandler.takeSingleByte());
         }
-
-        // Calculate speed of the drone
-        calculateSpeed();
     }
 
     private void readAndParse(byte data) {
         telemetryBuffer[telemetryBufferPosition] = data;
-        if (telemetryBytePrevious == settingsContainer.dataSuffix1 &&
-                telemetryBuffer[telemetryBufferPosition] == settingsContainer.dataSuffix2) {
+        if (telemetryBytePrevious == settingsContainer.droneDataSuffix1
+                && telemetryBuffer[telemetryBufferPosition] == settingsContainer.droneDataSuffix2) {
             // If data suffix appears
             // Reset buffer position
             telemetryBufferPosition = 0;
@@ -87,10 +86,10 @@ public class TelemetryHandler implements Runnable {
             byte telemetryCheckByte = 0;
 
             // Calculate check sum
-            for (int i = 0; i <= 26; i++)
+            for (int i = 0; i <= 27; i++)
                 telemetryCheckByte ^= telemetryBuffer[i];
 
-            if (telemetryCheckByte == telemetryBuffer[27]) {
+            if (telemetryCheckByte == telemetryBuffer[28]) {
                 // Parse data if the checksums are equal
 
                 // Error status
@@ -103,7 +102,7 @@ public class TelemetryHandler implements Runnable {
                 telemetryContainer.batteryVoltage = (double) (((int) telemetryBuffer[2] & 0xFF)) / 10.0;
 
                 // Temperature
-                telemetryContainer.temperature = (short)(((short) telemetryBuffer[4] & 0xFF)
+                telemetryContainer.temperature = (short) (((short) telemetryBuffer[4] & 0xFF)
                         | ((short) telemetryBuffer[3] & 0xFF) << 8);
                 telemetryContainer.temperature = (telemetryContainer.temperature / 340.0) + 36.53;
 
@@ -141,54 +140,39 @@ public class TelemetryHandler implements Runnable {
                 // Fix type of GPS
                 telemetryContainer.fixType = ((int) telemetryBuffer[17] & 0xFF);
 
-                this.lastGPSLat = telemetryContainer.gpsLatInt;
-                this.lastGPSLon = telemetryContainer.gpsLonInt;
+                // Remember previous GPS coordinates for speed calculation
+                speedHandler.feedLast(telemetryContainer.gps);
 
-                // GPS Latitude
-                telemetryContainer.gpsLatInt = ((int) telemetryBuffer[21] & 0xFF)
+                // New GPS coordinates
+                telemetryContainer.gps.setFromInt(((int) telemetryBuffer[21] & 0xFF)
                         | ((int) telemetryBuffer[20] & 0xFF) << 8
                         | ((int) telemetryBuffer[19] & 0xFF) << 16
-                        | ((int) telemetryBuffer[18] & 0xFF) << 24;
-
-                // GPS Longitude
-                telemetryContainer.gpsLonInt = ((int) telemetryBuffer[25] & 0xFF)
+                        | ((int) telemetryBuffer[18] & 0xFF) << 24,
+                        ((int) telemetryBuffer[25] & 0xFF)
                         | ((int) telemetryBuffer[24] & 0xFF) << 8
                         | ((int) telemetryBuffer[23] & 0xFF) << 16
-                        | ((int) telemetryBuffer[22] & 0xFF) << 24;
+                        | ((int) telemetryBuffer[22] & 0xFF) << 24);
 
-                // Convert GPS position to double
-                telemetryContainer.gpsLatDouble = telemetryContainer.gpsLatInt / 1000000.0;
-                telemetryContainer.gpsLonDouble = telemetryContainer.gpsLonInt / 1000000.0;
+                // Feed new GPS position to the SpeedHandler class
+                speedHandler.feedCurrent(telemetryContainer.gps, System.currentTimeMillis());
 
                 // Liberty Way sequence step
-                telemetryContainer.linkWaypointStep = ((int) telemetryBuffer[26] & 0xFF) % 10;
+                telemetryContainer.linkWaypointStep = ((int) telemetryBuffer[26] & 0xFF);
 
-                // New altitude / gps waypoint flags
-                switch (((int) telemetryBuffer[26] & 0xFF) / 10) {
-                    case 1:
-                        telemetryContainer.linkNewWaypointAltitude = true;
-                        telemetryContainer.linkNewWaypointGPS = false;
-                        break;
-                    case 2:
-                        telemetryContainer.linkNewWaypointAltitude = false;
-                        telemetryContainer.linkNewWaypointGPS = true;
-                        break;
-                    case 3:
-                        telemetryContainer.linkNewWaypointAltitude = true;
-                        telemetryContainer.linkNewWaypointGPS = true;
-                        break;
-                    default:
-                        telemetryContainer.linkNewWaypointAltitude = false;
-                        telemetryContainer.linkNewWaypointGPS = false;
-                        break;
-                }
+                // Illumination from LUX meter
+                telemetryContainer.illumination = ((int) telemetryBuffer[27] & 0xFF);
+                telemetryContainer.illumination *= telemetryContainer.illumination;
+                telemetryContainer.illumination = (int) (telemetryContainer.illumination / 0.54);
+
+                // Calculate drone's speed
+                telemetryContainer.speed = speedHandler.getSpeed();
 
                 // Increment packets counter
                 telemetryContainer.packetsNumber++;
 
                 // Reset timer and lost flag
                 if (telemetryContainer.telemetryLost)
-                    logger.info("Drone telemetry restored");
+                    logger.warn("Drone telemetry restored");
                 telemetryContainer.telemetryLost = false;
                 telemetryLastPacketTime = System.currentTimeMillis();
             } else
@@ -199,7 +183,7 @@ public class TelemetryHandler implements Runnable {
             telemetryBufferPosition++;
 
             // Reset buffer on overflow
-            if (telemetryBufferPosition > 29)
+            if (telemetryBufferPosition > 30)
                 telemetryBufferPosition = 0;
         }
     }
@@ -207,37 +191,5 @@ public class TelemetryHandler implements Runnable {
     public void stop() {
         logger.warn("Turning off drone telemetry reading");
         handleRunning = false;
-    }
-
-    /**
-     * This method calculates current drone's velocity in km/h
-     */
-    private void calculateSpeed(){
-        long loopTime = System.currentTimeMillis() - telemetryLastPacketTime;
-
-        double distance = Math.sin((telemetryContainer.gpsLatInt - this.lastGPSLat) * Math.PI / 180 / 2.0) *
-                Math.sin((telemetryContainer.gpsLatInt - this.lastGPSLat) * Math.PI / 180 / 2.0) +
-                Math.sin((telemetryContainer.gpsLonInt - this.lastGPSLon) * Math.PI / 180 / 2.0) *
-                Math.sin((telemetryContainer.gpsLonInt - this.lastGPSLon) * Math.PI / 180 / 2.0) *
-                Math.cos(telemetryContainer.gpsLatInt) *
-                Math.cos(this.lastGPSLat);
-
-        distance = Math.atan2(Math.sqrt(distance), Math.sqrt(1 - distance));
-
-        double speedX;
-        double speedY;
-
-        if (loopTime == 0)
-            speedX = speedY = 0.0;
-        else {
-            speedX = settingsContainer.planetRadius * 2 * distance / loopTime;
-
-            speedY = settingsContainer.planetRadius * 2 * distance / loopTime;
-        }
-
-        speedX *= 3600;
-        speedY *= 3600;
-
-        telemetryContainer.speed = Math.sqrt(speedX * speedX + speedY * speedY);
     }
 }

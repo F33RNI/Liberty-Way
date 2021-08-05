@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Frey Hertz (Pavel Neshumov), Liberty-Way Landing System Project
+ * Copyright (C) 2021 Fern Hertz (Pavel Neshumov), Liberty-Way Landing System Project
  *
  * This software is part of Autonomous Multirotor Landing System (AMLS) Project
  *
@@ -28,6 +28,7 @@ import org.apache.log4j.Logger;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.SocketTimeoutException;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
@@ -35,6 +36,7 @@ public class UDPHandler implements Runnable {
     private final Logger logger = Logger.getLogger(this.getClass().getSimpleName());
     private DatagramSocket datagramSocket;
     private final String udpIPPort;
+    private final int udpTimeout;
     private InetAddress inetAddress;
     private int port;
     private boolean udpPortOpened = false;
@@ -47,8 +49,9 @@ public class UDPHandler implements Runnable {
      * This class takes an array of bytes (udpData) and sends it as a packet via an UDP
      * @param udpIPPort String with format 'IP:PORT'
      */
-    public UDPHandler(String udpIPPort) {
+    public UDPHandler(String udpIPPort, int udpTimeout) {
         this.udpIPPort = udpIPPort;
+        this.udpTimeout = udpTimeout;
     }
 
     /**
@@ -66,7 +69,7 @@ public class UDPHandler implements Runnable {
             }
         } catch (Exception e) {
             udpPortOpened = false;
-            logger.error("Error starting UDP socket!", e);
+            logger.error("Error starting UDP socket " + udpIPPort, e);
             // Exit because UDP is a vital node when turned on
             System.exit(1);
         }
@@ -92,8 +95,15 @@ public class UDPHandler implements Runnable {
                 datagramSocket.send(packet);
             }
         } catch (Exception e) {
-            logger.error("Error pushing data over UDP!", e);
+            logger.error("Error pushing data to " + udpIPPort, e);
         }
+    }
+
+    /**
+     * @return size of buffer. If size > 0, it means that new data has arrived
+     */
+    public int getBufferSize() {
+        return receiveBuffer.size();
     }
 
     /**
@@ -119,7 +129,7 @@ public class UDPHandler implements Runnable {
                 DatagramPacket packet = new DatagramPacket(packetBuffer, packetBuffer.length);
 
                 // Block until a packet is received
-                datagramSocket.setSoTimeout(2000);
+                datagramSocket.setSoTimeout(udpTimeout);
                 datagramSocket.receive(packet);
 
                 // Add bytes to the buffer
@@ -127,8 +137,10 @@ public class UDPHandler implements Runnable {
                     receiveBuffer.add(packetBuffer[i + packet.getOffset()]);
                 }
             }
+        } catch (SocketTimeoutException e) {
+            logger.error("Timeout reading data from " + udpIPPort);
         } catch (Exception e) {
-            logger.error("Error reading data from UDP port!", e);
+            logger.error("Error reading data from " + udpIPPort, e);
         }
     }
 
@@ -151,7 +163,7 @@ public class UDPHandler implements Runnable {
      * Closes datagramSocket and sets udpPortOpened flag to false
      */
     public void closeUDP() {
-        logger.warn("Closing UDP port");
+        logger.warn("Closing UDP port " + udpIPPort);
         handlerRunning = false;
         if (udpPortOpened)
             datagramSocket.close();

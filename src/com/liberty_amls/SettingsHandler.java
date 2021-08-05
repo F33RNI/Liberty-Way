@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Frey Hertz (Pavel Neshumov), Liberty-Way Landing System Project
+ * Copyright (C) 2021 Fern Hertz (Pavel Neshumov), Liberty-Way Landing System Project
  *
  * This software is part of Autonomous Multirotor Landing System (AMLS) Project
  *
@@ -49,15 +49,15 @@ public class SettingsHandler {
             // Marker Size
             settingsContainer.markerSize = jsonSettings.get("marker_size").getAsFloat();
             if (settingsContainer.markerSize <= 0.0)
-                exitWithError("Wrong marker size");
+                exitWithError("Invalid marker size");
 
             // Default camera exposure
-            settingsContainer.defaultExposure = jsonSettings.get("default_exposure").getAsDouble();
+            settingsContainer.maxExposure = jsonSettings.get("max_exposure").getAsDouble();
 
             // Landing altitude
             settingsContainer.landingAlt = jsonSettings.get("landing_alt").getAsDouble();
             if (settingsContainer.landingAlt < 0)
-                exitWithError("Wrong landing altitude");
+                exitWithError("Invalid landing altitude");
 
             // Landing allowed
             settingsContainer.landingAllowed = jsonSettings.get("landing_allowed").getAsBoolean();
@@ -103,12 +103,12 @@ public class SettingsHandler {
             // Frame width
             settingsContainer.frameWidth = jsonSettings.get("frame_width").getAsInt();
             if (settingsContainer.frameWidth <= 0)
-                exitWithError("Wrong frame width");
+                exitWithError("Invalid frame width");
 
             // Frame height
             settingsContainer.frameHeight = jsonSettings.get("frame_height").getAsInt();
             if (settingsContainer.frameHeight <= 0)
-                exitWithError("Wrong frame height");
+                exitWithError("Invalid frame height");
 
             // Disable auto exposure
             settingsContainer.disableAutoExposure = jsonSettings.get("disable_auto_exposure").getAsBoolean();
@@ -138,6 +138,9 @@ public class SettingsHandler {
             // Serial reconnect time
             settingsContainer.serialReconnectTime = jsonSettings.get("serial_reconnect_time").getAsInt();
 
+            // UDP port timeout
+            settingsContainer.udpTimeout = jsonSettings.get("udp_timeout").getAsInt();
+
             // Telemetry lost time
             settingsContainer.telemetryLostTime = jsonSettings.get("telemetry_lost_time").getAsInt();
 
@@ -152,9 +155,6 @@ public class SettingsHandler {
             settingsContainer.platformLightDisableThreshold =
                     jsonSettings.get("platform_light_disable_threshold").getAsInt();
 
-            // Platform reply timeout
-            settingsContainer.platformReplyTimeout = jsonSettings.get("platform_reply_timeout").getAsInt();
-
             // Platform loop timer
             settingsContainer.platformLoopTimer = jsonSettings.get("platform_loop_timer").getAsInt();
 
@@ -167,12 +167,12 @@ public class SettingsHandler {
             // Aruco dictionary
             settingsContainer.arucoDictionary = jsonSettings.get("aruco_dictionary").getAsShort();
             if (settingsContainer.arucoDictionary < 0)
-                exitWithError("Wrong ARUco dictionary");
+                exitWithError("Invalid ARUco dictionary");
 
             // Allowed marker ids
             JsonArray jsonAllowedIDs = jsonSettings.get("allowed_ids").getAsJsonArray();
             if (Objects.requireNonNull(jsonAllowedIDs).size() < 1)
-                exitWithError("Wrong array of allowed marker IDs");
+                exitWithError("Invalid array of allowed marker IDs");
 
             settingsContainer.allowedIDs = new ArrayList<>();
             for (int i = 0; i < Objects.requireNonNull(jsonAllowedIDs).size(); i++){
@@ -182,12 +182,12 @@ public class SettingsHandler {
             // Input filter factor
             settingsContainer.inputFilter = jsonSettings.get("input_filter").getAsDouble();
             if (settingsContainer.inputFilter < 0.0 || settingsContainer.inputFilter > 1.0)
-                exitWithError("Wrong input filter factor");
+                exitWithError("Invalid input filter factor");
 
             // Setpoint alignment factor
             settingsContainer.setpointAlignmentFactor = jsonSettings.get("setpoint_alignment_factor").getAsDouble();
             if (settingsContainer.setpointAlignmentFactor < 0.0 || settingsContainer.setpointAlignmentFactor > 1.0)
-                exitWithError("Wrong setpoint alignment factor");
+                exitWithError("Invalid setpoint alignment factor");
 
             // Allowed lost frames
             settingsContainer.allowedLostFrames = jsonSettings.get("allowed_lost_frames").getAsInt();
@@ -195,13 +195,23 @@ public class SettingsHandler {
             // Landing decrement
             settingsContainer.landingDecrement = jsonSettings.get("landing_decrement").getAsDouble();
             if (settingsContainer.landingDecrement < 0)
-                exitWithError("Wrong landing decrement");
+                exitWithError("Invalid landing decrement");
 
             // Allowed landing range on X and Y axes
             settingsContainer.allowedLandingRangeXY = jsonSettings.get("allowed_landing_range_xy").getAsDouble();
 
             // Allowed range on Yaw axis
             settingsContainer.allowedLandingRangeYaw = jsonSettings.get("allowed_landing_range_yaw").getAsDouble();
+
+            // Minimum number of satellites to begin Liberty-Way sequence
+            settingsContainer.minSatellitesNumStart = jsonSettings.get("min_satellites_num_start").getAsShort();
+            if (settingsContainer.minSatellitesNumStart <= 0)
+                exitWithError("Invalid minimum start satellites number");
+
+            // Minimum number of satellites to continue Liberty-Way sequence
+            settingsContainer.minSatellitesNum = jsonSettings.get("min_satellites_num").getAsShort();
+            if (settingsContainer.minSatellitesNum <= 0)
+                exitWithError("Invalid minimum satellites number");
 
             // Setpoint X
             settingsContainer.setpointX = jsonSettings.get("setpoint_x").getAsDouble();
@@ -213,26 +223,31 @@ public class SettingsHandler {
             settingsContainer.setpointYaw = jsonSettings.get("setpoint_yaw").getAsDouble();
 
             // Data suffix 1 (Liberty-Link packet ending)
-            settingsContainer.dataSuffix1 = jsonSettings.get("data_suffix_1").getAsString().getBytes()[0];
+            settingsContainer.droneDataSuffix1 = jsonSettings.get("drone_data_suffix_1").getAsByte();
 
             // Data suffix 2 (Liberty-Link packet ending)
-            settingsContainer.dataSuffix2 = jsonSettings.get("data_suffix_2").getAsString().getBytes()[0];
+            settingsContainer.droneDataSuffix2 = jsonSettings.get("drone_data_suffix_2").getAsByte();
+
+            // Data suffix 1 (Eitude packet ending)
+            settingsContainer.platformDataSuffix1 = jsonSettings.get("platform_data_suffix_1").getAsByte();
+
+            // Data suffix 2 (Eitude packet ending)
+            settingsContainer.platformDataSuffix2 = jsonSettings.get("platform_data_suffix_2").getAsByte();
 
             // Push OSD and Video frame after openCV frames
             settingsContainer.pushOSDAfterFrames = jsonSettings.get("push_osd_after_frames").getAsShort();
             if (settingsContainer.pushOSDAfterFrames < 0)
-                exitWithError("Wrong \"push OSD after frames\" number");
+                exitWithError("Invalid \"push OSD after frames\" number");
 
             // Radius of a current planet that the project operates on
-            settingsContainer.planetRadius = jsonSettings.get("planet_radius").getAsInt();
+            settingsContainer.planetRadius = jsonSettings.get("planet_radius").getAsDouble();
             if (settingsContainer.planetRadius <= 0)
                 exitWithError("Invalid planet radius");
 
-            // Distance in which the drone considered far enough to use K = 1
-            settingsContainer.notAcceptableDistance = jsonSettings.get("not_acceptable_distance").getAsInt();
-
-            // GPS prediction allowed
-            settingsContainer.GPSPredictionAllowed = jsonSettings.get("gps_prediction_allowed").getAsBoolean();
+            // Speed filter factor
+            settingsContainer.speedFilter = jsonSettings.get("speed_filter").getAsDouble();
+            if (settingsContainer.speedFilter < 0.0 || settingsContainer.speedFilter > 1.0)
+                exitWithError("Invalid speed filter factor");
 
             // If all checks are passed
             logger.info("Basic checks passed. Settings loaded");
@@ -248,6 +263,7 @@ public class SettingsHandler {
     private void exitWithError(String errorMessage) {
         // Print error message
         logger.error("Error parsing settings! " + errorMessage);
+
         // Exit because no correct settings provided
         System.exit(1);
     }

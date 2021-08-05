@@ -34,8 +34,8 @@
 		</video>
 		
 		<style>
-			:root { 
-				font-size: 1.2em; 
+			:root {
+
 				--color-containers-border: linear-gradient(var(--color-global-primary-hsl), var(--color-global-secondary-hsl));
 				--color-containers-glow: var(--color-global-secondary-hsl);
 			}
@@ -69,38 +69,14 @@
 			
 			<div>
 				<p class="labels-text" style="text-align:center;">HARDWARE SETUP</p>
+
 				<br>
-				
+
+				<!-- Liberty-Link ports -->
 				<div class="setup-data-container">
 					<div>
-						<input type="checkbox" id="platform_port_enabled" />
-						<label class="labels-text" for="platform_port_enabled">Platform Port:</label>
-					</div>
-					<div>
-						<div class="select-container" data-augmented-ui="br-clip both">
-							<select id="platform_ports" name="platform_ports">
-								{{ platform_ports }}
-							</select>
-						</div>
-						<div class="select-container" data-augmented-ui="br-clip both">
-							<select id="platform_baudrate" name="platform_baudrate">
-								<option value="57600">57600</option>
-								<option value="9600">9600</option>
-								<option value="14400">14400</option>
-								<option value="19200">19200</option>
-								<option value="28800">28800</option>
-								<option value="33600">33600</option>
-								<option value="38400">38400</option>
-								<option value="115200">115200</option>
-							</select>
-						</div>
-					</div>
-				</div>
-				
-				<div class="setup-data-container">
-					<div>
-						<input type="checkbox" id="link_port_enabled"/>
-						<label class="labels-text" for="link_port_enabled">Liberty Link:</label>
+						<input type="checkbox" id="link_port_enabled" onclick="checkboxSelectorLinkCOM();"/>
+						<label class="labels-text" for="link_port_enabled">Liberty-Link COM:</label>
 					</div>
 					<div>
 						<div class="select-container" data-augmented-ui="br-clip both">
@@ -125,15 +101,62 @@
 				
 				<div class="setup-data-container">
 					<div>
-						<input type="checkbox" id="udp_ip_port_enabled">
-						<label class="labels-text" for="udp_ip_port_enabled">Liberty Link UDP: </label>
+						<input type="checkbox" id="link_udp_enabled" onclick="checkboxSelectorLinkUDP();">
+						<label class="labels-text" for="link_udp_enabled">Liberty-Link UDP: </label>
 					</div>
 					<div>
 						<div class="input-container" data-augmented-ui="br-clip both">
-							<input type="text" id="udp_ip_port" placeholder="xxx.xxx.xxx.xxx:xxxx" value="192.168.1.184:9876"/>
+							<input type="text" id="link_udp" placeholder="xxx.xxx.xxx.xxx:xxxx"
+								   value="192.168.9.184:9999"/>
 						</div>
 					</div>
 				</div>
+
+				<br>
+
+				<!-- Platform ports -->
+				<div class="setup-data-container">
+					<div>
+						<input type="checkbox" id="platform_port_enabled" onclick="checkboxSelectorPlatformCOM();"/>
+						<label class="labels-text" for="platform_port_enabled">Platform COM:</label>
+					</div>
+					<div>
+						<div class="select-container" data-augmented-ui="br-clip both">
+							<select id="platform_ports" name="platform_ports">
+								{{ platform_ports }}
+							</select>
+						</div>
+						<div class="select-container" data-augmented-ui="br-clip both">
+							<select id="platform_baudrate" name="platform_baudrate">
+								<option value="57600">57600</option>
+								<option value="9600">9600</option>
+								<option value="14400">14400</option>
+								<option value="19200">19200</option>
+								<option value="28800">28800</option>
+								<option value="33600">33600</option>
+								<option value="38400">38400</option>
+								<option value="115200">115200</option>
+							</select>
+						</div>
+					</div>
+				</div>
+
+				<div class="setup-data-container">
+					<div>
+						<input type="checkbox" id="platform_udp_enabled" onclick="checkboxSelectorPlatformUDP();">
+						<label class="labels-text" for="platform_udp_enabled">Platform UDP: </label>
+					</div>
+					<div>
+						<div class="input-container" data-augmented-ui="br-clip both">
+							<input type="text" id="platform_udp" placeholder="xxx.xxx.xxx.xxx:xxxx"
+								   value="192.168.9.185:8888"/>
+						</div>
+					</div>
+				</div>
+
+				<br>
+
+				<!-- Camera ID -->
 				<div class="setup-data-container">
 					<div>
 						<label class="labels-text" for="camera_id">Camera ID: </label>

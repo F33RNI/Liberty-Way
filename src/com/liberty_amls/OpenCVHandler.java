@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Frey Hertz (Pavel Neshumov), Liberty-Way Landing System Project
+ * Copyright (C) 2021 Fern Hertz (Pavel Neshumov), Liberty-Way Landing System Project
  *
  * This software is part of Autonomous Multirotor Landing System (AMLS) Project
  *
@@ -39,6 +39,7 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
+import static java.lang.Math.abs;
 import static java.lang.Math.toDegrees;
 
 public class OpenCVHandler implements Runnable {
@@ -46,7 +47,8 @@ public class OpenCVHandler implements Runnable {
     private final SettingsContainer settingsContainer;
     private final PositionHandler positionHandler;
     private final PositionContainer positionContainer;
-    private final PlatformHandler platformHandler;
+    private final TelemetryContainer telemetryContainer;
+    private final PlatformContainer platformContainer;
     private final OSDHandler osdHandler;
     private final VideoCapture videoCapture;
     private final int cameraID;
@@ -67,14 +69,16 @@ public class OpenCVHandler implements Runnable {
                          VideoCapture videoCapture,
                          PositionHandler positionHandler,
                          PositionContainer positionContainer,
-                         PlatformHandler platformHandler,
+                         TelemetryContainer telemetryContainer,
+                         PlatformContainer platformContainer,
                          OSDHandler osdHandler,
                          SettingsContainer settingsContainer) {
         this.cameraID = cameraID;
         this.videoCapture = videoCapture;
         this.positionHandler = positionHandler;
         this.positionContainer = positionContainer;
-        this.platformHandler = platformHandler;
+        this.telemetryContainer = telemetryContainer;
+        this.platformContainer = platformContainer;
         this.osdHandler = osdHandler;
         this.settingsContainer = settingsContainer;
         framesCount = 0;
@@ -109,7 +113,7 @@ public class OpenCVHandler implements Runnable {
                 videoCapture.set(Videoio.CAP_PROP_AUTO_WB, 0);
             if (settingsContainer.disableAutoFocus)
                 videoCapture.set(Videoio.CAP_PROP_AUTOFOCUS, 0);
-            videoCapture.set(Videoio.CAP_PROP_EXPOSURE, settingsContainer.defaultExposure);
+            videoCapture.set(Videoio.CAP_PROP_EXPOSURE, settingsContainer.maxExposure);
             openCVRunning = true;
             if (!videoCapture.isOpened()) {
                 return;
@@ -117,9 +121,6 @@ public class OpenCVHandler implements Runnable {
 
             // Capture the first frame
             videoCapture.read(frame);
-
-            // Set flag in platformHandler class
-            platformHandler.setOpencvStarts(true);
 
             logger.info("Camera " + cameraID + " opened!");
 
@@ -208,6 +209,9 @@ public class OpenCVHandler implements Runnable {
                         // If no correct markers detected
                         positionHandler.proceedPosition(false);
 
+                    // Adjust camera exposure
+                    adaptiveExposure();
+
                     // Calculate FPS
                     framesCount++;
                     long timeCurrent = System.currentTimeMillis();
@@ -232,6 +236,42 @@ public class OpenCVHandler implements Runnable {
                 positionHandler.proceedPosition(false);
             }
         }
+    }
+
+    /**
+     * Dynamically adjusts camera exposure and managing backlight based on light levels
+     */
+    private void adaptiveExposure() {
+        // Default exposure
+        double newExposure = settingsContainer.maxExposure;
+
+        // Telemetry has a higher priority than platform
+        if (!telemetryContainer.telemetryLost)
+            newExposure = -(Math.log(telemetryContainer.illumination * 1000.0 / 330.0) / Math.log(2));
+        else if (!platformContainer.platformLost)
+            newExposure = -(Math.log(platformContainer.illumination * 1000.0 / 330.0) / Math.log(2));
+
+        // Set new exposure to camera
+        if (abs(platformContainer.cameraExposure - newExposure) > 0.5) {
+            platformContainer.cameraExposure = newExposure;
+            if (platformContainer.cameraExposure > settingsContainer.maxExposure)
+                platformContainer.cameraExposure = settingsContainer.maxExposure;
+            videoCapture.set(Videoio.CAP_PROP_EXPOSURE, platformContainer.cameraExposure);
+        }
+
+        // Turn on/off additional backlight
+        double illumination = 0;
+        if (!telemetryContainer.telemetryLost)
+            illumination = telemetryContainer.illumination;
+        else if (!platformContainer.platformLost)
+            illumination = platformContainer.illumination;
+
+        if (illumination < settingsContainer.platformLightEnableThreshold && !platformContainer.backlight)
+            // Turn on backlight
+            platformContainer.backlight = true;
+        else if (illumination > settingsContainer.platformLightDisableThreshold && platformContainer.backlight)
+        // Turn off backlight
+        platformContainer.backlight = false;
     }
 
     /**

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Frey Hertz (Pavel Neshumov), AMLS Platform controller
+ * Copyright (C) 2021 Fern Hertz (Pavel Neshumov), Eitude AMLS Platform controller
  * This software is part of Autonomous Multirotor Landing System (AMLS) Project
  *
  * Licensed under the GNU Affero General Public License, Version 3.0 (the "License");
@@ -26,35 +26,63 @@
 // Common variables
 uint8_t error;
 uint16_t count_var;
-uint32_t loop_timer;
+uint64_t loop_timer;
 
-// LCD
-uint32_t lcd_timer;
+// Communication
+uint8_t check_byte, temp_byte;
+uint8_t rx_buffer[6];
+uint8_t rx_buffer_position;
+uint8_t rx_byte_previous;
+char tx_buffer[19];
+boolean tx_flag;
+#ifdef UDP_PORT
+byte Ethernet::buffer[500];
+#endif
 
-// Serial
-char buffer[BUFFER_SIZE];
-int16_t sofar;
-int16_t command;
+// Data from Liberty-Way
+uint8_t system_status;
+uint8_t backlight_state;
+
+// Grips system
+uint8_t grips_command;
 
 // Light sensor
-uint16_t raw_illumination;
-float filtered_value;
+uint16_t lux_raw_data;
+#ifndef LUX_METER
+float resistor_voltage, ldr_voltage;
+float ldr_resistance;
+#endif
+float converted_lux;
+uint8_t lux_sqrt_data;
+uint64_t lux_timer;
 
-// MPU6050
-int16_t temperature;
-int16_t acc_x, acc_y, acc_z;
-int16_t gyro_pitch, gyro_roll, gyro_yaw;
-uint8_t level_calibration_on;
-int32_t gyro_pitch_cal, gyro_roll_cal, gyro_yaw_cal;
-int32_t acc_x_cal_value, acc_y_cal_value;
-int32_t acc_x_filtered, acc_y_filtered;
+// GPS
+#ifdef GPS
+uint8_t read_serial_byte, incoming_message[100], number_used_sats, fix_type;
+uint16_t message_counter;
+int32_t l_lat_gps, l_lon_gps;
+uint8_t new_line_found;
+uint16_t gps_lost_counter = UINT16_MAX;
+//uint16_t gps_altitude_dm;
+boolean gps_reset_flag;
+#endif
 
-// Vibration meter
-int32_t vibration_array[20], avarage_vibration_level, vibration_total_result;
-uint8_t vibration_counter, in_move_flag;
+// Barometer
+#ifdef BAROMETER
+uint16_t C[7];
+uint8_t barometer_counter, temperature_counter, average_temperature_mem_location;
+int64_t OFF, OFF_C2, SENS, SENS_C1, P;
+uint32_t raw_pressure, raw_temperature, temp, raw_temperature_rotating_memory[5], raw_average_temperature_total;
+float actual_pressure, actual_pressure_slow, actual_pressure_fast, actual_pressure_diff;
+int32_t pressure_rotating_mem[20], pressure_total_avarage;
+uint8_t pressure_rotating_mem_location;
+float pressure_rotating_mem_actual;
+int32_t dT, dT_C5;
+#endif
 
-// Speed
-float speed, speed_accumulator;
-int32_t speed_loop_timer;
+// WS2812
+uint16_t leds_error_loop_counter;
+uint8_t leds_tick_counter;
+uint8_t leds_error_counter;
 
 #endif

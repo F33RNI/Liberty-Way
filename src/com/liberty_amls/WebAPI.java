@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Frey Hertz (Pavel Neshumov), Liberty-Way Landing System Project
+ * Copyright (C) 2021 Fern Hertz (Pavel Neshumov), Liberty-Way Landing System Project
  *
  * This software is part of Autonomous Multirotor Landing System (AMLS) Project
  *
@@ -52,8 +52,9 @@ public class WebAPI {
     private BlackboxHandler blackboxHandler;
     private OpenCVHandler openCVHandler;
     private OSDHandler osdHandler;
-    private UDPHandler udpHandler;
-    private SerialHandler serialHandler;
+    private UDPHandler udpHandlerLink, udpHandlerPlatform;
+    private SerialHandler serialHandlerLink, serialHandlerPlatform;
+    private LinkSender linkSender;
     private PositionHandler positionHandler;
     private PlatformHandler platformHandler;
     private TelemetryHandler telemetryHandler;
@@ -235,38 +236,53 @@ public class WebAPI {
         logger.info("Liberty-Link Port: " + setupData.get("link_port").getAsString());
         if (setupData.get("link_port").getAsString().length() > 0)
             logger.info("Liberty-Link Port baudrate: " + setupData.get("link_baudrate").getAsString());
-        logger.info("UDP Ip/Port: " + setupData.get("udp_ip_port").getAsString());
+        logger.info("Liberty-Link UDP: " + setupData.get("link_udp").getAsString());
+        logger.info("Platform UDP: " + setupData.get("platform_udp").getAsString());
         logger.info("Camera ID: " + setupData.get("camera_id").getAsString());
 
         // Load native library (from java-library-path)
         logger.info("Loading OpenCV Native Library");
         System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
 
-        // Create SerialHandler class for serial communication
-        serialHandler = new SerialHandler(setupData.get("platform_port").getAsString(),
-                setupData.get("platform_port").getAsString().length() > 0 ?
-                        setupData.get("platform_baudrate").getAsString() : "",
-                setupData.get("link_port").getAsString(),
+        // Create SerialHandler class for serial communication with Liberty-Link
+        serialHandlerLink = new SerialHandler(setupData.get("link_port").getAsString(),
                 setupData.get("link_port").getAsString().length() > 0 ?
                         setupData.get("link_baudrate").getAsString() : "",
                 settingsContainer.serialReconnectTime);
-        serialHandler.openPorts();
+        serialHandlerLink.openPort();
 
-        // Create UDPHandler class for UDP communication
-        udpHandler = new UDPHandler(setupData.get("udp_ip_port").getAsString());
-        udpHandler.openUDP();
-        if (udpHandler.isUdpPortOpened()) {
+        // Create SerialHandler class for serial communication with Platform
+        serialHandlerPlatform = new SerialHandler(setupData.get("platform_port").getAsString(),
+                setupData.get("platform_port").getAsString().length() > 0 ?
+                        setupData.get("platform_baudrate").getAsString() : "",
+                settingsContainer.serialReconnectTime);
+        serialHandlerPlatform.openPort();
+
+        // Create UDPHandler class for UDP communication with Liberty-Link
+        udpHandlerLink = new UDPHandler(setupData.get("link_udp").getAsString(), settingsContainer.udpTimeout);
+        udpHandlerLink.openUDP();
+        if (udpHandlerLink.isUdpPortOpened()) {
             // Create and start a new thread with the normal priority for the UDP handler (async reader)
-            Thread udpThread = new Thread(udpHandler);
-            udpThread.setPriority(Thread.NORM_PRIORITY);
-            udpThread.start();
+            Thread udpLinkThread = new Thread(udpHandlerLink);
+            udpLinkThread.setPriority(Thread.NORM_PRIORITY);
+            udpLinkThread.start();
+        }
+
+        // Create UDPHandler class for UDP communication with Platform
+        udpHandlerPlatform = new UDPHandler(setupData.get("platform_udp").getAsString(), settingsContainer.udpTimeout);
+        udpHandlerPlatform.openUDP();
+        if (udpHandlerPlatform.isUdpPortOpened()) {
+            // Create and start a new thread with the normal priority for the UDP handler (async reader)
+            Thread udpPlatformThread = new Thread(udpHandlerPlatform);
+            udpPlatformThread.setPriority(Thread.NORM_PRIORITY);
+            udpPlatformThread.start();
         }
 
         // Create PositionContainer class for store current position
         positionContainer = new PositionContainer();
 
         // Create PlatformContainer class for store platform data
-        platformContainer = new PlatformContainer(settingsContainer.defaultExposure);
+        platformContainer = new PlatformContainer();
 
         // Create TelemetryContainer class for store telemetry data
         telemetryContainer = new TelemetryContainer();
@@ -276,19 +292,20 @@ public class WebAPI {
 
         // Create PlatformHandler class for integrating with platform
         platformHandler = new PlatformHandler(platformContainer, positionContainer,
-                serialHandler, videoCapture, settingsContainer);
+                serialHandlerPlatform, udpHandlerPlatform, settingsContainer);
         // Create and start a new thread for the platformHandler if platform port is open
-        if (serialHandler.isPlatformPortOpened()) {
+        if (serialHandlerPlatform.isPortOpened() || udpHandlerPlatform.isUdpPortOpened()) {
             Thread platformThread = new Thread(platformHandler);
             platformThread.start();
         } else
             logger.warn("No communication with the platform!");
 
         // Create TelemetryHandler class for read the telemetry data
-        telemetryHandler = new TelemetryHandler(telemetryContainer, serialHandler, udpHandler, settingsContainer);
+        telemetryHandler = new TelemetryHandler(telemetryContainer, serialHandlerLink,
+                udpHandlerLink, settingsContainer);
 
         // Create and start a new thread for the platformHandler if Liberty-Link port is open
-        if (serialHandler.isLinkPortOpened() || udpHandler.isUdpPortOpened()) {
+        if (serialHandlerLink.isPortOpened() || udpHandlerLink.isUdpPortOpened()) {
             Thread telemetryThread = new Thread(telemetryHandler);
             telemetryThread.setPriority(Thread.NORM_PRIORITY);
             telemetryThread.start();
@@ -310,9 +327,12 @@ public class WebAPI {
         blackboxThread.setPriority(Thread.NORM_PRIORITY);
         blackboxThread.start();
 
-        // Create PositionHandler class with the new GPSEstimationHandler class for to handle the current position
-        positionHandler = new PositionHandler(serialHandler, udpHandler, positionContainer, platformContainer,
-                telemetryContainer, blackboxHandler, settingsContainer, new GPSEstimationHandler(platformContainer));
+        // Create LinkSender class for to send liberty-link packets to the drone
+        linkSender = new LinkSender(serialHandlerLink, udpHandlerLink, settingsContainer);
+
+        // Create PositionHandler class for to handle the current position
+        positionHandler = new PositionHandler(linkSender, positionContainer, platformContainer,
+                telemetryContainer, blackboxHandler, settingsContainer);
 
         // Set coefficients for MiniPID in PositionHandler class
         positionHandler.loadPIDFromFile();
@@ -322,7 +342,8 @@ public class WebAPI {
                 videoCapture,
                 positionHandler,
                 positionContainer,
-                platformHandler,
+                telemetryContainer,
+                platformContainer,
                 osdHandler,
                 settingsContainer);
         openCVHandler.start();
@@ -372,18 +393,26 @@ public class WebAPI {
         // Redirect to the home page with aborted flag provided
         aborted = true;
         try {
+            // Send abort command
+            linkSender.sendAbort();
+
             // Stop all the handler
             blackboxHandler.stop();
             telemetryHandler.stop();
             platformHandler.stop();
             osdHandler.stop();
-            // Tells the drone to stop stabilization
+
+            // Disable liberty-way sequence
             positionHandler.setLibertyWayEnabled(false);
+
             // Close OpenCV handler
             openCVHandler.stop();
+
             // Close UDP and Serial ports
-            udpHandler.closeUDP();
-            serialHandler.closePorts();
+            udpHandlerLink.closeUDP();
+            udpHandlerPlatform.closeUDP();
+            serialHandlerLink.closePort();
+            serialHandlerPlatform.closePort();
         } catch (Exception ignored) { }
         // Call system shutdown
         new Timer(1000, e -> System.exit(0)).start();
@@ -403,6 +432,10 @@ public class WebAPI {
         telemetry.add("status",
                 new JsonPrimitive(positionContainer.getStatusString()));
 
+        // Distance between drone and platform
+        telemetry.add("distance",
+                new JsonPrimitive(positionContainer.distance));
+
         // Drone telemetry data
         telemetry.add("drone_packets",
                 new JsonPrimitive(decimalFormat.format(telemetryContainer.packetsNumber)));
@@ -415,23 +448,25 @@ public class WebAPI {
         telemetry.add("drone_satellites",
                 new JsonPrimitive(decimalFormatInt.format(telemetryContainer.satellitesNum)));
         telemetry.add("drone_lat",
-                new JsonPrimitive(String.valueOf(telemetryContainer.gpsLatDouble)));
+                new JsonPrimitive(String.valueOf(telemetryContainer.gps.getLatDouble())));
         telemetry.add("drone_lon",
-                new JsonPrimitive(String.valueOf(telemetryContainer.gpsLonDouble)));
+                new JsonPrimitive(String.valueOf(telemetryContainer.gps.getLonDouble())));
+        telemetry.add("drone_speed",
+                new JsonPrimitive(decimalFormat.format(telemetryContainer.speed)));
 
         // Platform telemetry data
         telemetry.add("platform_packets",
                 new JsonPrimitive(decimalFormat.format(platformContainer.packetsNumber)));
-        telemetry.add("platform_speed",
-                new JsonPrimitive(decimalFormat.format(platformContainer.speed)));
         telemetry.add("platform_pressure",
                 new JsonPrimitive(decimalFormatInt.format(platformContainer.pressure)));
         telemetry.add("platform_satellites",
                 new JsonPrimitive(String.valueOf(platformContainer.satellitesNum)));
         telemetry.add("platform_lat",
-                new JsonPrimitive(String.valueOf(platformContainer.gpsLatDouble)));
+                new JsonPrimitive(String.valueOf(platformContainer.gps.getLatDouble())));
         telemetry.add("platform_lon",
-                new JsonPrimitive(String.valueOf(platformContainer.gpsLonDouble)));
+                new JsonPrimitive(String.valueOf(platformContainer.gps.getLonDouble())));
+        telemetry.add("platform_speed",
+                new JsonPrimitive(decimalFormat.format(platformContainer.speed)));
 
         return telemetry;
     }

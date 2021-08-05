@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Frey Hertz (Pavel Neshumov), AMLS Platform controller
+ * Copyright (C) 2021 Fern Hertz (Pavel Neshumov), Eitude AMLS Platform controller
  * This software is part of Autonomous Multirotor Landing System (AMLS) Project
  *
  * Licensed under the GNU Affero General Public License, Version 3.0 (the "License");
@@ -20,90 +20,168 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  */
 
-// Constants, variables and config
-#include "constants.h"
-#include "config.h"
-#include "datatypes.h"
-
 // External libraries
 #include <Wire.h>
-#include <LiquidCrystal.h>
 #include <Adafruit_NeoPixel.h>
+#include <EtherCard.h>
+#include <IPAddress.h>
+
+// System config, constants and variables
+#include "config.h"
+#include "constants.h"
+#include "datatypes.h"
 
 // External library objects
-LiquidCrystal lcd(LDC_RS_PIN, LDC_E_PIN, LCD_D4_PIN, LCD_D5_PIN, LCD_D6_PIN, LCD_D7_PIN);
-Adafruit_NeoPixel ws_leds = Adafruit_NeoPixel(STATUS_PIXELS_NUM, STATUS_STRIP_PIN, NEO_GRB + NEO_KHZ800);
+#ifdef WS_LEDS
+Adafruit_NeoPixel ws_leds = Adafruit_NeoPixel(3, STATUS_STRIP_PIN, NEO_GRB + NEO_KHZ800);
+#endif
 
 void setup()
 {
-	// Define pins mode
+	// Store packet ending in tx_buffer
+	tx_buffer[17] = PACKET_SUFFIX_1;
+	tx_buffer[18] = PACKET_SUFFIX_2;
+
+	// Hardware setup
+	// Power pins for LDR module
+	pinMode(A2, OUTPUT);
+	digitalWrite(A2, 0);
+	pinMode(A3, OUTPUT);
+	digitalWrite(A3, 1);
+	pinMode(STATUS_STRIP_PIN, OUTPUT);
 	pinMode(LIGHTS_PIN, OUTPUT);
-	analogReference(EXTERNAL);
 
 	// Init leds strip
-	ws_leds.begin();
-	ws_leds.clear();
-	ws_leds.show();
+#ifdef WS_LEDS
+	ws_setup();
+#endif
 
 	// Initialize I2C
 	Wire.begin();
 
-	// Open serial port
-	Serial.begin(BAUD_RATE);
+	// Wait for hardware initialization
 	delay(200);
 
-	// Initialize 16x2 display
-	lcd.begin(16, 2);
-	lcd.print(F(" <-  Eitude  -> "));
+	// Communication setup
+#ifdef UDP_PORT
+	// Init ENC28J60 moduule
+	if (ether.begin(sizeof Ethernet::buffer, MAC, SS) == 0) {
+		// Failed to access Ethernet controller
+		error = 1;
+		while (error != 0) {
+			// Show curent error
+			leds_error_signal();
 
-	// Wait some time before calibration
-	lcd.setCursor(0, 1);
-	lcd.print(F("  Don't  move!  "));
-	delay(1000);
+			// Simulate main loop
+			delayMicroseconds(LOOP_PERIOD);
+		}
+	}
 
-	// Setup and calibrate MPU6050
-	imu_setup();
-	imu_calibrate();
+	// Set DHCP address
+	//ether.dhcpSetup();
+	// Set static address
+	ether.staticSetup(STATIC_IP, GATEWAY_IP, DNS_IP, MASK);
 
-	// Done calibration
-	lcd.clear();
-	
+	if (ether.myip[0] != STATIC_IP[0] || ether.myip[1] != STATIC_IP[1]
+		|| ether.myip[2] != STATIC_IP[2] || ether.myip[3] != STATIC_IP[3]) {
+		// Failed to setup static IP
+		error = 2;
+		while (error != 0) {
+			// Show curent error
+			leds_error_signal();
+
+			// Simulate main loop
+			delayMicroseconds(LOOP_PERIOD);
+		}
+	}
+
+	// Start listeting on udp_port
+	ether.udpServerListenOnPort(&udp_receive_data, UDP_PORT);
+#else
+	// Serial port setup
+	COMMUNICATION_SERIAL.begin(COMMUNICATION_BAUDRATE);
+#endif
+
+	// Setup barometer
+#ifdef BAROMETER
+	barometer_setup();
+#endif
+
+	// Setup LUX meter
+#ifdef LUX_METER
+	lux_meter_setup();
+#endif
+
+	// Setup GPS
+#ifdef GPS
+	gps_setup();
+#endif
+
 	// Flush serial port
-	Serial.flush();
+#ifndef UDP_PORT
+	COMMUNICATION_SERIAL.flush();
+#endif
 
-	// Send ready sign
-	serial_ready();
-	
-	// Reset loop timer
+	// Reset GPS
+#ifdef GPS
+	gps_reset_flag = 1;
+#endif
+
+	// Store loop time
 	loop_timer = micros();
 }
 
 void loop()
 {
-	// Read raw IMU data
-	imu_read();
+	// Receive data from UDP or serial port
+#ifdef UDP_PORT
+	ether.packetLoop(ether.packetReceive());
+#else
+	serial_receive_data();
+#endif
 
-	// Check if platform is in move
-	vibrations();
+	// Read and parse data from GPS module
+#ifdef GPS
+	gps_read();
+	gps_handler();
+#endif
 
-	// Calculate speed
-	speed_handler();
+	// Read and parse data from barometer
+#ifdef BAROMETER
+	barometer_handler();
+#endif
 
-	// Calculate LUX
-	illumination();
+	// Read illumination
+	lux_meter();
 
-	// Check serial and fill buffer
-	serial_reader();
+	// Turn on/off backlight
+	backlight();
 
-	// Lights up WS2812 LEDs
-	ws_leds.show();
+	// Light up WS2812 LEDs
+	ws_light();
 
-	// Print current state to LCD every LCD_PRINT_TIME
-	lcd_print_state();
-	
+#ifndef UDP_PORT
+	// Send tx_buffer with detecting timeout
+	if (tx_flag)
+		transmit_data();
+#endif
+
 	// Check loop time
 	if (micros() - loop_timer > MAX_ALLOWED_LOOP_PERIOD)
-		error = 2;
+		error = 5;
+
+#ifdef UDP_PORT
+	// Send tx_buffer without detecting timeout
+	if (tx_flag)
+		transmit_data();
+#ifdef GPS
+	// New connection -> flush GPS on timeout
+	if (micros() - loop_timer > MAX_ALLOWED_LOOP_PERIOD)
+		gps_reset_flag = 1;
+#endif
+#endif
+
+	// Wait minimum loop time
 	while (micros() - loop_timer < LOOP_PERIOD);
 	loop_timer = micros();
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Frey Hertz (Pavel Neshumov), Liberty-Way Landing System Project
+ * Copyright (C) 2021 Fern Hertz (Pavel Neshumov), Liberty-Way Landing System Project
  *
  * This software is part of Autonomous Multirotor Landing System (AMLS) Project
  *
@@ -35,6 +35,7 @@ public class PositionContainer {
     public int ddcX, ddcY, ddcZ, ddcRoll, ddcPitch, ddcYaw;
     // 0 - IDLE, 1 - STAB, 2 - LAND, 3 - PREV, 4 - LOST, 5 - TKOF, 6 - WAYP, 7 - DONE
     public int status;
+    public int distance;
 
     /**
      * This class stores current position, corrections and state of the drone
@@ -61,6 +62,7 @@ public class PositionContainer {
         ddcPitch = 1500;
         ddcYaw = 1500;
         status = -1;
+        distance = 0;
     }
 
     /**
