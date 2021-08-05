@@ -242,7 +242,7 @@ The table below shows the detailed structure of the packet
 
 | Byte N | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
-| Byte name | Payload byte 0 | Payload byte 1 | Payload byte 2 | Payload byte 3 | Payload byte 4 | Payload byte 5 | Payload byte 6 | Payload byte 7 | Link command byte | XOR check-sum | Packet suffix 1 | Packet suffix 1 |
+| Byte name | Payload byte 0 | Payload byte 1 | Payload byte 2 | Payload byte 3 | Payload byte 4 | Payload byte 5 | Payload byte 6 | Payload byte 7 | Link command byte | XOR check-sum | Packet suffix 1 | Packet suffix 2 |
 | Description for Pressure waypoint | Pressure 1 byte | Pressure 2 byte | Pressure 3 byte | Pressure 4 byte | Should be 0 | Should be 0 | Should be 0 | Should be 0 | 2 |  | Specified in the settings | Specified in the settings |
 | Value in DEC | 1000-120000 |  |  |  | 0 | 0 | 0 | 0 | 2 |  | 238 | 238 |
 | Example in DEC | 101000 |  | 1700 |  | 0 | 0 | 0 | 0 | 2 | 46 | 238 | 238 |
@@ -260,7 +260,7 @@ The table below shows the detailed structure of the packet
 
 | Byte N | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
-| Byte name | Payload byte 0 | Payload byte 1 | Payload byte 2 | Payload byte 3 | Payload byte 4 | Payload byte 5 | Payload byte 6 | Payload byte 7 | Link command byte | XOR check-sum | Packet suffix 1 | Packet suffix 1 |
+| Byte name | Payload byte 0 | Payload byte 1 | Payload byte 2 | Payload byte 3 | Payload byte 4 | Payload byte 5 | Payload byte 6 | Payload byte 7 | Link command byte | XOR check-sum | Packet suffix 1 | Packet suffix 2 |
 | Description for GPS waypoint | Latitude 1 byte | Latitude 2 byte | Latitude 3 byte | Latitude 4 byte | Longitude 1 byte | Longitude 2 byte | Longitude 3 byte | Longitude 4 byte | 3 |  | Specified in the settings | Specified in the settings |
 | Value in DEC | -90000000-90000000 |  |  |  | -180000000-180000000 |  |  |  | 3 |  | 238 | 238 |
 | Example in DEC | 55588735 |  |  |  | 37627801 |  |  |  | 3 | 208 | 238 | 238 |
@@ -278,7 +278,7 @@ The table below shows the detailed structure of the packet
 
 | Byte N | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
-| Byte name | Payload byte 0 | Payload byte 1 | Payload byte 2 | Payload byte 3 | Payload byte 4 | Payload byte 5 | Payload byte 6 | Payload byte 7 | Link command byte | XOR check-sum | Packet suffix 1 | Packet suffix 1 |
+| Byte name | Payload byte 0 | Payload byte 1 | Payload byte 2 | Payload byte 3 | Payload byte 4 | Payload byte 5 | Payload byte 6 | Payload byte 7 | Link command byte | XOR check-sum | Packet suffix 1 | Packet suffix 2 |
 | Description for Motors stop | Should be 0 | Should be 0 | Should be 0 | Should be 0 | Should be 0 | Should be 0 | Should be 0 | Should be 0 | 4 | 4 | Specified in the settings | Specified in the settings |
 | Value in DEC | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 4 | 4 | 238 | 238 |
 | Example in DEC | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 4 | 4 | 238 | 238 |
@@ -296,7 +296,7 @@ The table below shows the detailed structure of the packet
 
 | Byte N | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
-| Byte name | Payload byte 0 | Payload byte 1 | Payload byte 2 | Payload byte 3 | Payload byte 4 | Payload byte 5 | Payload byte 6 | Payload byte 7 | Link command byte | XOR check-sum | Packet suffix 1 | Packet suffix 1 |
+| Byte name | Payload byte 0 | Payload byte 1 | Payload byte 2 | Payload byte 3 | Payload byte 4 | Payload byte 5 | Payload byte 6 | Payload byte 7 | Link command byte | XOR check-sum | Packet suffix 1 | Packet suffix 2 |
 | Description for Start sequence | Should be 0 | Should be 0 | Should be 0 | Should be 0 | Should be 0 | Should be 0 | Should be 0 | Should be 0 | 5 | 5 | Specified in the settings | Specified in the settings |
 | Value in DEC | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 5 | 5 | 238 | 238 |
 | Example in DEC | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 5 | 5 | 238 | 238 |
@@ -314,7 +314,7 @@ The table below shows the detailed structure of the packet
 
 | Byte N | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
-| Byte name | Payload byte 0 | Payload byte 1 | Payload byte 2 | Payload byte 3 | Payload byte 4 | Payload byte 5 | Payload byte 6 | Payload byte 7 | Link command byte | XOR check-sum | Packet suffix 1 | Packet suffix 1 |
+| Byte name | Payload byte 0 | Payload byte 1 | Payload byte 2 | Payload byte 3 | Payload byte 4 | Payload byte 5 | Payload byte 6 | Payload byte 7 | Link command byte | XOR check-sum | Packet suffix 1 | Packet suffix 2 |
 | Description for Abort | Should be 0 | Should be 0 | Should be 0 | Should be 0 | Should be 0 | Should be 0 | Should be 0 | Should be 0 | 6 | 6 | Specified in the settings | Specified in the settings |
 | Value in DEC | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 6 | 6 | 238 | 238 |
 | Example in DEC | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 6 | 6 | 238 | 238 |
