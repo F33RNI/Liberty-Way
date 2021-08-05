@@ -27,22 +27,38 @@ let startBtnPressed = false;
 window.onload = checkSerialPorts;
 
 function checkSerialPorts() {
-	/* Select link checkbox if more then 0 ports available */
-	if (document.getElementById("link_ports").length > 0)
+	/* Select link and platform udp checkboxes if more then 0 ports available */
+	if (document.getElementById("link_ports").length > 0) {
 		document.getElementById("link_port_enabled").checked = true;
+		document.getElementById("platform_udp_enabled").checked = true;
+	}
 
-	/* Don't select platform checkbox if only one port provided for the both selectors */
-	if (document.getElementById("platform_ports").length > 0
-		&& !(document.getElementById("platform_ports").length === 1
-			&& document.getElementById("link_ports").length === 1 &&
-			document.getElementById("platform_ports").value ===
-			document.getElementById("link_ports").value))
-		document.getElementById("platform_port_enabled").checked = true;
-
-	/* Select UDP checkbox if 0 ports available */
+	/* Select UDP checkboxes if 0 ports available */
 	if (document.getElementById("link_ports").length === 0 &&
-		document.getElementById("platform_ports").length === 0)
-		document.getElementById("udp_ip_port_enabled").checked = true;
+		document.getElementById("platform_ports").length === 0) {
+		document.getElementById("link_udp_enabled").checked = true;
+		document.getElementById("platform_udp_enabled").checked = true;
+	}
+}
+
+function checkboxSelectorPlatformCOM() {
+	if (document.getElementById("platform_port_enabled").checked)
+		document.getElementById("platform_udp_enabled").checked = false;
+}
+
+function checkboxSelectorLinkCOM() {
+	if (document.getElementById("link_port_enabled").checked)
+		document.getElementById("link_udp_enabled").checked = false;
+}
+
+function checkboxSelectorPlatformUDP() {
+	if (document.getElementById("platform_udp_enabled").checked)
+		document.getElementById("platform_port_enabled").checked = false;
+}
+
+function checkboxSelectorLinkUDP() {
+	if (document.getElementById("link_udp_enabled").checked)
+		document.getElementById("link_port_enabled").checked = false;
 }
 
 function startController() {
@@ -52,13 +68,6 @@ function startController() {
 		jsonRequest.action = "setup";
 		jsonRequest.camera_id = document.getElementById("camera_id").value;
 
-		if (document.getElementById("platform_port_enabled").checked) {
-			jsonRequest.platform_port = document.getElementById("platform_ports").value;
-			jsonRequest.platform_baudrate = document.getElementById("platform_baudrate").value;
-		} else {
-			jsonRequest.platform_port = "";
-		}
-
 		if (document.getElementById("link_port_enabled").checked) {
 			jsonRequest.link_port = document.getElementById("link_ports").value;
 			jsonRequest.link_baudrate = document.getElementById("link_baudrate").value;
@@ -66,11 +75,25 @@ function startController() {
 			jsonRequest.link_port = "";
 		}
 
-		if (document.getElementById("udp_ip_port_enabled").checked) {
-			jsonRequest.udp_ip_port = document.getElementById("udp_ip_port").value;
+		if (document.getElementById("link_udp_enabled").checked) {
+			jsonRequest.link_udp = document.getElementById("link_udp").value;
 		} else {
-			jsonRequest.udp_ip_port = "";
+			jsonRequest.link_udp = "";
 		}
+
+		if (document.getElementById("platform_port_enabled").checked) {
+			jsonRequest.platform_port = document.getElementById("platform_ports").value;
+			jsonRequest.platform_baudrate = document.getElementById("platform_baudrate").value;
+		} else {
+			jsonRequest.platform_port = "";
+		}
+
+		if (document.getElementById("platform_udp_enabled").checked) {
+			jsonRequest.platform_udp = document.getElementById("platform_udp").value;
+		} else {
+			jsonRequest.platform_udp = "";
+		}
+
 
 		xmlHTTP.onreadystatechange = function () {
 			if (this.readyState === 4) {
