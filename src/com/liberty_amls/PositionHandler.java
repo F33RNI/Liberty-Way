@@ -102,7 +102,7 @@ public class PositionHandler {
         if (positionContainer.status == 0 || positionContainer.status >= 4)
             resetPIDs();
 
-        // Begin Liberty Way sequence if libertyWayEnabled, IDLE mode and platform and drone are available
+        // Begin Liberty Way sequence
         if (!settingsContainer.onlyOpticalStabilization
                 && libertyWayEnabled
                 && positionContainer.status == 0
@@ -263,6 +263,8 @@ public class PositionHandler {
                     break;
                 case 5:
                     // TKOF
+                    if (!telemetryContainer.telemetryLost && telemetryContainer.takeoffDetected)
+                        positionContainer.status = 6;
                 case 6:
                     // WAYP
                     if (!platformContainer.platformLost) {
@@ -273,17 +275,20 @@ public class PositionHandler {
                             linkSender.sendGPSWaypoint(platformContainer.gps);
                         } else if (waypointStep == 2) {
                             // Step 2. Send altitude waypoint
-                            linkSender.sendPressureWaypoint(platformContainer.pressure);
+                            linkSender.sendPressureWaypoint(platformContainer.pressure
+                                    + settingsContainer.pressureTermAbovePlatform);
                         } else if (waypointStep == 3) {
                             // Step 3. Send command to begin Liberty Way sequence (take off)
                             linkSender.sendStartSequence();
                         } else {
                             // Other steps. IDLE state (telemetry receiving)
                             linkSender.sendIDLE();
-
-                            // Reset counter
-                            waypointStep = 0;
                         }
+
+                        // Reset counter
+                        if (waypointStep >= 3 + settingsContainer.sendIdleCyclesNum)
+                            waypointStep = 0;
+
                     } else {
                         // If platform lost
                         // Reset counter
