@@ -1,6 +1,5 @@
 /*
  * Copyright (C) 2021 Fern Hertz (Pavel Neshumov), Liberty-Way Landing System Project
- *
  * This software is part of Autonomous Multirotor Landing System (AMLS) Project
  *
  * Licensed under the GNU Affero General Public License, Version 3.0 (the "License");
@@ -19,6 +18,13 @@
  * OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
  * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
+ *
+ * IT IS STRICTLY PROHIBITED TO USE THE PROJECT (OR PARTS OF THE PROJECT / CODE)
+ * FOR MILITARY PURPOSES. ALSO, IT IS STRICTLY PROHIBITED TO USE THE PROJECT (OR PARTS OF THE PROJECT / CODE)
+ * FOR ANY PURPOSE THAT MAY LEAD TO INJURY, HUMAN, ANIMAL OR ENVIRONMENTAL DAMAGE.
+ * ALSO, IT IS PROHIBITED TO USE THE PROJECT (OR PARTS OF THE PROJECT / CODE) FOR ANY PURPOSE THAT
+ * VIOLATES INTERNATIONAL HUMAN RIGHTS OR HUMAN FREEDOM.
+ * BY USING THE PROJECT (OR PART OF THE PROJECT / CODE) YOU AGREE TO ALL OF THE ABOVE RULES.
  */
 
 package com.liberty_amls;
@@ -144,7 +150,7 @@ public class OpenCVHandler implements Runnable {
 
         while (openCVRunning && videoCapture.isOpened()) {
             // Wait for the frame to be read
-            if (videoCapture.read(frame)) {
+            if (videoCapture.read(frame) && !frame.empty()) {
                 try {
                     // Push frame to the OSD class
                     osdFramesCounter++;
@@ -155,6 +161,9 @@ public class OpenCVHandler implements Runnable {
 
                     // Convert current frame to grayscale
                     Imgproc.cvtColor(frame, gray, Imgproc.COLOR_RGB2GRAY);
+
+                    // Check gray frame
+                    positionContainer.isFrameNormal = !gray.empty();
 
                     // Detect ARUco markers
                     MatOfInt ids = new MatOfInt();
@@ -221,17 +230,20 @@ public class OpenCVHandler implements Runnable {
 
                         // Transfer FPS to the OSD Class and log it
                         osdHandler.setFps(decimalFormat.format(fps));
-                        logger.info("FPS: " + decimalFormat.format(fps));
+                        if (settingsContainer.logFPS)
+                            logger.info("FPS: " + decimalFormat.format(fps));
                         framesCount = 0;
 
                         // Restart timer
                         timeStart = System.currentTimeMillis();
                     }
                 } catch (Exception e) {
+                    positionContainer.isFrameNormal = false;
                     logger.error("Error processing the frame!", e);
                     positionHandler.proceedPosition(false);
                 }
             } else {
+                positionContainer.isFrameNormal = false;
                 logger.error("Can't read the frame!");
                 positionHandler.proceedPosition(false);
             }
@@ -245,33 +257,37 @@ public class OpenCVHandler implements Runnable {
         // Default exposure
         double newExposure = settingsContainer.maxExposure;
 
-        // Telemetry has a higher priority than platform
-        if (!telemetryContainer.telemetryLost)
-            newExposure = -(Math.log(telemetryContainer.illumination * 1000.0 / 330.0) / Math.log(2));
-        else if (!platformContainer.platformLost)
-            newExposure = -(Math.log(platformContainer.illumination * 1000.0 / 330.0) / Math.log(2));
+
+
+        // Telemetry has a higher priority than the platform
+        if (!telemetryContainer.telemetryLost && telemetryContainer.illumination > 0)
+            //newExposure = (Math.log(telemetryContainer.illumination * 110 / 330.0) / Math.log(2));
+            newExposure = -3.83*Math.pow(telemetryContainer.illumination, 0.110);
+        else if (!platformContainer.platformLost && platformContainer.illumination > 0)
+            //newExposure = (Math.log(platformContainer.illumination * 110 / 330.0) / Math.log(2));
+            newExposure = -3.83*Math.pow(platformContainer.illumination, 0.110);
+
+        // Crop new value
+        if (newExposure > settingsContainer.maxExposure)
+            newExposure = settingsContainer.maxExposure;
 
         // Set new exposure to camera
-        if (abs(platformContainer.cameraExposure - newExposure) > 0.5) {
+        if (abs(platformContainer.cameraExposure - newExposure) > 0.5 && settingsContainer.disableAutoExposure) {
             platformContainer.cameraExposure = newExposure;
-            if (platformContainer.cameraExposure > settingsContainer.maxExposure)
-                platformContainer.cameraExposure = settingsContainer.maxExposure;
             videoCapture.set(Videoio.CAP_PROP_EXPOSURE, platformContainer.cameraExposure);
         }
 
-        // Turn on/off additional backlight
-        double illumination = 0;
-        if (!telemetryContainer.telemetryLost)
-            illumination = telemetryContainer.illumination;
-        else if (!platformContainer.platformLost)
-            illumination = platformContainer.illumination;
-
-        if (illumination < settingsContainer.platformLightEnableThreshold && !platformContainer.backlight)
-            // Turn on backlight
+        if ((platformContainer.illumination < settingsContainer.platformLightEnableThreshold
+                || positionContainer.status == 1
+                || positionContainer.status == 2
+                || positionContainer.status == 3)
+                && !platformContainer.backlight)
+            // Turn on backlight in low light or in modes 1, 2 and 3 (optical stabilization)
             platformContainer.backlight = true;
-        else if (illumination > settingsContainer.platformLightDisableThreshold && platformContainer.backlight)
-        // Turn off backlight
-        platformContainer.backlight = false;
+        else if (platformContainer.illumination > settingsContainer.platformLightDisableThreshold
+                && platformContainer.backlight)
+            // Turn off backlight
+            platformContainer.backlight = false;
     }
 
     /**

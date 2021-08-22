@@ -1,6 +1,5 @@
 /*
  * Copyright (C) 2021 Fern Hertz (Pavel Neshumov), Liberty-Way Landing System Project
- *
  * This software is part of Autonomous Multirotor Landing System (AMLS) Project
  *
  * Licensed under the GNU Affero General Public License, Version 3.0 (the "License");
@@ -19,6 +18,13 @@
  * OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
  * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
+ *
+ * IT IS STRICTLY PROHIBITED TO USE THE PROJECT (OR PARTS OF THE PROJECT / CODE)
+ * FOR MILITARY PURPOSES. ALSO, IT IS STRICTLY PROHIBITED TO USE THE PROJECT (OR PARTS OF THE PROJECT / CODE)
+ * FOR ANY PURPOSE THAT MAY LEAD TO INJURY, HUMAN, ANIMAL OR ENVIRONMENTAL DAMAGE.
+ * ALSO, IT IS PROHIBITED TO USE THE PROJECT (OR PARTS OF THE PROJECT / CODE) FOR ANY PURPOSE THAT
+ * VIOLATES INTERNATIONAL HUMAN RIGHTS OR HUMAN FREEDOM.
+ * BY USING THE PROJECT (OR PART OF THE PROJECT / CODE) YOU AGREE TO ALL OF THE ABOVE RULES.
  */
 
 package com.liberty_amls;
@@ -176,31 +182,32 @@ public class OSDHandler implements Runnable {
 
                 switch (positionContainer.status) {
                     case 1:
+                    case 2:
+                        // MKWT or WAYP
+                        statusColor = new Scalar(255, 0, 255);
+                        break;
+                    case 3:
                         // STAB
                         statusColor = new Scalar(0, 255, 0);
                         break;
-                    case 2:
+                    case 4:
                         // LAND
                         statusColor = new Scalar(0, 255, 127);
                         break;
-                    case 3:
+                    case 5:
                         // PREV
                         statusColor = new Scalar(0, 127, 255);
                         break;
-                    case 4:
+                    case 6:
                         // LOST
                         statusColor = new Scalar(0, 0, 255);
                         break;
-                    case 5:
-                        // TKOF
-                        statusColor = new Scalar(255, 0, 0);
-                        break;
-                    case 6:
-                        // WAYP
-                        statusColor = new Scalar(255, 255, 255);
+                    case 7:
+                        // DONE
+                        statusColor = new Scalar(255, 255, 0);
                         break;
                     default:
-                        // IDLE, DONE or any other
+                        // WAIT or any other
                         statusColor = new Scalar(255, 200, 0);
                         break;
                 }

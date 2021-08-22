@@ -1,6 +1,5 @@
 /*
  * Copyright (C) 2021 Fern Hertz (Pavel Neshumov), Liberty-Way Landing System Project
- *
  * This software is part of Autonomous Multirotor Landing System (AMLS) Project
  *
  * Licensed under the GNU Affero General Public License, Version 3.0 (the "License");
@@ -19,6 +18,13 @@
  * OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
  * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
+ *
+ * IT IS STRICTLY PROHIBITED TO USE THE PROJECT (OR PARTS OF THE PROJECT / CODE)
+ * FOR MILITARY PURPOSES. ALSO, IT IS STRICTLY PROHIBITED TO USE THE PROJECT (OR PARTS OF THE PROJECT / CODE)
+ * FOR ANY PURPOSE THAT MAY LEAD TO INJURY, HUMAN, ANIMAL OR ENVIRONMENTAL DAMAGE.
+ * ALSO, IT IS PROHIBITED TO USE THE PROJECT (OR PARTS OF THE PROJECT / CODE) FOR ANY PURPOSE THAT
+ * VIOLATES INTERNATIONAL HUMAN RIGHTS OR HUMAN FREEDOM.
+ * BY USING THE PROJECT (OR PART OF THE PROJECT / CODE) YOU AGREE TO ALL OF THE ABOVE RULES.
  */
 
 package com.liberty_amls;
@@ -28,15 +34,18 @@ import org.apache.log4j.Logger;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class BlackboxHandler implements Runnable {
     private final Logger logger = Logger.getLogger(this.getClass().getSimpleName());
     private final DecimalFormat decimalFormat = new DecimalFormat("#.#");
+    private final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm:ss.SSS");
     private final PositionContainer positionContainer;
     private final PlatformContainer platformContainer;
+    private final TelemetryContainer telemetryContainer;
     private final String blackboxDirectory;
     private boolean fileStarted = false;
-    private long timeStart;
     private BufferedWriter bufferedWriter;
     private FileOutputStream fileOutputStream;
     private OutputStreamWriter outputStreamWriter;
@@ -46,14 +55,17 @@ public class BlackboxHandler implements Runnable {
 
     /**
      * This class writes the current state of the drone to log files
+     * TODO: Add drone telemetry
      * @param positionContainer container of the current position
      * @param blackboxDirectory Folder where .csv log files are stored
      */
     BlackboxHandler(PositionContainer positionContainer,
                     PlatformContainer platformContainer,
+                    TelemetryContainer telemetryContainer,
                     String blackboxDirectory) {
         this.positionContainer = positionContainer;
         this.platformContainer = platformContainer;
+        this.telemetryContainer = telemetryContainer;
         this.blackboxDirectory = blackboxDirectory;
     }
 
@@ -70,8 +82,8 @@ public class BlackboxHandler implements Runnable {
     /**
      * Set to true if there is new data to log
      */
-    public void setNewEntryFlag(boolean newEntryFlag) {
-        this.newEntryFlag = newEntryFlag;
+    public void newEntryFlag() {
+        this.newEntryFlag = true;
     }
 
     /**
@@ -121,12 +133,12 @@ public class BlackboxHandler implements Runnable {
             fileOutputStream = new FileOutputStream(FileWorkers.createBlackboxFile(blackboxDirectory));
             outputStreamWriter = new OutputStreamWriter(fileOutputStream, StandardCharsets.UTF_8);
             bufferedWriter = new BufferedWriter(outputStreamWriter);
+
             // Push info header
             pushHeader();
+
             // Set started flag
             fileStarted = true;
-            // Mark start time
-            timeStart = System.currentTimeMillis();
         } catch (Exception e) {
             logger.error("Error starting new file!", e);
         }
@@ -155,7 +167,12 @@ public class BlackboxHandler implements Runnable {
     private void pushHeader() {
         try {
             bufferedWriter.write("time,x,y,z,yaw,setpointX,setpointY,setpointZ,setpointYaw," +
-                    "ddcX,ddcY,ddcZ,ddcRoll,ddcPitch,ddcYaw,frameX,frameY,exposure,speed,status");
+                    "ddcX,ddcY,ddcZ,ddcRoll,ddcPitch,ddcYaw,frameX,frameY,exposure,status," +
+                    "platformLost,platformErrorStatus,platformSatellitesNum,platformLat,platformLon," +
+                    "platformPressure,platformSpeed,platformHeading,platformIllumination,backlight,gripsCommand," +
+                    "telemetryLost,droneErrorStatus,droneFlightMode,droneBatteryVoltage,droneSatellitesNum," +
+                    "droneLat,droneLon,droneAltitude,droneSpeed,droneAngleRoll,droneAnglePitch,droneAngleYaw," +
+                    "droneTemperature,droneIllumination,droneLinkWaypointStep");
             bufferedWriter.write("\n");
             bufferedWriter.flush();
         } catch (IOException e) {
@@ -168,7 +185,7 @@ public class BlackboxHandler implements Runnable {
      */
     private void pushPosition() {
         try {
-            bufferedWriter.write(String.valueOf(System.currentTimeMillis() - timeStart));
+            bufferedWriter.write(simpleDateFormat.format(new Date()));
             bufferedWriter.write(",");
             bufferedWriter.write(decimalFormat.format(positionContainer.x));
             bufferedWriter.write(",");
@@ -204,9 +221,59 @@ public class BlackboxHandler implements Runnable {
             bufferedWriter.write(",");
             bufferedWriter.write(decimalFormat.format(platformContainer.cameraExposure));
             bufferedWriter.write(",");
+            bufferedWriter.write(String.valueOf(positionContainer.status));
+            bufferedWriter.write(",");
+            bufferedWriter.write(String.valueOf(platformContainer.platformLost));
+            bufferedWriter.write(",");
+            bufferedWriter.write(String.valueOf(platformContainer.errorStatus));
+            bufferedWriter.write(",");
+            bufferedWriter.write(String.valueOf(platformContainer.satellitesNum));
+            bufferedWriter.write(",");
+            bufferedWriter.write(String.valueOf(platformContainer.gps.getLatDouble()));
+            bufferedWriter.write(",");
+            bufferedWriter.write(String.valueOf(platformContainer.gps.getLonDouble()));
+            bufferedWriter.write(",");
+            bufferedWriter.write(String.valueOf(platformContainer.pressure));
+            bufferedWriter.write(",");
             bufferedWriter.write(decimalFormat.format(platformContainer.speed));
             bufferedWriter.write(",");
-            bufferedWriter.write(String.valueOf(positionContainer.status));
+            bufferedWriter.write(String.valueOf((int)Math.toDegrees(platformContainer.headingRadians)));
+            bufferedWriter.write(",");
+            bufferedWriter.write(String.valueOf((int)platformContainer.illumination));
+            bufferedWriter.write(",");
+            bufferedWriter.write(String.valueOf(platformContainer.backlight));
+            bufferedWriter.write(",");
+            bufferedWriter.write(String.valueOf(platformContainer.gripsCommand));
+            bufferedWriter.write(",");
+            bufferedWriter.write(String.valueOf(telemetryContainer.telemetryLost));
+            bufferedWriter.write(",");
+            bufferedWriter.write(String.valueOf(telemetryContainer.errorStatus));
+            bufferedWriter.write(",");
+            bufferedWriter.write(String.valueOf(telemetryContainer.flightMode));
+            bufferedWriter.write(",");
+            bufferedWriter.write(decimalFormat.format(telemetryContainer.batteryVoltage));
+            bufferedWriter.write(",");
+            bufferedWriter.write(String.valueOf(telemetryContainer.satellitesNum));
+            bufferedWriter.write(",");
+            bufferedWriter.write(String.valueOf(telemetryContainer.gps.getLatDouble()));
+            bufferedWriter.write(",");
+            bufferedWriter.write(String.valueOf(telemetryContainer.gps.getLonDouble()));
+            bufferedWriter.write(",");
+            bufferedWriter.write(String.valueOf(telemetryContainer.altitude));
+            bufferedWriter.write(",");
+            bufferedWriter.write(decimalFormat.format(telemetryContainer.groundSpeed));
+            bufferedWriter.write(",");
+            bufferedWriter.write(String.valueOf(telemetryContainer.angleRoll));
+            bufferedWriter.write(",");
+            bufferedWriter.write(String.valueOf(telemetryContainer.anglePitch));
+            bufferedWriter.write(",");
+            bufferedWriter.write(String.valueOf(telemetryContainer.angleYaw));
+            bufferedWriter.write(",");
+            bufferedWriter.write(decimalFormat.format(telemetryContainer.temperature));
+            bufferedWriter.write(",");
+            bufferedWriter.write(decimalFormat.format(telemetryContainer.illumination));
+            bufferedWriter.write(",");
+            bufferedWriter.write(String.valueOf(telemetryContainer.linkWaypointStep));
             bufferedWriter.write("\n");
             bufferedWriter.flush();
         } catch (Exception e) {

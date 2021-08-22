@@ -1,6 +1,5 @@
 /*
  * Copyright (C) 2021 Fern Hertz (Pavel Neshumov), Liberty-Way Landing System Project
- *
  * This software is part of Autonomous Multirotor Landing System (AMLS) Project
  *
  * Licensed under the GNU Affero General Public License, Version 3.0 (the "License");
@@ -19,6 +18,13 @@
  * OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
  * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
+ *
+ * IT IS STRICTLY PROHIBITED TO USE THE PROJECT (OR PARTS OF THE PROJECT / CODE)
+ * FOR MILITARY PURPOSES. ALSO, IT IS STRICTLY PROHIBITED TO USE THE PROJECT (OR PARTS OF THE PROJECT / CODE)
+ * FOR ANY PURPOSE THAT MAY LEAD TO INJURY, HUMAN, ANIMAL OR ENVIRONMENTAL DAMAGE.
+ * ALSO, IT IS PROHIBITED TO USE THE PROJECT (OR PARTS OF THE PROJECT / CODE) FOR ANY PURPOSE THAT
+ * VIOLATES INTERNATIONAL HUMAN RIGHTS OR HUMAN FREEDOM.
+ * BY USING THE PROJECT (OR PART OF THE PROJECT / CODE) YOU AGREE TO ALL OF THE ABOVE RULES.
  */
 
 
@@ -89,7 +95,8 @@ public class WebAPI {
             }
             JsonObject request = new Gson().fromJson(result.toString(), JsonObject.class);
 
-            logger.info("New API request: " + request.toString());
+            if (settingsContainer.logAPIRequests)
+                logger.info("New API request: " + request.toString());
 
             try {
                 String action = request.get("action").getAsString().toLowerCase();
@@ -320,8 +327,7 @@ public class WebAPI {
 
         // Create BlackboxHandler class for logging all events and position
         blackboxHandler = new BlackboxHandler(positionContainer,
-                platformContainer,
-                settingsContainer.blackboxFolder);
+                platformContainer, telemetryContainer, settingsContainer.blackboxFolder);
         // Create and start a new thread with the normal priority for the blackbox
         Thread blackboxThread = new Thread(blackboxHandler);
         blackboxThread.setPriority(Thread.NORM_PRIORITY);
@@ -364,9 +370,6 @@ public class WebAPI {
         // Enable video stream
         if (settingsContainer.videoStreamEnabledByDefault)
             osdHandler.enableStreamAndOSD();
-
-        // Enable or disable blackbox
-        blackboxHandler.setBlackboxEnabled(settingsContainer.blackboxEnabled);
 
         controllerRunning = true;
 
@@ -437,6 +440,8 @@ public class WebAPI {
                 new JsonPrimitive(positionContainer.distance));
 
         // Drone telemetry data
+        telemetry.add("drone_telemetry_lost",
+                new JsonPrimitive(telemetryContainer.telemetryLost));
         telemetry.add("drone_packets",
                 new JsonPrimitive(decimalFormat.format(telemetryContainer.packetsNumber)));
         telemetry.add("flight_mode",
@@ -452,9 +457,11 @@ public class WebAPI {
         telemetry.add("drone_lon",
                 new JsonPrimitive(String.valueOf(telemetryContainer.gps.getLonDouble())));
         telemetry.add("drone_speed",
-                new JsonPrimitive(decimalFormat.format(telemetryContainer.speed)));
+                new JsonPrimitive(decimalFormat.format(telemetryContainer.groundSpeed)));
 
         // Platform telemetry data
+        telemetry.add("platform_lost",
+                new JsonPrimitive(platformContainer.platformLost));
         telemetry.add("platform_packets",
                 new JsonPrimitive(decimalFormat.format(platformContainer.packetsNumber)));
         telemetry.add("platform_pressure",
@@ -477,75 +484,62 @@ public class WebAPI {
      */
     private double calculateProgress() {
         progressTick = !progressTick;
-        if (positionContainer.status == 1 || positionContainer.status == 3) {
-            // Optical stabilization
+        if (positionContainer.status == 1 || positionContainer.status == 2) {
+            // MKWT or WAYP modes
+            if (!telemetryContainer.telemetryLost) {
+                if (telemetryContainer.linkWaypointStep == 1) {
+                    // Pre-starting the motors
+                    return (100.0 / 6.0) * 0.5;
+                } else if (telemetryContainer.linkWaypointStep == 2) {
+                    // Waiting for taking off
+                    if (progressTick)
+                        return (100.0 / 6.0) * 1;
+                    else
+                        return (100.0 / 6.0) * 0.5;
+                } else if (telemetryContainer.linkWaypointStep == 3) {
+                    // Ascending
+                    if (progressTick)
+                        return (100.0 / 6.0) * 2;
+                    else
+                        return (100.0 / 6.0) * 1;
+                } else if (telemetryContainer.linkWaypointStep == 4 || telemetryContainer.linkWaypointStep == 5) {
+                    // GPS Flight
+                    if (progressTick)
+                        return (100.0 / 6.0) * 3;
+                    else
+                        return (100.0 / 6.0) * 2;
+                } else if (telemetryContainer.linkWaypointStep == 6) {
+                    // GPS and altitude hold
+                    if (progressTick)
+                        return (100.0 / 6.0) * 4;
+                    else
+                        return (100.0 / 6.0) * 3;
+                } else
+                    return 0;
+            } else if (progressTick)
+                return (100.0 / 6.0) * 4;
+            else
+                return 0;
+        } else if (positionContainer.status == 3 || positionContainer.status == 5) {
+            // Optical stabilization (STAB or PREV modes)
             if (progressTick)
                 return (100.0 / 6.0) * 5;
             else
                 return (100.0 / 6.0) * 4;
-        } else if (positionContainer.status == 2) {
-            // Landing
+        } else if (positionContainer.status == 4) {
+            // Landing (LAND mode)
             if (positionContainer.z <= positionContainer.entryZ
-                    && positionContainer.z >= settingsContainer.landingAlt) {
-                return (100.0 / 6.0) *
-                        mapDouble(positionContainer.z,
-                                settingsContainer.landingAlt,
-                                positionContainer.entryZ,
-                        6.0,
-                        5.0);
+                    && positionContainer.z >= settingsContainer.motorsTurnOffHeight) {
+                return (100.0 / 6.0) * ((positionContainer.z - settingsContainer.motorsTurnOffHeight)
+                        * (5.0 - 6.0) / (positionContainer.entryZ - settingsContainer.motorsTurnOffHeight) + 6.0);
             }
             else {
                 return (100.0 / 6.0) * 5;
             }
-
         } else if (positionContainer.status == 7) {
-            // Landed
+            // Landed (DONE mode)
             return 100.0;
-        } else if (positionContainer.status == 5 || positionContainer.status == 6) {
-            // TKOF or WAYP mode
-            if (telemetryContainer.linkWaypointStep == 1) {
-                // Pre-starting the motors
-                return (100.0 / 6.0) * 0.5;
-            }
-            else if (telemetryContainer.linkWaypointStep == 2) {
-                // Waiting for taking off
-                if (progressTick)
-                    return (100.0 / 6.0) * 1;
-                else
-                    return (100.0 / 6.0) * 0.5;
-            }
-            else if (telemetryContainer.linkWaypointStep == 3) {
-                // Ascending
-                if (progressTick)
-                    return (100.0 / 6.0) * 2;
-                else
-                    return (100.0 / 6.0) * 1;
-            }
-            else if (telemetryContainer.linkWaypointStep == 4 || telemetryContainer.linkWaypointStep == 5) {
-                // GPS Flight
-                if (progressTick)
-                    return (100.0 / 6.0) * 3;
-                else
-                    return (100.0 / 6.0) * 2;
-            }
-            else if (telemetryContainer.linkWaypointStep == 6) {
-                // GPS and altitude hold
-                if (progressTick)
-                    return (100.0 / 6.0) * 4;
-                else
-                    return (100.0 / 6.0) * 3;
-            }
-            else
-                return 0;
         }
         return 0;
-    }
-
-    /**
-     * Analogue of Arduino's map function
-     */
-    private double mapDouble(double value, double in_min, double in_max, double out_min, double out_max)
-    {
-        return (value - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
     }
 }

@@ -1,6 +1,5 @@
 /*
  * Copyright (C) 2021 Fern Hertz (Pavel Neshumov), Liberty-Way Landing System Project
- *
  * This software is part of Autonomous Multirotor Landing System (AMLS) Project
  *
  * Licensed under the GNU Affero General Public License, Version 3.0 (the "License");
@@ -19,6 +18,13 @@
  * OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
  * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
+ *
+ * IT IS STRICTLY PROHIBITED TO USE THE PROJECT (OR PARTS OF THE PROJECT / CODE)
+ * FOR MILITARY PURPOSES. ALSO, IT IS STRICTLY PROHIBITED TO USE THE PROJECT (OR PARTS OF THE PROJECT / CODE)
+ * FOR ANY PURPOSE THAT MAY LEAD TO INJURY, HUMAN, ANIMAL OR ENVIRONMENTAL DAMAGE.
+ * ALSO, IT IS PROHIBITED TO USE THE PROJECT (OR PARTS OF THE PROJECT / CODE) FOR ANY PURPOSE THAT
+ * VIOLATES INTERNATIONAL HUMAN RIGHTS OR HUMAN FREEDOM.
+ * BY USING THE PROJECT (OR PART OF THE PROJECT / CODE) YOU AGREE TO ALL OF THE ABOVE RULES.
  */
 
 package com.liberty_amls;
@@ -36,6 +42,7 @@ public class PositionHandler {
     private final PlatformContainer platformContainer;
     private final TelemetryContainer telemetryContainer;
     private final BlackboxHandler blackboxHandler;
+    private final GPSPredictor gpsPredictor;
     private int waypointStep = 0;
     private int lostCounter = 0;
     private boolean libertyWayEnabled = false;
@@ -62,6 +69,7 @@ public class PositionHandler {
         this.telemetryContainer = telemetryContainer;
         this.blackboxHandler = blackboxHandler;
         this.settingsContainer = settingsContainer;
+        this.gpsPredictor = new GPSPredictor();
 
         positionContainer.setSetpoints(settingsContainer.setpointX, settingsContainer.setpointY, 0,
                 settingsContainer.setpointYaw);
@@ -89,227 +97,322 @@ public class PositionHandler {
      */
     public void proceedPosition(boolean newMarkerPosition, double x, double y, double z, double yaw) {
         // Find distance between drone and platform
+        if (!platformContainer.platformLost && platformContainer.satellitesNum > 0
+                && !telemetryContainer.telemetryLost && telemetryContainer.satellitesNum > 0)
         positionContainer.distance = (int) SpeedHandler.distanceOnGeoid(telemetryContainer.gps,
                 platformContainer.gps, settingsContainer.planetRadius);
 
-        // Reset DDC values (1500 = no correction)
-        positionContainer.ddcX = 1500;
-        positionContainer.ddcY = 1500;
-        positionContainer.ddcZ = 1500;
-        positionContainer.ddcYaw = 1500;
+        // TODO: In-flight error checking
 
-        // Reset PID controllers if mode is IDLE or not STAB, LAND, PREV
-        if (positionContainer.status == 0 || positionContainer.status >= 4)
-            resetPIDs();
+        switch (positionContainer.status) {
+            case 2:
+                // ---------------------------------------------
+                // WAYP - Broadcasting platform position + MKWT
+                // ---------------------------------------------
+                // Send platform waypoints
+                sendCurrentPlatformPosition();
 
-        // Begin Liberty Way sequence
-        if (!settingsContainer.onlyOpticalStabilization
-                && libertyWayEnabled
-                && positionContainer.status == 0
-                && !telemetryContainer.telemetryLost
-                && !platformContainer.platformLost
-                && telemetryContainer.errorStatus == 0
-                && platformContainer.errorStatus == 0
-                && telemetryContainer.satellitesNum >= settingsContainer.minSatellitesNumStart
-                && platformContainer.satellitesNum >= settingsContainer.minSatellitesNumStart) {
-            logger.warn("Caution! Starting LibertyWay sequence! Motor start possible!");
-            positionContainer.status = 5;
-        }
+                // Log new data
+                if (waypointStep == 0)
+                    blackboxHandler.newEntryFlag();
+            case 1:
+                // ---------------------------------------------
+                // MKWT - Waiting for marker
+                // ---------------------------------------------
+                // Reset optical PID controllers
+                resetPIDs();
+                if (newMarkerPosition && z <= settingsContainer.maxMarkerHeight) {
+                    // Reset filtered values
+                    this.positionContainer.x = x;
+                    this.positionContainer.y = y;
+                    this.positionContainer.z = z;
+                    this.positionContainer.yaw = yaw;
 
-        if (newMarkerPosition) {
-            // If the marker is detected
-            // Filter position if status is STAB or LAND
-            if (positionContainer.status == 1 || positionContainer.status == 2) {
-                this.positionContainer.x = this.positionContainer.x * settingsContainer.inputFilter +
-                        x * (1 - settingsContainer.inputFilter);
-                this.positionContainer.y = this.positionContainer.y * settingsContainer.inputFilter +
-                        y * (1 - settingsContainer.inputFilter);
-                this.positionContainer.z = this.positionContainer.z * settingsContainer.inputFilter +
-                        z * (1 - settingsContainer.inputFilter);
-                this.positionContainer.yaw = this.positionContainer.yaw * settingsContainer.inputFilter +
-                        yaw * (1 - settingsContainer.inputFilter);
-            } else {
-                // Don't filter in other modes (reset position memory) in other modes
-                this.positionContainer.x = x;
-                this.positionContainer.y = y;
-                this.positionContainer.z = z;
-                this.positionContainer.yaw = yaw;
-            }
-
-            if (libertyWayEnabled) {
-                // If marker is in sight, landing is allowed, the altitude is lower than the threshold
-                // and the status is LAND
-                if (settingsContainer.landingAllowed && positionContainer.z <= settingsContainer.landingAlt
-                        && positionContainer.status == 2) {
-                    if (telemetryContainer.takeoffDetected) {
-                        // Turn off the motors
-                        logger.warn("Landed successfully! Turning off the motors.");
-                        linkSender.sendMotorsStop();
-                    } else
-                        positionContainer.status = 7;
-                }
-
-                // If marker is in sight, Liberty way is enabled, not finished yet and not in STAB or LAND modes
-                if (positionContainer.status != 7 && positionContainer.status != 1 && positionContainer.status != 2) {
-                    // Beginning of optical stabilization
-                    // Set current mode to STAB
-                    positionContainer.status = 1;
                     // Remember current position as setpoint
                     positionContainer.setpointX = positionContainer.x;
                     positionContainer.setpointY = positionContainer.y;
                     positionContainer.setpointZ = positionContainer.z;
                     positionContainer.entryZ = positionContainer.z;
+                    miniPIDX.setSetpoint(positionContainer.setpointX);
+                    miniPIDY.setSetpoint(positionContainer.setpointY);
+                    miniPIDZ.setSetpoint(positionContainer.setpointZ);
+
+                    // Print log message
                     logger.warn("Marker in sight! Setpoints fixed at X=" +
                             (int) positionContainer.setpointX +
                             " Y=" + (int) positionContainer.setpointY +
                             " Z=" + (int) positionContainer.setpointZ);
                     logger.warn("Start smooth alignment of setpoints");
-                    resetPIDs();
-                    miniPIDX.setSetpoint(positionContainer.setpointX);
-                    miniPIDY.setSetpoint(positionContainer.setpointY);
-                    miniPIDZ.setSetpoint(positionContainer.setpointZ);
-                }
-            }
 
-            // Reset lost counter
-            lostCounter = 0;
-        }
-
-        // Drone direct control (STAB, LAND, PREV modes)
-        if (libertyWayEnabled && (positionContainer.status > 0 && positionContainer.status <= 3)) {
-            // Setpoints alignment
-            positionContainer.setpointX = positionContainer.setpointX * settingsContainer.setpointAlignmentFactor
-                    + positionContainer.setpointAbsX * (1 - settingsContainer.setpointAlignmentFactor);
-            positionContainer.setpointY = positionContainer.setpointY * settingsContainer.setpointAlignmentFactor
-                    + positionContainer.setpointAbsY * (1 - settingsContainer.setpointAlignmentFactor);
-            miniPIDX.setSetpoint(positionContainer.setpointX);
-            miniPIDY.setSetpoint(positionContainer.setpointY);
-
-
-            // If landing is enabled, current mode is STAB and landing conditions are met
-            if (settingsContainer.landingAllowed && (positionContainer.status == 1 || positionContainer.status == 2)
-                    && Math.abs(positionContainer.x - positionContainer.setpointAbsX) <
-                    settingsContainer.allowedLandingRangeXY
-                    && Math.abs(positionContainer.y - positionContainer.setpointAbsY) <
-                    settingsContainer.allowedLandingRangeXY
-                    && Math.abs(positionContainer.yaw - positionContainer.setpointYaw) <
-                    settingsContainer.allowedLandingRangeYaw) {
-                // Slowly lowering the altitude
-                if (positionContainer.setpointZ > 1)
-                    positionContainer.setpointZ -= settingsContainer.landingDecrement;
-                miniPIDZ.setSetpoint(positionContainer.setpointZ);
-                positionContainer.status = 2;
-            }
-
-            // Append corrections from PID controllers
-            positionContainer.ddcX += miniPIDX.getOutput(positionContainer.x);
-            positionContainer.ddcY += miniPIDY.getOutput(positionContainer.y);
-            positionContainer.ddcZ += miniPIDZ.getOutput(positionContainer.z);
-            positionContainer.ddcYaw += miniPIDYaw.getOutput(positionContainer.yaw);
-
-            // Calculate roll and pitch corrections
-            double yawSin = Math.sin(Math.toRadians(-positionContainer.yaw));
-            double yawCos = Math.cos(Math.toRadians(-positionContainer.yaw));
-            positionContainer.ddcRoll = (int)((positionContainer.ddcX - 1500) * yawSin
-                    + (positionContainer.ddcY - 1500) * yawCos + 1500);
-            positionContainer.ddcPitch = (int)((positionContainer.ddcX - 1500) * yawCos
-                    - (positionContainer.ddcY - 1500) * yawSin + 1500);
-
-            // Send direct correction to the drone
-            linkSender.sendDDC(positionContainer.ddcRoll, positionContainer.ddcPitch,
-                    positionContainer.ddcZ, positionContainer.ddcYaw);
-        }
-
-        if (!newMarkerPosition) {
-            // If no marker detected
-            switch (positionContainer.status) {
-                case 1:
-                    // STAB (In optical stabilization)
-                case 2:
-                    // LAND (In optical landing)
-                    logger.warn("The marker is lost! " +
-                            "The previous position will be used for next " +
-                            settingsContainer.allowedLostFrames + " frames!");
-                    lostCounter++;
+                    // Switch to the STAB mode (optical stabilization)
                     positionContainer.status = 3;
-                    break;
-                case 3:
-                    // PREV (In optical stabilization but with previous position)
+                } else if (!settingsContainer.onlyOpticalStabilization)
+                    // Switch to the WAYP mode (send platform position)
+                    positionContainer.status = 2;
+                break;
+            case 3:
+                // ---------------------------------------------
+                // STAB - Optical stabilization
+                // ---------------------------------------------
+                // Reset lost frames counter
+                lostCounter = 0;
+
+                // Proceed optical stabilization
+                opticalStabilization(x, y, z, yaw);
+
+                // Switch to PREV mode if marker was lost
+                if (!newMarkerPosition || z > settingsContainer.maxMarkerHeight) {
+                    logger.warn("The marker is lost! The previous position will be used for next " +
+                            settingsContainer.allowedLostFrames + " frames");
                     lostCounter++;
-                    if (lostCounter > settingsContainer.allowedLostFrames) {
-                        logger.error("The marker is completely lost! Stabilization will be terminated!");
-                        // Reset DDC corrections
-                        positionContainer.ddcX = 1500;
-                        positionContainer.ddcY = 1500;
-                        positionContainer.ddcZ = 1500;
-                        positionContainer.ddcYaw = 1500;
-                        // Send abort command
-                        logger.warn("Sending abort command");
-                        linkSender.sendAbort();
-                        positionContainer.status = 4;
-                    }
-                    break;
-                case 4:
-                    // LOST
-                    if (!settingsContainer.onlyOpticalStabilization && !platformContainer.platformLost) {
-                        // Enter WAYP loop if optical stabilization has been lost
-                        logger.warn("Switching to WAYP mode");
-                        linkSender.sendIDLE();
-                        positionContainer.status = 6;
-                    } else {
-                        // Send abort command
-                        linkSender.sendAbort();
-                    }
-                    break;
-                case 5:
-                    // TKOF
-                    if (!telemetryContainer.telemetryLost && telemetryContainer.takeoffDetected)
-                        positionContainer.status = 6;
-                case 6:
-                    // WAYP
-                    if (!platformContainer.platformLost) {
-                        // If platform connected
-                        waypointStep++;
-                        if (waypointStep == 1) {
-                            // Step 1. Send gps waypoint
-                            linkSender.sendGPSWaypoint(platformContainer.gps);
-                        } else if (waypointStep == 2) {
-                            // Step 2. Send altitude waypoint
-                            linkSender.sendPressureWaypoint(platformContainer.pressure
-                                    + settingsContainer.pressureTermAbovePlatform);
-                        } else if (waypointStep == 3) {
-                            // Step 3. Send command to begin Liberty Way sequence (take off)
-                            linkSender.sendStartSequence();
-                        } else {
-                            // Other steps. IDLE state (telemetry receiving)
-                            linkSender.sendIDLE();
+                    positionContainer.status = 5;
+                }
+
+                // Switch to LAND mode if landing conditions are met
+                if (settingsContainer.landingAllowed
+                        && Math.abs(positionContainer.x - positionContainer.setpointAbsX) <
+                        settingsContainer.allowedLandingRangeXY
+                        && Math.abs(positionContainer.y - positionContainer.setpointAbsY) <
+                        settingsContainer.allowedLandingRangeXY
+                        && Math.abs(positionContainer.yaw - positionContainer.setpointYaw) <
+                        settingsContainer.allowedLandingRangeYaw)
+                    positionContainer.status = 4;
+
+                // Log new data
+                blackboxHandler.newEntryFlag();
+                break;
+            case 4:
+                // ---------------------------------------------
+                // LAND - Optical landing
+                // ---------------------------------------------
+                if (positionContainer.z <= settingsContainer.motorsTurnOffHeight) {
+                    // Landing done
+                    logger.warn("Landed successfully! Turning off the motors.");
+                    linkSender.sendMotorsStop();
+                    if (settingsContainer.isTelemetryNecessary && !telemetryContainer.telemetryLost) {
+                        if (!telemetryContainer.takeoffDetected)
+                            // Switch to DONE state if the drone has landed
+                            positionContainer.status = 7;
+                    } else
+                        // TODO: detect drone landing using platform
+                        positionContainer.status = 7;
+                } else {
+                    // Landing in process
+                    // Check landing conditions
+                    if (Math.abs(positionContainer.x - positionContainer.setpointAbsX) <
+                            settingsContainer.allowedLandingRangeXY
+                            && Math.abs(positionContainer.y - positionContainer.setpointAbsY) <
+                            settingsContainer.allowedLandingRangeXY
+                            && Math.abs(positionContainer.yaw - positionContainer.setpointYaw) <
+                            settingsContainer.allowedLandingRangeYaw) {
+                        // Slowly lowering the altitude
+                        if (positionContainer.setpointZ > 1)
+                            positionContainer.setpointZ -= settingsContainer.landingDecrement;
+                        miniPIDZ.setSetpoint(positionContainer.setpointZ);
+                    } else
+                        // If landing conditions are not met, return to STAB mode
+                        positionContainer.status = 3;
+
+                    // Calculate and send direct controls
+                    opticalStabilization(x, y, z, yaw);
+                }
+
+                // Log new data
+                blackboxHandler.newEntryFlag();
+                break;
+            case 5:
+                // ---------------------------------------------
+                // PREV - Optical stabilization with lost marker
+                // ---------------------------------------------
+                // Proceed optical stabilization
+                opticalStabilization(x, y, z, yaw);
+
+                // Switch to the STAB mode (optical stabilization) if the marker has appeared again
+                if (newMarkerPosition && z <= settingsContainer.maxMarkerHeight) {
+                    logger.warn("The marker is back in sight!");
+                    positionContainer.status = 3;
+                }
+
+                // Increment lost frames counter
+                lostCounter++;
+                if (lostCounter > settingsContainer.allowedLostFrames) {
+                    logger.error("The marker is completely lost! Optical stabilization will be terminated!");
+
+                    // Switch to LOST mode if marker is completely lost
+                    positionContainer.status = 6;
+                }
+
+                // Log new data
+                blackboxHandler.newEntryFlag();
+                break;
+            case 6:
+                // ---------------------------------------------
+                // LOST - The marker is lost
+                // ---------------------------------------------
+                // Send abort command
+                logger.error("Sending Abort Command to the drone!");
+                linkSender.sendAbort();
+
+                // Switch to the MKWT mode
+                positionContainer.status = 1;
+
+                // Log new data
+                blackboxHandler.newEntryFlag();
+                break;
+            case 7:
+                // ---------------------------------------------
+                // DONE - Landing finished
+                // ---------------------------------------------
+                // Print message
+                logger.info("DONE! Liberty-Way sequence finished");
+
+                // Disable blackbox
+                blackboxHandler.setBlackboxEnabled(false);
+
+                // Disable Liberty-Way
+                this.libertyWayEnabled = false;
+
+                // Switch to the WAIT mode
+                positionContainer.status = 0;
+
+                // Log new data
+                blackboxHandler.newEntryFlag();
+                break;
+            default:
+                // ---------------------------------------------
+                // WAIT - Waiting for execution (pre-start)
+                // ---------------------------------------------
+                if (settingsContainer.sendIDLEInWAITMode)
+                    linkSender.sendIDLE();
+                break;
+        }
+    }
+
+    /**
+     * Sends the platform GPS coordinates and pressure waypoint to the drone
+     */
+    private void sendCurrentPlatformPosition() {
+        if (!platformContainer.platformLost) {
+            // If platform connected
+            switch (waypointStep) {
+                case 0:
+                    // ---------------------------------------------
+                    // Step 1. Send and predict gps waypoint
+                    // ---------------------------------------------
+                    if (!telemetryContainer.telemetryLost
+                            && positionContainer.distance <= settingsContainer.stopPredictionOnDistance)
+                        // Send real waypoint if distance is less than stopPredictionOnDistance
+                        linkSender.sendGPSWaypoint(platformContainer.gps);
+                    else if (settingsContainer.isGPSPredictionAllowed) {
+                        // Feed new GPS coordinates
+                        gpsPredictor.setGPSCurrent(platformContainer.gps);
+                        // Calculate heading (from software or hardware)
+                        if (settingsContainer.platformHardwareCompass)
+                            gpsPredictor.setCompassHeading(platformContainer.headingRadians);
+                        else {
+                            gpsPredictor.calculateHeadingFromGPS();
+                            platformContainer.headingRadians = gpsPredictor.getCompassHeading();
                         }
-
-                        // Reset counter
-                        if (waypointStep >= 3 + settingsContainer.sendIdleCyclesNum)
-                            waypointStep = 0;
-
-                    } else {
-                        // If platform lost
-                        // Reset counter
+                        // Send predicted waypoint
+                        linkSender.sendGPSWaypoint(gpsPredictor.getGPSPredicted());
+                        // Store current position for next cycle
+                        gpsPredictor.setGPSLast(platformContainer.gps);
+                    } else
+                        // Send real waypoint
+                        linkSender.sendGPSWaypoint(platformContainer.gps);
+                    // Switch to step 2
+                    waypointStep = 1;
+                    break;
+                case 1:
+                    // ---------------------------------------------
+                    // Step 2. Send altitude waypoint
+                    // ---------------------------------------------
+                    linkSender.sendPressureWaypoint(platformContainer.pressure
+                            - settingsContainer.pressureTermAbovePlatform);
+                    // Switch to step 3
+                    waypointStep = 2;
+                    break;
+                case 2:
+                    // ---------------------------------------------
+                    // Step 3. Send command to begin Liberty Way
+                    // ---------------------------------------------
+                    linkSender.sendStartSequence();
+                    // Switch to step 4 if sending of IDLE packets is enabled
+                    if (settingsContainer.sendIdleCyclesNum > 0)
+                        waypointStep = 3;
+                    else
                         waypointStep = 0;
-
-                        // Send abort command
-                        linkSender.sendAbort();
-                    }
                     break;
                 default:
-                    // Other modes
+                    // ---------------------------------------------
+                    // Other steps. IDLE state (telemetry receiving)
+                    // ---------------------------------------------
                     linkSender.sendIDLE();
+                    // Increment counter
+                    waypointStep++;
+                    // Reset counter
+                    if (waypointStep >= 3 + settingsContainer.sendIdleCyclesNum)
+                        waypointStep = 0;
                     break;
             }
+        } else {
+            // If platform lost
+            // Reset counter
+            waypointStep = 0;
+            // Print error message
+            logger.error("Error sending waypoints! Platform connection lost. " +
+                    "The Abort command will be sent to the drone!");
+            // Send abort command
+            linkSender.sendAbort();
         }
+    }
 
-        if (positionContainer.status != 7 && libertyWayEnabled) {
-            // Sets newEntry flag in BlackboxHandler class
-            blackboxHandler.setNewEntryFlag(true);
-        } else
-            blackboxHandler.setBlackboxEnabled(false);
+    /**
+     * Processes the coordinates of the marker, calculates optical stabilization
+     * and sends Direct Control to the drone
+     */
+    private void opticalStabilization(double x, double y, double z, double yaw) {
+        // Set starting DDC values (1500 = no correction)
+        positionContainer.ddcX = 1500;
+        positionContainer.ddcY = 1500;
+        positionContainer.ddcZ = 1500;
+        positionContainer.ddcYaw = 1500;
+
+        // Filter new coordinates
+        this.positionContainer.x = this.positionContainer.x * settingsContainer.inputFilter +
+                x * (1 - settingsContainer.inputFilter);
+        this.positionContainer.y = this.positionContainer.y * settingsContainer.inputFilter +
+                y * (1 - settingsContainer.inputFilter);
+        this.positionContainer.z = this.positionContainer.z * settingsContainer.inputFilter +
+                z * (1 - settingsContainer.inputFilter);
+        this.positionContainer.yaw = this.positionContainer.yaw * settingsContainer.inputFilter +
+                yaw * (1 - settingsContainer.inputFilter);
+
+        // Setpoints alignment
+        positionContainer.setpointX = positionContainer.setpointX * settingsContainer.setpointAlignmentFactor
+                + positionContainer.setpointAbsX * (1 - settingsContainer.setpointAlignmentFactor);
+        positionContainer.setpointY = positionContainer.setpointY * settingsContainer.setpointAlignmentFactor
+                + positionContainer.setpointAbsY * (1 - settingsContainer.setpointAlignmentFactor);
+        miniPIDX.setSetpoint(positionContainer.setpointX);
+        miniPIDY.setSetpoint(positionContainer.setpointY);
+
+        // Append corrections from PID controllers
+        positionContainer.ddcX += miniPIDX.getOutput(positionContainer.x);
+        positionContainer.ddcY += miniPIDY.getOutput(positionContainer.y);
+        positionContainer.ddcZ += miniPIDZ.getOutput(positionContainer.z);
+        positionContainer.ddcYaw += miniPIDYaw.getOutput(positionContainer.yaw);
+
+        // Calculate roll and pitch corrections
+        double yawSin = Math.sin(Math.toRadians(-positionContainer.yaw));
+        double yawCos = Math.cos(Math.toRadians(-positionContainer.yaw));
+        positionContainer.ddcRoll = (int)((positionContainer.ddcX - 1500) * yawSin
+                + (positionContainer.ddcY - 1500) * yawCos + 1500);
+        positionContainer.ddcPitch = (int)((positionContainer.ddcX - 1500) * yawCos
+                - (positionContainer.ddcY - 1500) * yawSin + 1500);
+
+        // Send direct correction to the drone
+        linkSender.sendDDC(positionContainer.ddcRoll, positionContainer.ddcPitch,
+                positionContainer.ddcZ, positionContainer.ddcYaw);
     }
 
     /**
@@ -317,22 +420,84 @@ public class PositionHandler {
      */
     public void setLibertyWayEnabled(boolean libertyWayEnabled) {
         if (libertyWayEnabled != this.libertyWayEnabled) {
+            // Reset current status to IDLE
+            positionContainer.status = 0;
+            // Reset waypoints step
+            waypointStep = 0;
+
             if (this.libertyWayEnabled) {
                 // Disable Liberty-Way
                 if (telemetryContainer.takeoffDetected)
                     // Send abort command if closed in flight
                     linkSender.sendAbort();
-                else
-                    // Send IDLE command in other cases
-                    linkSender.sendIDLE();
-            } else
-                linkSender.sendIDLE();
-            // Reset current status to IDLE
-            positionContainer.status = 0;
-            // Reset waypoints step
-            waypointStep = 0;
+
+                // Disable blackbox
+                blackboxHandler.setBlackboxEnabled(false);
+
+                // Disable Liberty-Way
+                this.libertyWayEnabled = false;
+            } else {
+                // Starting Liberty-Way
+                if (preFlightChecks()) {
+                    // If checks passed set status to MKWT
+                    positionContainer.status = 1;
+
+                    // Enable blackbox
+                    blackboxHandler.setBlackboxEnabled(settingsContainer.blackboxEnabled);
+
+                    // Enable Liberty-Way
+                    this.libertyWayEnabled = true;
+                } else
+                    // Don't enable Liberty-Way if error during pre-flight checks
+                    this.libertyWayEnabled = false;
+            }
         }
-        this.libertyWayEnabled = libertyWayEnabled;
+    }
+
+    /**
+     * Performs a basic system check before starting a Liberty-Way sequence
+     * @return true if the checks passed
+     */
+    private boolean preFlightChecks() {
+        boolean checksPassed = true;
+        /*if (positionContainer.status != 0)
+            checksPassed = preFlightError("Initial status is not WAIT");
+        if (!positionContainer.isFrameNormal)
+            checksPassed = preFlightError("Wrong camera frame");
+        if (platformContainer.platformLost)
+            checksPassed = preFlightError("No communication with the platform");
+        if (platformContainer.errorStatus != 0)
+            checksPassed = preFlightError("Platform error " + platformContainer.errorStatus);
+        if (settingsContainer.isTelemetryNecessary) {
+            if (telemetryContainer.telemetryLost)
+                checksPassed = preFlightError("No drone telemetry");
+            if (telemetryContainer.errorStatus != 0)
+                checksPassed = preFlightError("Drone error " + telemetryContainer.errorStatus);
+        }
+        if (!settingsContainer.onlyOpticalStabilization) {
+            if (platformContainer.satellitesNum < settingsContainer.minSatellitesNumStart)
+                checksPassed = preFlightError("Not enough GPS satellites on the platform");
+            if (platformContainer.speed > settingsContainer.maxPlatformSpeed)
+                checksPassed = preFlightError("The platform moves faster than " +
+                        settingsContainer.maxPlatformSpeed + " km/h");
+            if (settingsContainer.isTelemetryNecessary
+                    && telemetryContainer.satellitesNum < settingsContainer.minSatellitesNumStart)
+                checksPassed = preFlightError("Not enough GPS satellites on the drone");
+        }*/
+        if (checksPassed) {
+            logger.info("Basic pre-flight checks passed");
+            logger.warn("CAUTION! Starting LibertyWay sequence! Motor start possible!");
+        }
+        return checksPassed;
+    }
+
+    /**
+     * Prints error message during pre-flight checks
+     * @param errorMessage error description
+     */
+    private boolean preFlightError(String errorMessage) {
+        logger.error("Error during pre-flight checks! " + errorMessage);
+        return false;
     }
 
     /**

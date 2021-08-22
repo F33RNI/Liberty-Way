@@ -1,6 +1,5 @@
 /*
  * Copyright (C) 2021 Fern Hertz (Pavel Neshumov), Liberty-Way Landing System Project
- *
  * This software is part of Autonomous Multirotor Landing System (AMLS) Project
  *
  * Licensed under the GNU Affero General Public License, Version 3.0 (the "License");
@@ -19,6 +18,13 @@
  * OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
  * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
+ *
+ * IT IS STRICTLY PROHIBITED TO USE THE PROJECT (OR PARTS OF THE PROJECT / CODE)
+ * FOR MILITARY PURPOSES. ALSO, IT IS STRICTLY PROHIBITED TO USE THE PROJECT (OR PARTS OF THE PROJECT / CODE)
+ * FOR ANY PURPOSE THAT MAY LEAD TO INJURY, HUMAN, ANIMAL OR ENVIRONMENTAL DAMAGE.
+ * ALSO, IT IS PROHIBITED TO USE THE PROJECT (OR PARTS OF THE PROJECT / CODE) FOR ANY PURPOSE THAT
+ * VIOLATES INTERNATIONAL HUMAN RIGHTS OR HUMAN FREEDOM.
+ * BY USING THE PROJECT (OR PART OF THE PROJECT / CODE) YOU AGREE TO ALL OF THE ABOVE RULES.
  */
 
 package com.liberty_amls;
@@ -31,8 +37,7 @@ public class TelemetryHandler implements Runnable {
     private final TelemetryContainer telemetryContainer;
     private final SerialHandler serialHandler;
     private final UDPHandler udpHandler;
-    private final SpeedHandler speedHandler;
-    private final byte[] telemetryBuffer = new byte[31];
+    private final byte[] telemetryBuffer = new byte[32];
     private byte telemetryBytePrevious = 0;
     private int telemetryBufferPosition = 0;
     private long telemetryLastPacketTime = 0;
@@ -44,7 +49,6 @@ public class TelemetryHandler implements Runnable {
         this.serialHandler = serialHandler;
         this.udpHandler = udpHandler;
         this.settingsContainer = settingsContainer;
-        this.speedHandler = new SpeedHandler(settingsContainer);
     }
 
     @Override
@@ -86,10 +90,10 @@ public class TelemetryHandler implements Runnable {
             byte telemetryCheckByte = 0;
 
             // Calculate check sum
-            for (int i = 0; i <= 27; i++)
+            for (int i = 0; i <= 28; i++)
                 telemetryCheckByte ^= telemetryBuffer[i];
 
-            if (telemetryCheckByte == telemetryBuffer[28]) {
+            if (telemetryCheckByte == telemetryBuffer[29]) {
                 // Parse data if the checksums are equal
 
                 // Error status
@@ -134,38 +138,33 @@ public class TelemetryHandler implements Runnable {
                 // Heading lock
                 telemetryContainer.headingLock = ((int) telemetryBuffer[15] & 0xFF) > 0;
 
-                // Number of GPS satellites
-                telemetryContainer.satellitesNum = ((int) telemetryBuffer[16] & 0xFF);
-
-                // Fix type of GPS
-                telemetryContainer.fixType = ((int) telemetryBuffer[17] & 0xFF);
-
-                // Remember previous GPS coordinates for speed calculation
-                speedHandler.feedLast(telemetryContainer.gps);
-
                 // New GPS coordinates
-                telemetryContainer.gps.setFromInt(((int) telemetryBuffer[21] & 0xFF)
-                        | ((int) telemetryBuffer[20] & 0xFF) << 8
-                        | ((int) telemetryBuffer[19] & 0xFF) << 16
-                        | ((int) telemetryBuffer[18] & 0xFF) << 24,
-                        ((int) telemetryBuffer[25] & 0xFF)
-                        | ((int) telemetryBuffer[24] & 0xFF) << 8
-                        | ((int) telemetryBuffer[23] & 0xFF) << 16
-                        | ((int) telemetryBuffer[22] & 0xFF) << 24);
+                telemetryContainer.gps.setFromInt(((int) telemetryBuffer[19] & 0xFF)
+                        | ((int) telemetryBuffer[18] & 0xFF) << 8
+                        | ((int) telemetryBuffer[17] & 0xFF) << 16
+                        | ((int) telemetryBuffer[16] & 0xFF) << 24,
+                        ((int) telemetryBuffer[23] & 0xFF)
+                        | ((int) telemetryBuffer[22] & 0xFF) << 8
+                        | ((int) telemetryBuffer[21] & 0xFF) << 16
+                        | ((int) telemetryBuffer[20] & 0xFF) << 24);
 
-                // Feed new GPS position to the SpeedHandler class
-                speedHandler.feedCurrent(telemetryContainer.gps, System.currentTimeMillis());
+                // Number of GPS satellites
+                telemetryContainer.satellitesNum = ((int) telemetryBuffer[24] & 0xFF);
+
+                // Ground speed (from GPS)
+                telemetryContainer.groundSpeed = ((int) telemetryBuffer[26] & 0xFF)
+                        | ((int) telemetryBuffer[25] & 0xFF) << 8;
+                telemetryContainer.groundSpeed /= 10.0;
 
                 // Liberty Way sequence step
-                telemetryContainer.linkWaypointStep = ((int) telemetryBuffer[26] & 0xFF);
+                telemetryContainer.linkWaypointStep = ((int) telemetryBuffer[27] & 0xFF);
 
                 // Illumination from LUX meter
-                telemetryContainer.illumination = ((int) telemetryBuffer[27] & 0xFF);
-                telemetryContainer.illumination *= telemetryContainer.illumination;
-                telemetryContainer.illumination = (int) (telemetryContainer.illumination / 0.54);
-
-                // Calculate drone's speed
-                telemetryContainer.speed = speedHandler.getSpeed();
+                telemetryContainer.illumination = ((int) telemetryBuffer[28] & 0xFF) - 1.0;
+                if (telemetryContainer.illumination >= 0.0)
+                    telemetryContainer.illumination = Math.pow(telemetryContainer.illumination, 2.105);
+                else
+                    telemetryContainer.illumination = 0;
 
                 // Increment packets counter
                 telemetryContainer.packetsNumber++;
@@ -183,7 +182,7 @@ public class TelemetryHandler implements Runnable {
             telemetryBufferPosition++;
 
             // Reset buffer on overflow
-            if (telemetryBufferPosition > 30)
+            if (telemetryBufferPosition > 31)
                 telemetryBufferPosition = 0;
         }
     }

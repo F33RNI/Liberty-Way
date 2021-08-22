@@ -1,6 +1,5 @@
 /*
  * Copyright (C) 2021 Fern Hertz (Pavel Neshumov), Liberty-Way Landing System Project
- *
  * This software is part of Autonomous Multirotor Landing System (AMLS) Project
  *
  * Licensed under the GNU Affero General Public License, Version 3.0 (the "License");
@@ -19,6 +18,13 @@
  * OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
  * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
+ *
+ * IT IS STRICTLY PROHIBITED TO USE THE PROJECT (OR PARTS OF THE PROJECT / CODE)
+ * FOR MILITARY PURPOSES. ALSO, IT IS STRICTLY PROHIBITED TO USE THE PROJECT (OR PARTS OF THE PROJECT / CODE)
+ * FOR ANY PURPOSE THAT MAY LEAD TO INJURY, HUMAN, ANIMAL OR ENVIRONMENTAL DAMAGE.
+ * ALSO, IT IS PROHIBITED TO USE THE PROJECT (OR PARTS OF THE PROJECT / CODE) FOR ANY PURPOSE THAT
+ * VIOLATES INTERNATIONAL HUMAN RIGHTS OR HUMAN FREEDOM.
+ * BY USING THE PROJECT (OR PART OF THE PROJECT / CODE) YOU AGREE TO ALL OF THE ABOVE RULES.
  */
 
 package com.liberty_amls;
@@ -33,9 +39,10 @@ public class PositionContainer {
     public Point frameSetpoint;
     public Point frameCurrent;
     public int ddcX, ddcY, ddcZ, ddcRoll, ddcPitch, ddcYaw;
-    // 0 - IDLE, 1 - STAB, 2 - LAND, 3 - PREV, 4 - LOST, 5 - TKOF, 6 - WAYP, 7 - DONE
+    // 0 - WAIT, 1 - MKWT, 2 - WAYP, 3 - STAB, 4 - LAND, 5 - PREV, 6 - LOST, 7 - DONE
     public int status;
     public int distance;
+    public boolean isFrameNormal;
 
     /**
      * This class stores current position, corrections and state of the drone
@@ -61,8 +68,9 @@ public class PositionContainer {
         ddcRoll = 1500;
         ddcPitch = 1500;
         ddcYaw = 1500;
-        status = -1;
+        status = 0;
         distance = 0;
+        isFrameNormal = false;
     }
 
     /**
@@ -83,21 +91,21 @@ public class PositionContainer {
     public String getStatusString() {
         switch (status) {
             case 1:
-                return "STAB";
+                return "MKWT";
             case 2:
-                return "LAND";
-            case 3:
-                return "PREV";
-            case 4:
-                return "LOST";
-            case 5:
-                return "TKOF";
-            case 6:
                 return "WAYP";
+            case 3:
+                return "STAB";
+            case 4:
+                return "LAND";
+            case 5:
+                return "PREV";
+            case 6:
+                return "LOST";
             case 7:
                 return "DONE";
             default:
-                return "IDLE";
+                return "WAIT";
         }
     }
 }
