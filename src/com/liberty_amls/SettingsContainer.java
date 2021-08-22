@@ -1,6 +1,5 @@
 /*
  * Copyright (C) 2021 Fern Hertz (Pavel Neshumov), Liberty-Way Landing System Project
- *
  * This software is part of Autonomous Multirotor Landing System (AMLS) Project
  *
  * Licensed under the GNU Affero General Public License, Version 3.0 (the "License");
@@ -19,6 +18,13 @@
  * OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
  * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
+ *
+ * IT IS STRICTLY PROHIBITED TO USE THE PROJECT (OR PARTS OF THE PROJECT / CODE)
+ * FOR MILITARY PURPOSES. ALSO, IT IS STRICTLY PROHIBITED TO USE THE PROJECT (OR PARTS OF THE PROJECT / CODE)
+ * FOR ANY PURPOSE THAT MAY LEAD TO INJURY, HUMAN, ANIMAL OR ENVIRONMENTAL DAMAGE.
+ * ALSO, IT IS PROHIBITED TO USE THE PROJECT (OR PARTS OF THE PROJECT / CODE) FOR ANY PURPOSE THAT
+ * VIOLATES INTERNATIONAL HUMAN RIGHTS OR HUMAN FREEDOM.
+ * BY USING THE PROJECT (OR PART OF THE PROJECT / CODE) YOU AGREE TO ALL OF THE ABOVE RULES.
  */
 
 package com.liberty_amls;
@@ -28,9 +34,10 @@ import java.util.ArrayList;
 public class SettingsContainer {
     public float markerSize;
     public double maxExposure;
-    public double landingAlt;
+    public double motorsTurnOffHeight;
     public boolean landingAllowed;
     public boolean onlyOpticalStabilization;
+    public int maxMarkerHeight;
     public String pidFile;
     public String cameraMatrixFile;
     public String cameraDistortionsFile;
@@ -77,4 +84,14 @@ public class SettingsContainer {
     public short pushOSDAfterFrames;
     public double planetRadius;
     public double speedFilter;
+    public int pressureTermAbovePlatform;
+    public short sendIdleCyclesNum;
+    public boolean isTelemetryNecessary;
+    public int maxPlatformSpeed;
+    public boolean sendIDLEInWAITMode;
+    public boolean isGPSPredictionAllowed;
+    public int stopPredictionOnDistance;
+    public boolean platformHardwareCompass;
+    public boolean logFPS;
+    public boolean logAPIRequests;
 }

@@ -1,6 +1,5 @@
 /*
  * Copyright (C) 2021 Fern Hertz (Pavel Neshumov), Liberty-Way Landing System Project
- *
  * This software is part of Autonomous Multirotor Landing System (AMLS) Project
  *
  * Licensed under the GNU Affero General Public License, Version 3.0 (the "License");
@@ -19,6 +18,13 @@
  * OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
  * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
+ *
+ * IT IS STRICTLY PROHIBITED TO USE THE PROJECT (OR PARTS OF THE PROJECT / CODE)
+ * FOR MILITARY PURPOSES. ALSO, IT IS STRICTLY PROHIBITED TO USE THE PROJECT (OR PARTS OF THE PROJECT / CODE)
+ * FOR ANY PURPOSE THAT MAY LEAD TO INJURY, HUMAN, ANIMAL OR ENVIRONMENTAL DAMAGE.
+ * ALSO, IT IS PROHIBITED TO USE THE PROJECT (OR PARTS OF THE PROJECT / CODE) FOR ANY PURPOSE THAT
+ * VIOLATES INTERNATIONAL HUMAN RIGHTS OR HUMAN FREEDOM.
+ * BY USING THE PROJECT (OR PART OF THE PROJECT / CODE) YOU AGREE TO ALL OF THE ABOVE RULES.
  */
 
 package com.liberty_amls;
@@ -55,15 +61,20 @@ public class SettingsHandler {
             settingsContainer.maxExposure = jsonSettings.get("max_exposure").getAsDouble();
 
             // Landing altitude
-            settingsContainer.landingAlt = jsonSettings.get("landing_alt").getAsDouble();
-            if (settingsContainer.landingAlt < 0)
-                exitWithError("Invalid landing altitude");
+            settingsContainer.motorsTurnOffHeight = jsonSettings.get("motors_turn_off_height").getAsDouble();
+            if (settingsContainer.motorsTurnOffHeight < 0)
+                exitWithError("Invalid landing (motors turn off) height");
 
             // Landing allowed
             settingsContainer.landingAllowed = jsonSettings.get("landing_allowed").getAsBoolean();
 
             // Disable on-board Liberty Way sequence (only optical stabilization)
             settingsContainer.onlyOpticalStabilization = jsonSettings.get("only_optical_stabilization").getAsBoolean();
+
+            // The maximum height at which the marker is accepted for optical stabilization
+            settingsContainer.maxMarkerHeight = jsonSettings.get("max_marker_height").getAsInt();
+            if (settingsContainer.maxMarkerHeight < settingsContainer.motorsTurnOffHeight)
+                exitWithError("The maximum height of the marker (drone) is less than the landing altitude");
 
             // PID file
             settingsContainer.pidFile = jsonSettings.get("pid_file").getAsString();
@@ -205,12 +216,12 @@ public class SettingsHandler {
 
             // Minimum number of satellites to begin Liberty-Way sequence
             settingsContainer.minSatellitesNumStart = jsonSettings.get("min_satellites_num_start").getAsShort();
-            if (settingsContainer.minSatellitesNumStart <= 0)
+            if (settingsContainer.minSatellitesNumStart < 0)
                 exitWithError("Invalid minimum start satellites number");
 
             // Minimum number of satellites to continue Liberty-Way sequence
             settingsContainer.minSatellitesNum = jsonSettings.get("min_satellites_num").getAsShort();
-            if (settingsContainer.minSatellitesNum <= 0)
+            if (settingsContainer.minSatellitesNum < 0)
                 exitWithError("Invalid minimum satellites number");
 
             // Setpoint X
@@ -248,6 +259,45 @@ public class SettingsHandler {
             settingsContainer.speedFilter = jsonSettings.get("speed_filter").getAsDouble();
             if (settingsContainer.speedFilter < 0.0 || settingsContainer.speedFilter > 1.0)
                 exitWithError("Invalid speed filter factor");
+
+            // How many pascals will be added to pressure waypoint
+            settingsContainer.pressureTermAbovePlatform = jsonSettings.get("pressure_term_above_platform").getAsInt();
+            if (settingsContainer.pressureTermAbovePlatform < -200
+                    || settingsContainer.pressureTermAbovePlatform > 200)
+                exitWithError("Invalid pressure term");
+
+            // How many cycles will the IDLE command be sent (instead of the waypoint command)
+            settingsContainer.sendIdleCyclesNum = jsonSettings.get("send_idle_cycles_num").getAsShort();
+            if (settingsContainer.sendIdleCyclesNum < 0)
+                exitWithError("Invalid IDLE cycles number");
+
+            // Is telemetry necessary for liberty-way sequence?
+            settingsContainer.isTelemetryNecessary = jsonSettings.get("is_telemetry_necessary").getAsBoolean();
+
+            // Maximum platform speed
+            settingsContainer.maxPlatformSpeed = jsonSettings.get("max_platform_speed").getAsInt();
+            if (settingsContainer.maxPlatformSpeed < 0)
+                exitWithError("Wrong maximum platform speed");
+
+            // Whether to send the IDLE command when the system is in WAIT mode (0)
+            settingsContainer.sendIDLEInWAITMode = jsonSettings.get("send_idle_in_wait_mode").getAsBoolean();
+
+            // Is GPS Prediction allowed
+            settingsContainer.isGPSPredictionAllowed = jsonSettings.get("is_gps_prediction_allowed").getAsBoolean();
+
+            // Stop GPS predictions if distance between drone and platform is less that this threshold
+            settingsContainer.stopPredictionOnDistance = jsonSettings.get("stop_prediction_on_distance").getAsInt();
+            if (settingsContainer.stopPredictionOnDistance < 0)
+                exitWithError("Wrong prediction stop distance");
+
+            // Is hardware compass on platforms enables
+            settingsContainer.platformHardwareCompass = jsonSettings.get("platform_hardware_compass").getAsBoolean();
+
+            // Is FPS logging enables
+            settingsContainer.logFPS = jsonSettings.get("log_fps").getAsBoolean();
+
+            // Is API requests logging enables
+            settingsContainer.logAPIRequests = jsonSettings.get("log_api_requests").getAsBoolean();
 
             // If all checks are passed
             logger.info("Basic checks passed. Settings loaded");

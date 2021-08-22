@@ -1,6 +1,5 @@
 /*
  * Copyright (C) 2021 Fern Hertz (Pavel Neshumov), Liberty-Way Landing System Project
- *
  * This software is part of Autonomous Multirotor Landing System (AMLS) Project
  *
  * Licensed under the GNU Affero General Public License, Version 3.0 (the "License");
@@ -19,6 +18,13 @@
  * OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
  * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
+ *
+ * IT IS STRICTLY PROHIBITED TO USE THE PROJECT (OR PARTS OF THE PROJECT / CODE)
+ * FOR MILITARY PURPOSES. ALSO, IT IS STRICTLY PROHIBITED TO USE THE PROJECT (OR PARTS OF THE PROJECT / CODE)
+ * FOR ANY PURPOSE THAT MAY LEAD TO INJURY, HUMAN, ANIMAL OR ENVIRONMENTAL DAMAGE.
+ * ALSO, IT IS PROHIBITED TO USE THE PROJECT (OR PARTS OF THE PROJECT / CODE) FOR ANY PURPOSE THAT
+ * VIOLATES INTERNATIONAL HUMAN RIGHTS OR HUMAN FREEDOM.
+ * BY USING THE PROJECT (OR PART OF THE PROJECT / CODE) YOU AGREE TO ALL OF THE ABOVE RULES.
  */
 
 package com.liberty_amls;
@@ -26,6 +32,7 @@ package com.liberty_amls;
 public class GPS {
     private int latInt, lonInt;
     private double latDouble, lonDouble;
+    private boolean initialized;
 
     /**
      * This class stores GPS coordinates and allows conversions between Integer and Double types
@@ -35,6 +42,7 @@ public class GPS {
         this.lonInt = 0;
         this.latDouble = 0.0;
         this.lonDouble = 0.0;
+        this.initialized = false;
     }
 
     /**
@@ -47,6 +55,7 @@ public class GPS {
         lonInt = lon;
         latDouble = (double) latInt / 1000000.0;
         lonDouble = (double) lonInt / 1000000.0;
+        initialized = true;
     }
 
     /**
@@ -59,6 +68,7 @@ public class GPS {
         lonDouble = lon;
         latInt = (int) (latDouble * 1000000.0);
         lonInt = (int) (lonDouble * 1000000.0);
+        initialized = true;
     }
 
     /**
@@ -87,5 +97,12 @@ public class GPS {
      */
     public double getLonDouble() {
         return lonDouble;
+    }
+
+    /**
+     * @return true if the GPS class is initialized
+     */
+    public boolean isNotEmpty() {
+        return initialized;
     }
 }
