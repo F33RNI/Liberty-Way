@@ -1,5 +1,5 @@
 <!--
-   - Copyright (C) 2021 Frey Hertz (Pavel Neshumov), Liberty-Way Landing System Project
+   - Copyright (C) 2021 Fern Hertz (Pavel Neshumov), Liberty-Way Landing System Project
    -
    - This software is part of Autonomous Multirotor Landing System (AMLS) Project
    -
@@ -18,7 +18,14 @@
    - IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY CLAIM, DAMAGES OR
    - OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
    - ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
-   - OTHER DEALINGS IN THE SOFTWARE. -->
+   - OTHER DEALINGS IN THE SOFTWARE.
+   -
+   - IT IS STRICTLY PROHIBITED TO USE THE PROJECT (OR PARTS OF THE PROJECT / CODE)
+   - FOR MILITARY PURPOSES. ALSO, IT IS STRICTLY PROHIBITED TO USE THE PROJECT (OR PARTS OF THE PROJECT / CODE)
+   - FOR ANY PURPOSE THAT MAY LEAD TO INJURY, HUMAN, ANIMAL OR ENVIRONMENTAL DAMAGE.
+   - ALSO, IT IS PROHIBITED TO USE THE PROJECT (OR PARTS OF THE PROJECT / CODE) FOR ANY PURPOSE THAT
+   - VIOLATES INTERNATIONAL HUMAN RIGHTS OR HUMAN FREEDOM.
+   - BY USING THE PROJECT (OR PART OF THE PROJECT / CODE) YOU AGREE TO ALL OF THE ABOVE RULES. -->
 
 <!DOCTYPE html>
 <html lang="en">
@@ -27,8 +34,9 @@
 		<link rel="icon" type="image/png" href="favicon.png"/>
 		<link rel="stylesheet" type="text/css" href="augmented-ui.min.css"/>
 		<link rel="stylesheet" type="text/css" href="stylesheet.css"/>
+		<link rel="stylesheet" type="text/css" href="mapbox-gl.css"/>
+		<script type="text/javascript" src="mapbox-gl.js"></script>
 		<script type="text/javascript" src="controller.js"></script>
-		<script type="text/javascript" src="https://ecn.dev.virtualearth.net/mapcontrol/mapcontrol.ashx?v=7.0"></script>
 	</head>
 	<body>
 	
@@ -115,10 +123,6 @@
 				<div><a class="labels-text" id="drone_packets">0</a></div>
 			</div>
 			<div class="telemetry-data-container">
-				<div><a class="labels-text">F. mode</a></div>
-				<div><a class="labels-text" id="flight_mode">0</a></div>
-			</div>
-			<div class="telemetry-data-container">
 				<div><a class="labels-text">Voltage</a></div>
 				<div><a class="labels-text" id="drone_voltage">0 V</a></div>
 			</div>
@@ -149,10 +153,6 @@
 				<div><a class="labels-text" id="platform_packets">0</a></div>
 			</div>
 			<div class="telemetry-data-container">
-				<div><a class="labels-text">Pressure</a></div>
-				<div><a class="labels-text" id="platform_pressure">0 Pa</a></div>
-			</div>
-			<div class="telemetry-data-container">
 				<div><a class="labels-text">N. sats</a></div>
 				<div><a class="labels-text" id="platform_satellites">0</a></div>
 			</div>
@@ -180,7 +180,7 @@
 		</div>
 		<br>
 		<div class="button red" onclick="abort()" data-augmented-ui="br-clip both">
-			<p>ABORT</p>
+			<p>SHUT DOWN</p>
 		</div>
 	</div>
 
