@@ -44,7 +44,7 @@ jobs:
         - ino compile --fqbn arduino:avr:uno Sonarus.ino
         
         - cd ../GPS-mixer
-        - ino compile --fqbn stm32duino:STM32F1:genericSTM32F103C8T6 GPS-mixer.ino
+        - ino compile --fqbn stm32duino:STM32F1:genericSTM32F103C GPS-mixer.ino
         
     - stage: Build
       name: 'Documentation'
