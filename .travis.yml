@@ -33,17 +33,18 @@ jobs:
       script:
         - ino core update-index
         - ino core install arduino:avr
+        - ino core install stm32duino:STM32F4 --additional-urls http://dan.drown.org/stm32duino/package_STM32duino_index.json
         - ino core list
         - ino lib install 'EtherCard' 'Adafruit NeoPixel'
-        - echo 'Building Eitude'
+        
         - cd Eitude
         - ino compile --fqbn arduino:avr:uno Eitude.ino
-        - echo 'Building Sonarus'
+        
         - cd ../Sonarus
         - ino compile --fqbn arduino:avr:uno Sonarus.ino
-        - echo 'Building GPS-mixer'
+        
         - cd ../GPS-mixer
-        - ino compile --fqbn arduino:avr:uno GPS-mixer.ino
+        - ino compile --fqbn stm32duino:STM32F1:genericSTM32F103C8T6 GPS-mixer.ino
         
     - stage: Build
       name: 'Documentation'
