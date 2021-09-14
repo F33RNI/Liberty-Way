@@ -31,16 +31,22 @@
 /// </summary>
 void data_sender(void) {
     if (new_data_flag) {
-        if (micros() - output_timer_micros >= TRANSMIT_DELAY) {
-            output_timer_micros = micros();
-            if (output_buffer_position == 20) {
-                new_data_flag = 0;
-                return;
+        if (TRANSMIT_DELAY > 0) {
+            if (micros() - output_timer_micros >= TRANSMIT_DELAY) {
+                output_timer_micros = micros();
+                if (output_buffer_position == 20) {
+                    new_data_flag = 0;
+                    return;
+                }
+                else {
+                    OUTPUT_SERIAL.write(output_buffer[output_buffer_position]);
+                    output_buffer_position++;
+                }
             }
-            else {
-                OUTPUT_SERIAL.write(output_buffer[output_buffer_position]);
-                output_buffer_position++;
-            }
+        }
+        else {
+            OUTPUT_SERIAL.write(output_buffer, 20);
+            new_data_flag = 0;
         }
 
         /*OUTPUT_SERIAL.print(working_receivers_num_last);

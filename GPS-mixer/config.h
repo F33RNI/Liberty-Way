@@ -60,7 +60,8 @@
 #define NMEA_MESSAGE_SIZE 100
 
 // Delay (in us) between sending one byte from the buffer. Total time (delay * 20) should not exceed 50ms
-const uint32_t TRANSMIT_DELAY PROGMEM = 1200;
+// Set to 0 to send all bytes simultaneously
+const uint32_t TRANSMIT_DELAY PROGMEM = 0; // 1200
 
 // How many milliseconds to wait for a signal from other receivers, 
 // when the signal appeared from the first available receiver
