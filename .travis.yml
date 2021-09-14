@@ -31,11 +31,11 @@ jobs:
         - tar -xf arduino-cli_0.18.3_Linux_64bit.tar.gz
         - sudo mv arduino-cli /usr/bin/ino
       script:
-        - mkdir $HOME/Arduino/hardware
         - mkdir $HOME/.arduino15
         - ino config init
         - ino core update-index
         - ino core install arduino:avr
+        - ino core update-index --additional-urls http://dan.drown.org/stm32duino/package_STM32duino_index.json
         - ino core install stm32duino:STM32F1 --additional-urls http://dan.drown.org/stm32duino/package_STM32duino_index.json
         - ino core list
         - ino lib install 'EtherCard' 'Adafruit NeoPixel'
