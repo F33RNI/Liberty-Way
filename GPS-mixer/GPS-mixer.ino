@@ -83,30 +83,30 @@ void setup()
     GPS_TX_SERIAL.write(GPS_SET_TO_10HZ, 14);
     delay(350);
 
-    // Set the baud rate to 57600
-    GPS_TX_SERIAL.write(GPS_SET_TO_57KBPS, 28);
+    // Set the baud rate
+    GPS_TX_SERIAL.write(GPS_SET_BAUD_RATE, 28);
     delay(200);
 
-    // Open gps tx serial port at 57600
-    GPS_TX_SERIAL.begin(57600);
+    // Open gps tx serial port at new bad rate
+    GPS_TX_SERIAL.begin(SERIAL_BAUD_RATE);
     delay(200);
 
     // Open input serial ports
 #ifdef GPS_1_RX_SERIAL
-    GPS_1_RX_SERIAL.begin(57600);
+    GPS_1_RX_SERIAL.begin(SERIAL_BAUD_RATE);
     delay(200);
 #endif
 #ifdef GPS_2_RX_SERIAL
-    GPS_2_RX_SERIAL.begin(57600);
+    GPS_2_RX_SERIAL.begin(SERIAL_BAUD_RATE);
     delay(200);
 #endif
 #ifdef GPS_3_RX_SERIAL
-    GPS_3_RX_SERIAL.begin(57600);
+    GPS_3_RX_SERIAL.begin(SERIAL_BAUD_RATE);
     delay(200);
 #endif
 
-    // Open host serial port at 57600
-    OUTPUT_SERIAL.begin(57600);
+    // Open host serial port
+    OUTPUT_SERIAL.begin(SERIAL_BAUD_RATE);
     delay(200);
 }
 
