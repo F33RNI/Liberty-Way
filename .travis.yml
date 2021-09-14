@@ -52,6 +52,20 @@ jobs:
         - cd Sonarus
         - ino compile --fqbn arduino:avr:uno Sonarus.ino
         
+     - stage: Build
+      name: 'GPS Mixer build'
+      language: c
+      before_script:
+        - wget https://github.com/arduino/arduino-cli/releases/download/0.18.3/arduino-cli_0.18.3_Linux_64bit.tar.gz
+        - tar -xf arduino-cli_0.18.3_Linux_64bit.tar.gz
+        - sudo mv arduino-cli /usr/bin/ino
+      script:
+        - ino core update-index
+        - ino core install arduino:avr
+        - ino core list
+        - cd GPS-mixer
+        - ino compile --fqbn arduino:avr:uno GPS-mixer.ino
+        
     - stage: Build
       name: 'Documentation'
       language: node_js
