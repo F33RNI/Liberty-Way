@@ -24,7 +24,7 @@ jobs:
       script: ant main
       
     - stage: Build
-      name: 'Eitude Build'
+      name: 'Arduino builds'
       language: c
       before_script:
         - wget https://github.com/arduino/arduino-cli/releases/download/0.18.3/arduino-cli_0.18.3_Linux_64bit.tar.gz
@@ -35,35 +35,14 @@ jobs:
         - ino core install arduino:avr
         - ino core list
         - ino lib install 'EtherCard' 'Adafruit NeoPixel'
+        - echo 'Building Eitude'
         - cd Eitude
         - ino compile --fqbn arduino:avr:uno Eitude.ino
-
-    - stage: Build
-      name: 'Sonarus Build'
-      language: c
-      before_script:
-        - wget https://github.com/arduino/arduino-cli/releases/download/0.18.3/arduino-cli_0.18.3_Linux_64bit.tar.gz
-        - tar -xf arduino-cli_0.18.3_Linux_64bit.tar.gz
-        - sudo mv arduino-cli /usr/bin/ino
-      script:
-        - ino core update-index
-        - ino core install arduino:avr
-        - ino core list
-        - cd Sonarus
+        - echo 'Building Sonarus'
+        - cd ../Sonarus
         - ino compile --fqbn arduino:avr:uno Sonarus.ino
-        
-     - stage: Build
-      name: 'GPS Mixer build'
-      language: c
-      before_script:
-        - wget https://github.com/arduino/arduino-cli/releases/download/0.18.3/arduino-cli_0.18.3_Linux_64bit.tar.gz
-        - tar -xf arduino-cli_0.18.3_Linux_64bit.tar.gz
-        - sudo mv arduino-cli /usr/bin/ino
-      script:
-        - ino core update-index
-        - ino core install arduino:avr
-        - ino core list
-        - cd GPS-mixer
+        - echo 'Building GPS-mixer'
+        - cd ../GPS-mixer
         - ino compile --fqbn arduino:avr:uno GPS-mixer.ino
         
     - stage: Build
