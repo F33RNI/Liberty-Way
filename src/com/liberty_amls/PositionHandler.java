@@ -99,7 +99,7 @@ public class PositionHandler {
         // Find distance between drone and platform
         if (!platformContainer.platformLost && platformContainer.satellitesNum > 0
                 && !telemetryContainer.telemetryLost && telemetryContainer.satellitesNum > 0)
-        positionContainer.distance = (int) SpeedHandler.distanceOnGeoid(telemetryContainer.gps,
+        positionContainer.distance = (int) GPS.distanceOnGeoid(telemetryContainer.gps,
                 platformContainer.gps, settingsContainer.planetRadius);
 
         // TODO: In-flight error checking

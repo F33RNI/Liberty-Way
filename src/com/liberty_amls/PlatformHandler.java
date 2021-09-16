@@ -38,7 +38,6 @@ public class PlatformHandler implements Runnable {
     private final PositionContainer positionContainer;
     private final SerialHandler serialHandler;
     private final UDPHandler udpHandler;
-    private final SpeedHandler speedHandler;
     private final byte[] platformRxBuffer = new byte[19];
     private final byte[] platformTxBuffer = new byte[6];
     private byte platformRxBytePrevious = 0;
@@ -59,7 +58,6 @@ public class PlatformHandler implements Runnable {
         this.serialHandler = serialHandler;
         this.udpHandler = udpHandler;
         this.settingsContainer = settingsContainer;
-        this.speedHandler = new SpeedHandler(settingsContainer);
         this.platformTxBuffer[4] = settingsContainer.platformDataSuffix1;
         this.platformTxBuffer[5] = settingsContainer.platformDataSuffix2;
     }
@@ -132,9 +130,6 @@ public class PlatformHandler implements Runnable {
                 // Error status
                 platformContainer.errorStatus = ((int) platformRxBuffer[0] & 0xFF);
 
-                // Remember previous GPS coordinates for speed calculation
-                speedHandler.feedLast(platformContainer.gps);
-
                 // New GPS coordinates
                 platformContainer.gps.setFromInt(((int) platformRxBuffer[4] & 0xFF)
                                 | ((int) platformRxBuffer[3] & 0xFF) << 8
@@ -144,9 +139,6 @@ public class PlatformHandler implements Runnable {
                                 | ((int) platformRxBuffer[7] & 0xFF) << 8
                                 | ((int) platformRxBuffer[6] & 0xFF) << 16
                                 | ((int) platformRxBuffer[5] & 0xFF) << 24);
-
-                // Feed new GPS position to the SpeedHandler class
-                speedHandler.feedCurrent(platformContainer.gps, System.currentTimeMillis());
 
                 // Number of GPS satellites
                 platformContainer.satellitesNum = ((int) platformRxBuffer[9] & 0xFF);
@@ -164,8 +156,8 @@ public class PlatformHandler implements Runnable {
                 platformContainer.illumination = ((int) platformRxBuffer[15] & 0xFF);
                 platformContainer.illumination = Math.pow(platformContainer.illumination, 2.105);
 
-                // Calculate platform's speed
-                platformContainer.speed = speedHandler.getSpeed();
+                // TODO: Calculate platform's speed
+                platformContainer.speed = 0;
 
                 // TODO: Add compass reading
                 if (settingsContainer.platformHardwareCompass)

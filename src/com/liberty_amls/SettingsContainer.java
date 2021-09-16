@@ -83,7 +83,6 @@ public class SettingsContainer {
     public byte platformDataSuffix2;
     public short pushOSDAfterFrames;
     public double planetRadius;
-    public double speedFilter;
     public int pressureTermAbovePlatform;
     public short sendIdleCyclesNum;
     public boolean isTelemetryNecessary;

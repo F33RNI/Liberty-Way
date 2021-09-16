@@ -105,4 +105,28 @@ public class GPS {
     public boolean isNotEmpty() {
         return initialized;
     }
+
+    /**
+     * Calculates distance on geoid using GPS coordinates
+     * @param position1 First GPS position
+     * @param position2 Second GPS position
+     * @param planetRadius Radius of a current planet that the project operates on
+     * @return Distance between two points in meters
+     */
+    public static double distanceOnGeoid(GPS position1, GPS position2, double planetRadius) {
+        // Check if both coordinates presented
+        if (position1.isNotEmpty() && position2.isNotEmpty()) {
+            // Find distance in radians
+            double latDistance = Math.toRadians(position2.getLatDouble() - position1.getLatDouble());
+            double lonDistance = Math.toRadians(position2.getLonDouble() - position1.getLonDouble());
+
+            // Convert from geoid coordinates to meters
+            double a = Math.sin(latDistance / 2.0) * Math.sin(latDistance / 2.0)
+                    + Math.cos(Math.toRadians(position1.getLatDouble()))
+                    * Math.cos(Math.toRadians(position1.getLonDouble()))
+                    * Math.sin(lonDistance / 2.0) * Math.sin(lonDistance / 2.0);
+            return planetRadius * 2.0 * Math.atan2(Math.sqrt(a), Math.sqrt(1.0 - a)) * 1000;
+        }
+        return 0;
+    }
 }
