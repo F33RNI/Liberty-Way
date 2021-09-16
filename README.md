@@ -8,13 +8,13 @@
 [![Travis (.com)](https://img.shields.io/travis/com/XxOinvizioNxX/Liberty-Way?color=green)](https://www.travis-ci.com/github/XxOinvizioNxX)
 [![GitHub stars](https://img.shields.io/github/stars/XxOinvizioNxX/Liberty-Way?color=blue)](https://github.com/XxOinvizioNxX/Liberty-Way/stargazers)
 [![Liberty-Way_beta_3.0.0](https://img.shields.io/badge/latest_version-beta_3.0.0-informational?logo=Github&color=purple "Liberty-Way_beta_3.0.0")](https://github.com/XxOinvizioNxX/Liberty-Way/releases/tag/beta_3.0.0 "Liberty-Way_beta_3.0.0")
-[![Twitter](https://img.shields.io/twitter/url?style=social&url=https%3A%2F%2Ftwitter.com%2Fliberty_drones)](https://twitter.com/intent/tweet?text=Wow:&url=https%3A%2F%2Ftwitter.com%2Fliberty_drones)
+[![Twitter](https://img.shields.io/twitter/url?label=Our%20twitter&style=social&url=https%3A%2F%2Ftwitter.com%2Fliberty_drones)](https://twitter.com/liberty_drones)
 
 This project is a part of project activity in Moscow Polytech University by students of group 181-311.
 
-Liberty-Way AMLS Landing Controller © 2021 Pavel Neshumov (Fern Hertz)
+Liberty-Way AMLS Landing Controller © 2021 Pavel Neshumov (Fern H.)
 
-All the code excluding the dependencies block, was written by Pavel Neshumov (Fern Hertz)
+All the code excluding the dependencies block, was written by Pavel Neshumov (Fern H.)
 
 ----------
 
@@ -93,20 +93,21 @@ The dependencies are certificated by following licenses:
 - BSD-2-Clause License for Augmented-UI
 - GPL-3.0 for MiniPID
 - GNU-3.0 for jSerialComm
+- Mapbox: https://www.mapbox.com/pricing/
 
 ----------
 
 ## Logotype
 
-AMLS and Liberty-X logo was designed by Pavel Neshumov (Fern Hertz)
+AMLS and Liberty-X logo was designed by Pavel Neshumov (Fern H.)
 
 ----------
 
 ## Building and running
 
-Liberty-Way is a cross-platform application and has been tested on Linux and Windows.
-You can try running the application on any other operating system. But you first need to build the OpenCV-contrib library (**The releases include libraries for Windows and Linux**).
-Builded binary JAR-file can be found in releases.
+You can build the application yourself or run a ready-made .jar from releases (recommended).
+
+Liberty-Way is a cross-platform application and has been **tested on Linux and Windows**. You can try running the application on any other operating system. But you first need to build the OpenCV-contrib library (**The releases include libraries for Windows and Linux**).
 
 All of the controls is performed only from the browser.
 When starting the application, you can specify the arguments:
@@ -120,6 +121,8 @@ When starting the application, you can specify the arguments:
 
 Also, the server address and ports can be specified in the configuration (settings.json)
 
+When launched, the console displays the IP address of the user interface. You need to go to it in your browser
+
 ----------
 
 ## Configuration
@@ -128,48 +131,128 @@ Also, the server address and ports can be specified in the configuration (settin
 
 These are the parameters presented in settings.json file that are used by the program and can be changed depending of its application:
 
-```
-"marker_size",             length of one side of the tracking marker (cm)
-"default_exposure",        default exposure value of the camera
-"landing_alt",             altitude of sending a packet to turn off the motors (service info = 3)
-"pid_file",              file of PID configuration
-"camera_matrix_file",              camera calibration (matrix)
-"camera_distortions_file",     camera calibration (distortions)
-"watermark_file",              image of a watermark (top-right corner)
-"web_resources_folder",              folder of web resources
-"web_templates_folder",              folder of templates for a web-page
-"blackbox_folder",           folder which stores blackboxes' .csv files
-"frame_width",              resolution that is set to web-camera (width)
-"frame_height",              resolution that is set to web-camera (height)
-"disable_auto_exposure",              disabling/enabling auto exposure feature
-"disable_auto_wb",              disabling/enabling auto white balance feature
-"disable_auto_focus",              disabling/enabling auto focus feature
-"default_server_host",              server host which can be overridden by cmd argument
-"default_server_port",              server port which can be overridden by cmd argument
-"default_video_port",              video port which can be overridden by cmd argument
-"video_stream_enabled_by_default",              should the video stream be enabled from the start
-"video_on_page_enabled_by_default",              should the video be enabled on the page from the start 
-"blackbox_enabled_by_default",                   should the blackbox feature be enabled by default
-"platform_light_enable_threshold",              lower threshold of the surrounding light to enable additional lighting
-"platform_light_disable_threshold",             upper threshold of the surrounding light to disable additional lighting
-"platform_reply_timeout",              amount of milliseconds in which receiving a response from the platform is acceptable
-"platform_loop_timer",               update rate of the platform in milliseconds
-"fps_measure_period",              period of measurements of fps (milliseconds)
-"adaptive_thresh_constant",              detector of parameters (ARUCO)
-"aruco_dictionary",             index of used ARUco dictionary (default = 0 which is 50 4x4 marks) 
-"allowed_ids",              array of allowed tracking markers ARUCO ids
-"input_filter",              Kalman filter coefficient
-"setpoint_alignment_factor",        floating setpoint to the desired position coefficient
-"allowed_lost_frames",              frames where the marker is not in the input frame
-"landing_decrement",              constant latitude decrement (cm)
-"allowed_landing_range_xy",              range of the landing allowance (cm)
-"allowed_landing_range_yaw",              range of the landing allowance (degrees)
-"setpoint_x",              setpoint of PID controller (absolute estimated x)
-"setpoint_y",              setpoint of PID controller (absolute estimated y)
-"setpoint_yaw",            angle setpoint of PID controller (absolute estimated degrees)
-"data_suffix_1",          first of the unique ASCII pair symbols that show the end of the packet
-"data_suffix_2",          second of the unique ASCII pair symbols that show the end of the packet
-"push_osd_after_frames",           after how many frames the image is being sent to the web-page
+`"marker_size": 5.0` - length of one side of the tracking marker (cm)
+
+`"max_exposure": -8` - default and maximum exposure value of the camera
+
+`"motors_turn_off_height": 25.0` - altitude of sending a packet to turn off the motors
+
+`"landing_allowed": true` - whether to lower the drone during optical stabilization. If set to false, the drone will never land
+
+`"only_optical_stabilization": false` - if true, Liberty-Way will not send start commands and waypoints
+
+`"max_marker_height": 200` - marker will not be calculated if found above this height
+
+`"pid_file": "pid.json"` - file of PID configuration
+
+`"camera_matrix_file": "camera_matrix.json"` - camera calibration (matrix)
+
+`"camera_distortions_file": "camera_distortions.json"` - camera calibration (distortions)
+
+`"watermark_file": "watermark.png"` - image of a watermark (top-right corner)
+
+`"web_resources_folder": "web/static"` - folder of web resources (static folder)
+
+`"web_templates_folder": "web/templates"` - folder of templates (html) for a web-page
+
+`"blackbox_folder": "blackbox/"` - folder which stores blackbox .csv files
+
+`"frame_width": 1280` - resolution that is set to web-camera (width)
+
+`"frame_height": 720` - resolution that is set to web-camera (height)
+
+`"disable_auto_exposure": true` - disabling/enabling auto exposure feature
+
+`"disable_auto_wb": true` - disabling/enabling auto white balance feature
+
+`"disable_auto_focus": true` - disabling/enabling auto focus feature
+
+`"default_server_host": "localhost"` - server host which can be overridden by cmd argument
+
+`"default_server_port": 80` - server port which can be overridden by cmd argument
+
+`"default_video_port": 8080` - video port which can be overridden by cmd argument
+
+`"video_stream_enabled_by_default": true` - should the video be enabled on the page from the start
+
+`"blackbox_enabled": true` - should the blackbox feature be enabled by default
+
+`"serial_reconnect_time": 500` - how many milliseconds to try to open the serial port if it is lost
+
+`"udp_timeout": 2000` - UDP response timeout (milliseconds)
+
+`"telemetry_lost_time": 3000` - how many milliseconds it takes to consider telemetry (drone) lost
+
+`"platform_lost_time": 1000` - how many milliseconds it takes to consider platform lost
+
+`"platform_light_enable_threshold": 1000` - lower threshold of the surrounding light to enable additional lighting
+
+`"platform_light_disable_threshold": 3000` - upper threshold of the surrounding light to disable additional lighting
+
+`"platform_loop_timer": 100` - time of one cycle of receiving data from the platform
+
+`"fps_measure_period": 2000` - how many milliseconds to measure FPS
+
+`"adaptive_thresh_constant": 15` - detector of parameters (ARUCO)
+
+`"aruco_dictionary": 0` - index of used ARUco dictionary (default = 0 which is 50 4x4 marks) 
+
+`"allowed_ids": [9]` - array of allowed tracking markers ARUCO ids
+
+`"input_filter": 0.30` - Kalman filter coefficient
+
+`"setpoint_alignment_factor": 0.75` - floating setpoint to the desired position coefficient
+
+`"allowed_lost_frames": 10` - frames where the marker is not in the input frame
+
+`"landing_decrement": 0.20` - constant latitude decrement (cm)
+
+`"allowed_landing_range_xy": 5.0` - range of the landing allowance (cm)
+
+`"allowed_landing_range_yaw": 5.0` - range of the landing allowance (degrees)
+
+`"min_satellites_num_start": 0` - 
+
+`"min_satellites_num": 0` - 
+
+`"setpoint_x": 0.0` - setpoint of PID controller (absolute estimated x)
+
+`"setpoint_y": 0.0` - setpoint of PID controller (absolute estimated y)
+
+`"setpoint_yaw": 0.0` - setpoint of PID controller (absolute estimated yaw)
+
+`"drone_data_suffix_1": 238` - first of the unique pair symbols that show the end of the packet
+
+`"drone_data_suffix_2": 239` - second of the unique pair symbols that show the end of the packet
+
+`"platform_data_suffix_1": 238` - first of the unique pair symbols that show the end of the packet
+
+`"platform_data_suffix_2": 239` - second of the unique pair symbols that show the end of the packet
+
+`"push_osd_after_frames": 2` - after how many frames the image is being sent to the web-page
+
+`"planet_radius": 6378.137` - the radius of the planet the project is running on
+
+`"pressure_term_above_platform": 70` - 
+
+`"send_idle_cycles_num": 0` - 
+
+`"is_telemetry_necessary": true` - 
+
+`"max_platform_speed": 10` - 
+
+`"send_idle_in_wait_mode": true` - 
+
+`"is_gps_prediction_allowed": false` - 
+
+`"stop_prediction_on_distance": 10` - 
+
+`"platform_hardware_compass": false` - 
+
+`"log_fps": false` - 
+
+"log_api_requests": false` - 
+
 ```
 
 ### PID
@@ -192,11 +275,11 @@ These are the PID regulation parameters for each processed axle (x, y, z and yaw
 
 Structure of Liberty-Link packets that Liberty-Way sends to the drone
 
-Each packet consists of 12 bytes. The first 8 bytes are the payload. Next comes 1 byte Link Command, which tells the drone what to do with this packet. Then 1 byte XOR of the check-sum of the previous 9 bytes. At the end there are 2 bytes indicating the end of the packet (indicated in three. By default it is 0xEE).
+Each packet consists of 12 bytes. The first 8 bytes are the payload. Next comes 1 byte Link Command, which tells the drone what to do with this packet. Then 1 byte XOR of the check-sum of the previous 9 bytes. At the end there are 2 bytes indicating the end of the packet (indicated in three. By default it is 0xEE 0xEF).
 
 For each packet sent (even IDLE), the drone returns 1 or several bytes (the number is specified in the Liberty-X settings) of telemetry.
 
-All data that is sent to the drone or comes from the drone (telemetry) is arranged in big-endian order.
+All data that is sent to the drone or comes from the drone (telemetry) is arranged in **big-endian order**.
 
 ----------
 
@@ -324,9 +407,8 @@ The table below shows the detailed structure of the packet
 
 ## TODO
 
-- We will switch from bing maps to street maps due to street maps accessibility
-- Communication between the platform and Liberty-X will change
-- Possibility to communication through the ethernet port
-- Lux meter will be added to the main firmware
+- Make the GPS Mixer a standalone device with its own IP address
+- Test the entire system under real conditions
+- Add flight to waypoints (waypoints are set by the user)
 
 ----------
