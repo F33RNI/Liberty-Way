@@ -306,8 +306,9 @@ The table below shows the detailed structure of the packet
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
 | Byte name | Payload byte 0 | Payload byte 1 | Payload byte 2 | Payload byte 3 | Payload byte 4 | Payload byte 5 | Payload byte 6 | Payload byte 7 | Link command byte | XOR check-sum | Packet suffix 1 | Packet suffix 2 |
 | Description for IDLE | Should be 0 | Should be 0 | Should be 0 | Should be 0 | Should be 0 | Should be 0 | Should be 0 | Should be 0 | 0 |  | Specified in the settings | Specified in the settings |
-| Value in DEC | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |  | 238 | 239 |
-| Value in HEX | 0x00 | 0x00 | 0x00 | 0x00 | 0x00 | 0x00 | 0x00 | 0x00 | 0x00 | 0x00 | 0xEE | 0xEF |
+| Value in DEC | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |  | 0-255 | 0-255 |
+| Example in DEC | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 238 | 239 |
+| Example in HEX | 0x00 | 0x00 | 0x00 | 0x00 | 0x00 | 0x00 | 0x00 | 0x00 | 0x00 | 0x00 | 0xEE | 0xEF |
 
 ----------
 
@@ -322,7 +323,7 @@ The table below shows the detailed structure of the packet
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
 | Byte name | Payload byte 0 | Payload byte 1 | Payload byte 2 | Payload byte 3 | Payload byte 4 | Payload byte 5 | Payload byte 6 | Payload byte 7 | Link command byte | XOR check-sum | Packet suffix 1 | Packet suffix 2 |
 | Description for Direct control | Roll high byte | Roll low byte | Pitch high byte | Pitch low byte | Yaw high byte | Yaw low byte | Throttle high byte | Throttle low byte | 1 |  | Specified in the settings | Specified in the settings |
-| Value in DEC | 1000-2000 |  | 1000-2000 |  | 1000-2000 |  | 1000-2000 |  | 1 |  | 238 | 239 |
+| Value in DEC | 1000-2000 |  | 1000-2000 |  | 1000-2000 |  | 1000-2000 |  | 1 |  | 0-255 | 0-255 |
 | Example in DEC | 1200 |  | 1700 |  | 1500 |  | 1509 |  | 1 | 46 | 238 | 239 |
 | Example in HEX | 0x04 | 0xB0 | 0x06 | 0xA4 | 0x05 | 0xDC | 0x05 | 0xE5 | 0x01 | 0x2E | 0xEE | 0xEF |
 
@@ -339,8 +340,8 @@ The table below shows the detailed structure of the packet
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
 | Byte name | Payload byte 0 | Payload byte 1 | Payload byte 2 | Payload byte 3 | Payload byte 4 | Payload byte 5 | Payload byte 6 | Payload byte 7 | Link command byte | XOR check-sum | Packet suffix 1 | Packet suffix 2 |
 | Description for Pressure waypoint | Pressure 1 byte | Pressure 2 byte | Pressure 3 byte | Pressure 4 byte | Should be 0 | Should be 0 | Should be 0 | Should be 0 | 2 |  | Specified in the settings | Specified in the settings |
-| Value in DEC | 1000-120000 |  |  |  | 0 | 0 | 0 | 0 | 2 |  | 238 | 239 |
-| Example in DEC | 101000 |  | 1700 |  | 0 | 0 | 0 | 0 | 2 | 46 | 238 | 239 |
+| Value in DEC | 1000-120000 |  |  |  | 0 | 0 | 0 | 0 | 2 |  | 0-255 | 0-255 |
+| Example in DEC | 101000 |  |  |  | 0 | 0 | 0 | 0 | 2 | 46 | 238 | 239 |
 | Example in HEX | 0x00 | 0x01 | 0x8A | 0x88 | 0x00 | 0x00 | 0x00 | 0x00 | 0x02 | 0x01 | 0xEE | 0xEF |
 
 ----------
@@ -357,7 +358,7 @@ The table below shows the detailed structure of the packet
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
 | Byte name | Payload byte 0 | Payload byte 1 | Payload byte 2 | Payload byte 3 | Payload byte 4 | Payload byte 5 | Payload byte 6 | Payload byte 7 | Link command byte | XOR check-sum | Packet suffix 1 | Packet suffix 2 |
 | Description for GPS waypoint | Latitude 1 byte | Latitude 2 byte | Latitude 3 byte | Latitude 4 byte | Longitude 1 byte | Longitude 2 byte | Longitude 3 byte | Longitude 4 byte | 3 |  | Specified in the settings | Specified in the settings |
-| Value in DEC | -90000000-90000000 |  |  |  | -180000000-180000000 |  |  |  | 3 |  | 238 | 239 |
+| Value in DEC | -90000000-90000000 |  |  |  | -180000000-180000000 |  |  |  | 3 |  | 0-255 | 0-255 |
 | Example in DEC | 55588735 |  |  |  | 37627801 |  |  |  | 3 | 208 | 238 | 239 |
 | Example in HEX | 0x00 | 0x54 | 0xD2 | 0x5A | 0x00 | 0x39 | 0x6A | 0x5C | 0x03 | 0xD0 | 0xEE | 0xEF |
 
@@ -375,7 +376,7 @@ The table below shows the detailed structure of the packet
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
 | Byte name | Payload byte 0 | Payload byte 1 | Payload byte 2 | Payload byte 3 | Payload byte 4 | Payload byte 5 | Payload byte 6 | Payload byte 7 | Link command byte | XOR check-sum | Packet suffix 1 | Packet suffix 2 |
 | Description for Motors stop | Should be 0 | Should be 0 | Should be 0 | Should be 0 | Should be 0 | Should be 0 | Should be 0 | Should be 0 | 4 |  | Specified in the settings | Specified in the settings |
-| Value in DEC | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 4 |  | 238 | 239 |
+| Value in DEC | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 4 |  | 0-255 | 0-255 |
 | Example in DEC | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 4 | 4 | 238 | 239 |
 | Example in HEX | 0x00 | 0x00 | 0x00 | 0x00 | 0x00 | 0x00 | 0x00 | 0x00 | 0x04 | 0x04 | 0xEE | 0xEF |
 
@@ -393,7 +394,7 @@ The table below shows the detailed structure of the packet
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
 | Byte name | Payload byte 0 | Payload byte 1 | Payload byte 2 | Payload byte 3 | Payload byte 4 | Payload byte 5 | Payload byte 6 | Payload byte 7 | Link command byte | XOR check-sum | Packet suffix 1 | Packet suffix 2 |
 | Description for Start sequence | Should be 0 | Should be 0 | Should be 0 | Should be 0 | Should be 0 | Should be 0 | Should be 0 | Should be 0 | 5 |  | Specified in the settings | Specified in the settings |
-| Value in DEC | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 5 |  | 238 | 239 |
+| Value in DEC | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 5 |  | 0-255 | 0-255 |
 | Example in DEC | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 5 | 5 | 238 | 239 |
 | Example in HEX | 0x00 | 0x00 | 0x00 | 0x00 | 0x00 | 0x00 | 0x00 | 0x00 | 0x05 | 0x05 | 0xEE | 0xEF |
 
@@ -411,7 +412,7 @@ The table below shows the detailed structure of the packet
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
 | Byte name | Payload byte 0 | Payload byte 1 | Payload byte 2 | Payload byte 3 | Payload byte 4 | Payload byte 5 | Payload byte 6 | Payload byte 7 | Link command byte | XOR check-sum | Packet suffix 1 | Packet suffix 2 |
 | Description for Abort | Should be 0 | Should be 0 | Should be 0 | Should be 0 | Should be 0 | Should be 0 | Should be 0 | Should be 0 | 6 |  | Specified in the settings | Specified in the settings |
-| Value in DEC | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 6 |  | 238 | 239 |
+| Value in DEC | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 6 |  | 0-255 | 0-255 |
 | Example in DEC | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 6 | 6 | 238 | 239 |
 | Example in HEX | 0x00 | 0x00 | 0x00 | 0x00 | 0x00 | 0x00 | 0x00 | 0x00 | 0x06 | 0x06 | 0xEE | 0xEF |
 
