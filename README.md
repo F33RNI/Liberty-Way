@@ -36,6 +36,13 @@ All the code excluding the dependencies block, was written by Pavel Neshumov (Fe
   - [Settings](#settings)
   - [PID](#pid)
 - [Data packet structure](#data-packet-structure)
+  - [IDLE (Link command 0)](#idle-link-command-0)
+  - [Direct control (Link command 1)](#direct-control-link-command-1)
+  - [Pressure Waypoint (Link command 2)](#pressure-waypoint-link-command-2)
+  - [GPS waypoint (Link command 3)](#gps-waypoint-link-command-3)
+  - [Motors stop (Link command 4)](#motors-stop-command-4)
+  - [Start Liberty-Way sequence (Link command 5)](#start-liberty-way-sequence-link-command-5)
+  - [Abort (Link command 6)](#abort-link-command-6)
 ----------
 
 ## More projects
