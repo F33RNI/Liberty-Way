@@ -300,7 +300,7 @@ The table below shows the detailed structure of the packet
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
 | Byte name | Payload byte 0 | Payload byte 1 | Payload byte 2 | Payload byte 3 | Payload byte 4 | Payload byte 5 | Payload byte 6 | Payload byte 7 | Link command byte | XOR check-sum | Packet suffix 1 | Packet suffix 2 |
 | Description for IDLE | Should be 0 | Should be 0 | Should be 0 | Should be 0 | Should be 0 | Should be 0 | Should be 0 | Should be 0 | 0 | 0 | Specified in the settings | Specified in the settings |
-| Value in DEC | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 238 | 239 |
+| Value in DEC | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |  | 238 | 239 |
 | Value in HEX | 0x00 | 0x00 | 0x00 | 0x00 | 0x00 | 0x00 | 0x00 | 0x00 | 0x00 | 0x00 | 0xEE | 0xEF |
 
 ----------
@@ -369,7 +369,7 @@ The table below shows the detailed structure of the packet
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
 | Byte name | Payload byte 0 | Payload byte 1 | Payload byte 2 | Payload byte 3 | Payload byte 4 | Payload byte 5 | Payload byte 6 | Payload byte 7 | Link command byte | XOR check-sum | Packet suffix 1 | Packet suffix 2 |
 | Description for Motors stop | Should be 0 | Should be 0 | Should be 0 | Should be 0 | Should be 0 | Should be 0 | Should be 0 | Should be 0 | 4 | 4 | Specified in the settings | Specified in the settings |
-| Value in DEC | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 4 | 4 | 238 | 239 |
+| Value in DEC | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 4 |  | 238 | 239 |
 | Example in DEC | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 4 | 4 | 238 | 239 |
 | Example in HEX | 0x00 | 0x00 | 0x00 | 0x00 | 0x00 | 0x00 | 0x00 | 0x00 | 0x04 | 0x04 | 0xEE | 0xEF |
 
@@ -387,7 +387,7 @@ The table below shows the detailed structure of the packet
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
 | Byte name | Payload byte 0 | Payload byte 1 | Payload byte 2 | Payload byte 3 | Payload byte 4 | Payload byte 5 | Payload byte 6 | Payload byte 7 | Link command byte | XOR check-sum | Packet suffix 1 | Packet suffix 2 |
 | Description for Start sequence | Should be 0 | Should be 0 | Should be 0 | Should be 0 | Should be 0 | Should be 0 | Should be 0 | Should be 0 | 5 | 5 | Specified in the settings | Specified in the settings |
-| Value in DEC | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 5 | 5 | 238 | 239 |
+| Value in DEC | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 5 |  | 238 | 239 |
 | Example in DEC | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 5 | 5 | 238 | 239 |
 | Example in HEX | 0x00 | 0x00 | 0x00 | 0x00 | 0x00 | 0x00 | 0x00 | 0x00 | 0x05 | 0x05 | 0xEE | 0xEF |
 
@@ -405,7 +405,7 @@ The table below shows the detailed structure of the packet
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
 | Byte name | Payload byte 0 | Payload byte 1 | Payload byte 2 | Payload byte 3 | Payload byte 4 | Payload byte 5 | Payload byte 6 | Payload byte 7 | Link command byte | XOR check-sum | Packet suffix 1 | Packet suffix 2 |
 | Description for Abort | Should be 0 | Should be 0 | Should be 0 | Should be 0 | Should be 0 | Should be 0 | Should be 0 | Should be 0 | 6 | 6 | Specified in the settings | Specified in the settings |
-| Value in DEC | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 6 | 6 | 238 | 239 |
+| Value in DEC | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 6 |  | 238 | 239 |
 | Example in DEC | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 6 | 6 | 238 | 239 |
 | Example in HEX | 0x00 | 0x00 | 0x00 | 0x00 | 0x00 | 0x00 | 0x00 | 0x00 | 0x06 | 0x06 | 0xEE | 0xEF |
 
