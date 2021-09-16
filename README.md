@@ -18,6 +18,26 @@ All the code excluding the dependencies block, was written by Pavel Neshumov (Fe
 
 ----------
 
+## Table of contents
+
+- [More projects](#more-projects)
+  - [Liberty-X](#liberty-x)
+  - [Eitude](#eitude)
+  - [Sonarus](#sonarus)
+  - [GPS Mixer](#gps-mixer)
+- [Feedback](#feedback)
+- [For project development](#for-project-development)
+- [Dependencies](#dependencies)
+- [Description](#description)
+- [Licenses](#licenses)
+- [Logotype](#logotype)
+- [Building and running](#building-and-running)
+- [Configuration](#configuration)
+  - [Settings](#settings)
+  - [PID](#pid)
+- [Data packet structure](#data-packet-structure)
+----------
+
 ## More projects
 ### Liberty-X
 Drone flight controller
@@ -48,20 +68,6 @@ Way to improve GPS navigation using multiple receivers
 - BTC: `bc1qd2j53p9nplxcx4uyrv322t3mg0t93pz6m5lnft`
 - ZEC: `t1Jb5tH61zcSTy2QyfsxftUEWHikdSYpPoz`
 - ETH: `0x284E6121362ea1C69528eDEdc309fC8b90fA5578`
-
-----------
-
-## Table of contents
-
-- [Dependencies](#dependencies)
-- [Description](#description)
-- [License](#license)
-- [Logotype](#logotype)
-- [Building and running](#building-and-running)
-- [Configuration](#configuration)
-  - [Settings](#settings)
-  - [PID](#pid)
-- [Data packet structure](#data-packet-structure)
 
 ----------
 
