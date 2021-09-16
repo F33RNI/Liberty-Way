@@ -2,15 +2,15 @@
 
 ![Logo](/git_images/logo_book.png "Logo")
 
-[![Twitter](https://img.shields.io/twitter/url?color=black&label=Twitter&logo=twitter&style=for-the-badge&url=https%3A%2F%2Ftwitter.com%2Fliberty_drones)](https://twitter.com/liberty_drones)
-[![GitHub license](https://img.shields.io/github/license/XxOinvizioNxX/Liberty-Way?color=red&style=for-the-badge)](https://github.com/XxOinvizioNxX/Liberty-Way/blob/main/LICENSE)
-[![GitHub issues](https://img.shields.io/github/issues/XxOinvizioNxX/Liberty-Way?color=orange&style=for-the-badge)](https://github.com/XxOinvizioNxX/Liberty-Way/issues)
-![GitHub All Releases](https://img.shields.io/github/downloads/XxOinvizioNxX/Liberty-Way/total?color=yellow&style=for-the-badge "GitHub All Releases")
-[![Travis (.com)](https://img.shields.io/travis/com/XxOinvizioNxX/Liberty-Way?color=green&style=for-the-badge)](https://www.travis-ci.com/github/XxOinvizioNxX)
-[![GitHub stars](https://img.shields.io/github/stars/XxOinvizioNxX/Liberty-Way?color=blue&style=for-the-badge)](https://github.com/XxOinvizioNxX/Liberty-Way/stargazers)
-[![Liberty-Way_beta_3.0.0](https://img.shields.io/badge/latest_version-beta_3.0.0-informational?logo=Github&style=for-the-badge&color=purple "Liberty-Way_beta_3.0.0")](https://github.com/XxOinvizioNxX/Liberty-Way/releases/tag/beta_3.0.0 "Liberty-Way_beta_3.0.0")
+[![Twitter](https://img.shields.io/twitter/url?color=gray&label=twitter&logo=twitter&style=flat-square&url=https%3A%2F%2Ftwitter.com%2Fliberty_drones)](https://twitter.com/liberty_drones)
+[![GitHub license](https://img.shields.io/github/license/XxOinvizioNxX/Liberty-Way?color=red&style=flat-square)](https://github.com/XxOinvizioNxX/Liberty-Way/blob/main/LICENSE)
+[![GitHub issues](https://img.shields.io/github/issues/XxOinvizioNxX/Liberty-Way?color=orange&style=flat-square)](https://github.com/XxOinvizioNxX/Liberty-Way/issues)
+![GitHub All Releases](https://img.shields.io/github/downloads/XxOinvizioNxX/Liberty-Way/total?color=yellow&style=flat-square "GitHub All Releases")
+[![Travis (.com)](https://img.shields.io/travis/com/XxOinvizioNxX/Liberty-Way?color=green&style=flat-square)](https://www.travis-ci.com/github/XxOinvizioNxX)
+[![GitHub stars](https://img.shields.io/github/stars/XxOinvizioNxX/Liberty-Way?color=blue&style=flat-square)](https://github.com/XxOinvizioNxX/Liberty-Way/stargazers)
+[![Liberty-Way_beta_3.0.0](https://img.shields.io/badge/latest_version-beta_3.0.0-informational?logo=Github&style=flat-square&color=purple "Liberty-Way_beta_3.0.0")](https://github.com/XxOinvizioNxX/Liberty-Way/releases/tag/beta_3.0.0 "Liberty-Way_beta_3.0.0")
 
-This project is a part of project activity in Moscow Polytech University by students of group 181-311.
+This project is a part of project activity in Moscow Polytech University by students of group 181-311
 
 Liberty-Way AMLS Landing Controller © 2021 Pavel Neshumov (Fern H.)
 
@@ -19,19 +19,27 @@ All the code excluding the dependencies block, was written by Pavel Neshumov (Fe
 ----------
 
 ## More projects
-### Liberty-X drone flight controller
+### Liberty-X
+Drone flight controller
+- https://github.com/XxOinvizioNxX/Liberty-X
 
-- **Liberty-X Project** (Flight controller): https://github.com/XxOinvizioNxX/Liberty-X
+### Eitude
+AMLS Platform controller
+- https://github.com/XxOinvizioNxX/Liberty-Way/tree/main/Eitude
 
-### Liberty-Way Eitude
+### Sonarus
+I2C ultrasonic rangefinder
+- https://github.com/XxOinvizioNxX/Liberty-Way/tree/main/Sonarus
 
-- **AMLS platform** (Platform): https://github.com/XxOinvizioNxX/Liberty-Way/tree/main/Eitude
+### GPS Mixer
+Way to improve GPS navigation using multiple receivers
+- https://github.com/XxOinvizioNxX/Liberty-Way/tree/main/GPS-mixer
 
 ----------
 
 ## Feedback
 
-- Pavel Neshumov (Author and CEO of the project) E-Mail: xxoinvizionxx@gmail.com, Twitter: @fern_hertz
+- Fern H. (Pavel Neshumov) (Author and CEO of the project) E-Mail: xxoinvizionxx@gmail.com, Twitter: @fern_hertz
 - Andrey Kabalin (Project developer. GPS stabilization, hardware development) E-Mail: astik452@gmail.com
 - Vladislav Yasnetsky (Project developer. Video editing, PR, hardware development). E-Mail: vlad.yasn@gmail.com
 
