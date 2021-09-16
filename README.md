@@ -251,7 +251,7 @@ These are the parameters presented in settings.json file that are used by the pr
 
 `"log_fps": false` - 
 
-"log_api_requests": false` - 
+`"log_api_requests": false` - 
 
 ```
 
