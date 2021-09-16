@@ -253,8 +253,6 @@ These are the parameters presented in settings.json file that are used by the pr
 
 `"log_api_requests": false` - 
 
-```
-
 ### PID
 
 These are the PID regulation parameters for each processed axle (x, y, z and yaw) which can be found in pid.json file:
