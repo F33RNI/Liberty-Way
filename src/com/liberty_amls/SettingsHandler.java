@@ -255,11 +255,6 @@ public class SettingsHandler {
             if (settingsContainer.planetRadius <= 0)
                 exitWithError("Invalid planet radius");
 
-            // Speed filter factor
-            settingsContainer.speedFilter = jsonSettings.get("speed_filter").getAsDouble();
-            if (settingsContainer.speedFilter < 0.0 || settingsContainer.speedFilter > 1.0)
-                exitWithError("Invalid speed filter factor");
-
             // How many pascals will be added to pressure waypoint
             settingsContainer.pressureTermAbovePlatform = jsonSettings.get("pressure_term_above_platform").getAsInt();
             if (settingsContainer.pressureTermAbovePlatform < -200

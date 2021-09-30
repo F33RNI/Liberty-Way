@@ -99,7 +99,7 @@ public class PositionHandler {
         // Find distance between drone and platform
         if (!platformContainer.platformLost && platformContainer.satellitesNum > 0
                 && !telemetryContainer.telemetryLost && telemetryContainer.satellitesNum > 0)
-        positionContainer.distance = (int) SpeedHandler.distanceOnGeoid(telemetryContainer.gps,
+        positionContainer.distance = (int) GPS.distanceOnGeoid(telemetryContainer.gps,
                 platformContainer.gps, settingsContainer.planetRadius);
 
         // TODO: In-flight error checking
@@ -460,7 +460,7 @@ public class PositionHandler {
      */
     private boolean preFlightChecks() {
         boolean checksPassed = true;
-        /*if (positionContainer.status != 0)
+        if (positionContainer.status != 0)
             checksPassed = preFlightError("Initial status is not WAIT");
         if (!positionContainer.isFrameNormal)
             checksPassed = preFlightError("Wrong camera frame");
@@ -483,7 +483,7 @@ public class PositionHandler {
             if (settingsContainer.isTelemetryNecessary
                     && telemetryContainer.satellitesNum < settingsContainer.minSatellitesNumStart)
                 checksPassed = preFlightError("Not enough GPS satellites on the drone");
-        }*/
+        }
         if (checksPassed) {
             logger.info("Basic pre-flight checks passed");
             logger.warn("CAUTION! Starting LibertyWay sequence! Motor start possible!");

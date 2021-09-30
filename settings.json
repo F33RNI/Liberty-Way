@@ -58,7 +58,6 @@
   "send_idle_in_wait_mode": true,
   "is_gps_prediction_allowed": false,
   "stop_prediction_on_distance": 10,
-  "platform_hardware_compass": false,
   "log_fps": false,
   "log_api_requests": false
 }
