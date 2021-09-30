@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2021 Fern Hertz (Pavel Neshumov), Liberty-Way Landing System Project
- * This software is part of Autonomous Multirotor Landing System (AMLS) Project
+ * Copyright (C) 2021 Fern H. (Pavel Neshumov), Liberty-Way Landing System Project
+ * This software is part of Liberty Drones Project aka AMLS (Autonomous Multirotor Landing System)
  *
  * Licensed under the GNU Affero General Public License, Version 3.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -141,27 +141,24 @@ public class PlatformHandler implements Runnable {
                                 | ((int) platformRxBuffer[5] & 0xFF) << 24);
 
                 // Number of GPS satellites
-                platformContainer.satellitesNum = ((int) platformRxBuffer[9] & 0xFF);
+                platformContainer.gps.setSatellitesNum((int) platformRxBuffer[9] & 0xFF);
 
-                // Fix type of GPS
-                platformContainer.fixType = ((int) platformRxBuffer[10] & 0xFF);
+                // Ground heading
+                platformContainer.gps.setGroundHeading((((int) platformRxBuffer[11] & 0xFF)
+                        | ((int) platformRxBuffer[10] & 0xFF) << 8) / 10.0);
+
+                // Platform's speed
+                platformContainer.gps.setGroundSpeed((((int) platformRxBuffer[13] & 0xFF)
+                        | ((int) platformRxBuffer[12] & 0xFF) << 8) / 10.0);
 
                 // Pressure
-                platformContainer.pressure = ((int) platformRxBuffer[14] & 0xFF)
-                        | ((int) platformRxBuffer[13] & 0xFF) << 8
-                        | ((int) platformRxBuffer[12] & 0xFF) << 16
-                        | ((int) platformRxBuffer[11] & 0xFF) << 24;
+                platformContainer.pressure = ((int) platformRxBuffer[17] & 0xFF)
+                        | ((int) platformRxBuffer[16] & 0xFF) << 8
+                        | ((int) platformRxBuffer[15] & 0xFF) << 16
+                        | ((int) platformRxBuffer[14] & 0xFF) << 24;
 
                 // Illumination from LUX meter
-                platformContainer.illumination = ((int) platformRxBuffer[15] & 0xFF);
-                platformContainer.illumination = Math.pow(platformContainer.illumination, 2.105);
-
-                // TODO: Calculate platform's speed
-                platformContainer.speed = 0;
-
-                // TODO: Add compass reading
-                if (settingsContainer.platformHardwareCompass)
-                    platformContainer.headingRadians = 0.0;
+                platformContainer.illumination = Math.pow(((int) platformRxBuffer[18] & 0xFF), 2.105);
 
                 // Increment packets counter
                 platformContainer.packetsNumber++;

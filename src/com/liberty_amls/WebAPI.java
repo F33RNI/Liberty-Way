@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2021 Fern Hertz (Pavel Neshumov), Liberty-Way Landing System Project
- * This software is part of Autonomous Multirotor Landing System (AMLS) Project
+ * Copyright (C) 2021 Fern H. (Pavel Neshumov), Liberty-Way Landing System Project
+ * This software is part of Liberty Drones Project aka AMLS (Autonomous Multirotor Landing System)
  *
  * Licensed under the GNU Affero General Public License, Version 3.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,6 @@
  * VIOLATES INTERNATIONAL HUMAN RIGHTS OR HUMAN FREEDOM.
  * BY USING THE PROJECT (OR PART OF THE PROJECT / CODE) YOU AGREE TO ALL OF THE ABOVE RULES.
  */
-
 
 package com.liberty_amls;
 
@@ -451,13 +450,13 @@ public class WebAPI {
         telemetry.add("drone_altitude",
                 new JsonPrimitive(decimalFormatInt.format(telemetryContainer.altitude)));
         telemetry.add("drone_satellites",
-                new JsonPrimitive(decimalFormatInt.format(telemetryContainer.satellitesNum)));
+                new JsonPrimitive(decimalFormatInt.format(telemetryContainer.gps.getSatellitesNum())));
         telemetry.add("drone_lat",
                 new JsonPrimitive(String.valueOf(telemetryContainer.gps.getLatDouble())));
         telemetry.add("drone_lon",
                 new JsonPrimitive(String.valueOf(telemetryContainer.gps.getLonDouble())));
         telemetry.add("drone_speed",
-                new JsonPrimitive(decimalFormat.format(telemetryContainer.groundSpeed)));
+                new JsonPrimitive(decimalFormat.format(telemetryContainer.gps.getGroundSpeed())));
 
         // Platform telemetry data
         telemetry.add("platform_lost",
@@ -467,13 +466,13 @@ public class WebAPI {
         telemetry.add("platform_pressure",
                 new JsonPrimitive(decimalFormatInt.format(platformContainer.pressure)));
         telemetry.add("platform_satellites",
-                new JsonPrimitive(String.valueOf(platformContainer.satellitesNum)));
+                new JsonPrimitive(String.valueOf(platformContainer.gps.getSatellitesNum())));
         telemetry.add("platform_lat",
                 new JsonPrimitive(String.valueOf(platformContainer.gps.getLatDouble())));
         telemetry.add("platform_lon",
                 new JsonPrimitive(String.valueOf(platformContainer.gps.getLonDouble())));
         telemetry.add("platform_speed",
-                new JsonPrimitive(decimalFormat.format(platformContainer.speed)));
+                new JsonPrimitive(decimalFormat.format(platformContainer.gps.getGroundSpeed())));
 
         return telemetry;
     }

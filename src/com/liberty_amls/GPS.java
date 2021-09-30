@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2021 Fern Hertz (Pavel Neshumov), Liberty-Way Landing System Project
- * This software is part of Autonomous Multirotor Landing System (AMLS) Project
+ * Copyright (C) 2021 Fern H. (Pavel Neshumov), Liberty-Way Landing System Project
+ * This software is part of Liberty Drones Project aka AMLS (Autonomous Multirotor Landing System)
  *
  * Licensed under the GNU Affero General Public License, Version 3.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,16 +32,23 @@ package com.liberty_amls;
 public class GPS {
     private int latInt, lonInt;
     private double latDouble, lonDouble;
+    private int satellitesNum;
+    private double groundSpeed;
+    private double groundHeading;
     private boolean initialized;
 
     /**
-     * This class stores GPS coordinates and allows conversions between Integer and Double types
+     * This class stores GPS coordinates, number of satellites, ground speed and ground heading
+     * and allows conversions between Integer and Double types
      */
     GPS() {
         this.latInt = 0;
         this.lonInt = 0;
         this.latDouble = 0.0;
         this.lonDouble = 0.0;
+        this.satellitesNum = 0;
+        this.groundSpeed = 0.0;
+        this.groundHeading = 0.0;
         this.initialized = false;
     }
 
@@ -104,6 +111,66 @@ public class GPS {
      */
     public boolean isNotEmpty() {
         return initialized;
+    }
+
+    /**
+     * @return number of satellites
+     */
+    public int getSatellitesNum() {
+        return satellitesNum;
+    }
+
+    /**
+     * Sets new number of active satellites
+     * @param satellitesNum integer number of satellites
+     */
+    public void setSatellitesNum(int satellitesNum) {
+        this.satellitesNum = satellitesNum;
+    }
+
+    /**
+     * @return ground speed in km/h
+     */
+    public double getGroundSpeed() {
+        return groundSpeed;
+    }
+
+    /**
+     * Sets new ground speed
+     * @param groundSpeed speed in km/h
+     */
+    public void setGroundSpeed(double groundSpeed) {
+        this.groundSpeed = groundSpeed;
+    }
+
+    /**
+     * @return ground heading (yaw angle) in degrees
+     */
+    public double getGroundHeading() {
+        return groundHeading;
+    }
+
+    /**
+     * Sets new ground heading (yaw angle)
+     * @param groundHeading angle in degrees
+     */
+    public void setGroundHeading(double groundHeading) {
+        this.groundHeading = groundHeading;
+    }
+
+    /**
+     * Copies all class parameters from another GPS class
+     * @param gps GPS class
+     */
+    public void copyFromGPS(GPS gps) {
+        this.latInt = gps.getLatInt();
+        this.lonInt = gps.getLonInt();
+        this.latDouble = gps.getLatDouble();
+        this.lonDouble = gps.getLonDouble();
+        this.satellitesNum = gps.getSatellitesNum();
+        this.groundSpeed = gps.getGroundSpeed();
+        this.groundHeading = gps.getGroundHeading();
+        this.initialized = gps.isNotEmpty();
     }
 
     /**

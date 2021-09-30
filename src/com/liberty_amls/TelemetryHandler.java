@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2021 Fern Hertz (Pavel Neshumov), Liberty-Way Landing System Project
- * This software is part of Autonomous Multirotor Landing System (AMLS) Project
+ * Copyright (C) 2021 Fern H. (Pavel Neshumov), Liberty-Way Landing System Project
+ * This software is part of Liberty Drones Project aka AMLS (Autonomous Multirotor Landing System)
  *
  * Licensed under the GNU Affero General Public License, Version 3.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -148,13 +148,12 @@ public class TelemetryHandler implements Runnable {
                         | ((int) telemetryBuffer[21] & 0xFF) << 16
                         | ((int) telemetryBuffer[20] & 0xFF) << 24);
 
-                // Number of GPS satellites
-                telemetryContainer.satellitesNum = ((int) telemetryBuffer[24] & 0xFF);
+                // TNumber of GPS satellites
+                telemetryContainer.gps.setSatellitesNum((int) telemetryBuffer[24] & 0xFF);
 
                 // Ground speed (from GPS)
-                telemetryContainer.groundSpeed = ((int) telemetryBuffer[26] & 0xFF)
-                        | ((int) telemetryBuffer[25] & 0xFF) << 8;
-                telemetryContainer.groundSpeed /= 10.0;
+                telemetryContainer.gps.setGroundSpeed((((int) telemetryBuffer[26] & 0xFF)
+                        | ((int) telemetryBuffer[25] & 0xFF) << 8) / 10.0);
 
                 // Liberty Way sequence step
                 telemetryContainer.linkWaypointStep = ((int) telemetryBuffer[27] & 0xFF);

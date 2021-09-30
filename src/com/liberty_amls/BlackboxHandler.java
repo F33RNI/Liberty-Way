@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2021 Fern Hertz (Pavel Neshumov), Liberty-Way Landing System Project
- * This software is part of Autonomous Multirotor Landing System (AMLS) Project
+ * Copyright (C) 2021 Fern H. (Pavel Neshumov), Liberty-Way Landing System Project
+ * This software is part of Liberty Drones Project aka AMLS (Autonomous Multirotor Landing System)
  *
  * Licensed under the GNU Affero General Public License, Version 3.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -55,7 +55,6 @@ public class BlackboxHandler implements Runnable {
 
     /**
      * This class writes the current state of the drone to log files
-     * TODO: Add drone telemetry
      * @param positionContainer container of the current position
      * @param blackboxDirectory Folder where .csv log files are stored
      */
@@ -227,7 +226,7 @@ public class BlackboxHandler implements Runnable {
             bufferedWriter.write(",");
             bufferedWriter.write(String.valueOf(platformContainer.errorStatus));
             bufferedWriter.write(",");
-            bufferedWriter.write(String.valueOf(platformContainer.satellitesNum));
+            bufferedWriter.write(String.valueOf(platformContainer.gps.getSatellitesNum()));
             bufferedWriter.write(",");
             bufferedWriter.write(String.valueOf(platformContainer.gps.getLatDouble()));
             bufferedWriter.write(",");
@@ -235,9 +234,9 @@ public class BlackboxHandler implements Runnable {
             bufferedWriter.write(",");
             bufferedWriter.write(String.valueOf(platformContainer.pressure));
             bufferedWriter.write(",");
-            bufferedWriter.write(decimalFormat.format(platformContainer.speed));
+            bufferedWriter.write(decimalFormat.format(platformContainer.gps.getGroundSpeed()));
             bufferedWriter.write(",");
-            bufferedWriter.write(String.valueOf((int)Math.toDegrees(platformContainer.headingRadians)));
+            bufferedWriter.write(String.valueOf((int)platformContainer.gps.getGroundHeading()));
             bufferedWriter.write(",");
             bufferedWriter.write(String.valueOf((int)platformContainer.illumination));
             bufferedWriter.write(",");
@@ -253,7 +252,7 @@ public class BlackboxHandler implements Runnable {
             bufferedWriter.write(",");
             bufferedWriter.write(decimalFormat.format(telemetryContainer.batteryVoltage));
             bufferedWriter.write(",");
-            bufferedWriter.write(String.valueOf(telemetryContainer.satellitesNum));
+            bufferedWriter.write(String.valueOf(telemetryContainer.gps.getSatellitesNum()));
             bufferedWriter.write(",");
             bufferedWriter.write(String.valueOf(telemetryContainer.gps.getLatDouble()));
             bufferedWriter.write(",");
@@ -261,7 +260,7 @@ public class BlackboxHandler implements Runnable {
             bufferedWriter.write(",");
             bufferedWriter.write(String.valueOf(telemetryContainer.altitude));
             bufferedWriter.write(",");
-            bufferedWriter.write(decimalFormat.format(telemetryContainer.groundSpeed));
+            bufferedWriter.write(decimalFormat.format(telemetryContainer.gps.getGroundSpeed()));
             bufferedWriter.write(",");
             bufferedWriter.write(String.valueOf(telemetryContainer.angleRoll));
             bufferedWriter.write(",");

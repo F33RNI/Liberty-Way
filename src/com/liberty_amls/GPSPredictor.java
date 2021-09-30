@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2021 Fern Hertz (Pavel Neshumov), Liberty-Way Landing System Project
- * This software is part of Autonomous Multirotor Landing System (AMLS) Project
+ * Copyright (C) 2021 Fern H. (Pavel Neshumov), Liberty-Way Landing System Project
+ * This software is part of Liberty Drones Project aka AMLS (Autonomous Multirotor Landing System)
  *
  * Licensed under the GNU Affero General Public License, Version 3.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,7 +33,6 @@ public class GPSPredictor {
     private final GPS gpsLast;
     private final GPS gpsCurrent;
     private final GPS gpsPredicted;
-    private double compassHeading;
 
     /**
      * This class calculates a line between the current and previous GPS coordinates
@@ -43,22 +42,6 @@ public class GPSPredictor {
         this.gpsLast = new GPS();
         this.gpsCurrent = new GPS();
         this.gpsPredicted = new GPS();
-        this.compassHeading = 0.0;
-    }
-
-    /**
-     * Calculates compass heading (in radians) using 2 GPS points
-     */
-    public void calculateHeadingFromGPS() {
-        if (gpsLast.isNotEmpty() && gpsCurrent.isNotEmpty()) {
-            // Calculate the deviation between the previous and current points
-            int dLat = gpsLast.getLatInt() - gpsCurrent.getLatInt();
-            int dLon = gpsLast.getLonInt() - gpsCurrent.getLonInt();
-
-            // Calculate compass heading
-            if (dLat != 0 || dLon != 0)
-                compassHeading = Math.atan2(dLat, dLon) + Math.PI / 2;
-        }
     }
 
     /**
@@ -66,6 +49,9 @@ public class GPSPredictor {
      * @return predicted GPS coordinates
      */
     public GPS getGPSPredicted() {
+        // Copy all values from current gps
+        gpsPredicted.copyFromGPS(gpsCurrent);
+
         double increment;
         if (gpsLast.isNotEmpty() && gpsCurrent.isNotEmpty()) {
             // Calculate the deviation between the previous and current points
@@ -77,36 +63,28 @@ public class GPSPredictor {
         } else
             increment = 0;
 
+        // New heading = current + diff = current + (current - last)
+        double compassHeading = gpsCurrent.getGroundHeading()
+                + (gpsCurrent.getGroundSpeed() - gpsLast.getGroundHeading());
+
+        // Set new predicted values
         gpsPredicted.setFromInt(gpsCurrent.getLatInt() + (int)(increment * Math.cos(compassHeading)),
                 gpsCurrent.getLonInt() + (int)(increment * -Math.sin(compassHeading)));
+        gpsPredicted.setGroundHeading(compassHeading);
         return gpsPredicted;
-    }
-
-    /**
-     * @return compass heading in radians
-     */
-    public double getCompassHeading() {
-        return compassHeading;
     }
 
     /**
      * @param gpsLast previous GPS coordinates
      */
     public void setGPSLast(GPS gpsLast) {
-        this.gpsLast.setFromInt(gpsLast.getLatInt(), gpsLast.getLonInt());
+        this.gpsLast.copyFromGPS(gpsLast);
     }
 
     /**
-     * @param GPSCurrent current GPS coordinates
+     * @param gpsCurrent current GPS coordinates
      */
-    public void setGPSCurrent(GPS GPSCurrent) {
-        this.gpsCurrent.setFromInt(GPSCurrent.getLatInt(), GPSCurrent.getLonInt());
-    }
-
-    /**
-     * @param compassHeadingRadians compass angle in radians
-     */
-    public void setCompassHeading(double compassHeadingRadians) {
-        this.compassHeading = compassHeadingRadians;
+    public void setGPSCurrent(GPS gpsCurrent) {
+        this.gpsCurrent.copyFromGPS(gpsCurrent);
     }
 }

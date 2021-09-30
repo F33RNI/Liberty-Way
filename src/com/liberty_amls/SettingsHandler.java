@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2021 Fern Hertz (Pavel Neshumov), Liberty-Way Landing System Project
- * This software is part of Autonomous Multirotor Landing System (AMLS) Project
+ * Copyright (C) 2021 Fern H. (Pavel Neshumov), Liberty-Way Landing System Project
+ * This software is part of Liberty Drones Project aka AMLS (Autonomous Multirotor Landing System)
  *
  * Licensed under the GNU Affero General Public License, Version 3.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -284,9 +284,6 @@ public class SettingsHandler {
             settingsContainer.stopPredictionOnDistance = jsonSettings.get("stop_prediction_on_distance").getAsInt();
             if (settingsContainer.stopPredictionOnDistance < 0)
                 exitWithError("Wrong prediction stop distance");
-
-            // Is hardware compass on platforms enables
-            settingsContainer.platformHardwareCompass = jsonSettings.get("platform_hardware_compass").getAsBoolean();
 
             // Is FPS logging enables
             settingsContainer.logFPS = jsonSettings.get("log_fps").getAsBoolean();

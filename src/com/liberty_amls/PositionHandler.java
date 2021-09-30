@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2021 Fern Hertz (Pavel Neshumov), Liberty-Way Landing System Project
- * This software is part of Autonomous Multirotor Landing System (AMLS) Project
+ * Copyright (C) 2021 Fern H. (Pavel Neshumov), Liberty-Way Landing System Project
+ * This software is part of Liberty Drones Project aka AMLS (Autonomous Multirotor Landing System)
  *
  * Licensed under the GNU Affero General Public License, Version 3.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -97,8 +97,8 @@ public class PositionHandler {
      */
     public void proceedPosition(boolean newMarkerPosition, double x, double y, double z, double yaw) {
         // Find distance between drone and platform
-        if (!platformContainer.platformLost && platformContainer.satellitesNum > 0
-                && !telemetryContainer.telemetryLost && telemetryContainer.satellitesNum > 0)
+        if (!platformContainer.platformLost && platformContainer.gps.getSatellitesNum() > 0
+                && !telemetryContainer.telemetryLost && telemetryContainer.gps.getSatellitesNum() > 0)
         positionContainer.distance = (int) GPS.distanceOnGeoid(telemetryContainer.gps,
                 platformContainer.gps, settingsContainer.planetRadius);
 
@@ -306,13 +306,6 @@ public class PositionHandler {
                     else if (settingsContainer.isGPSPredictionAllowed) {
                         // Feed new GPS coordinates
                         gpsPredictor.setGPSCurrent(platformContainer.gps);
-                        // Calculate heading (from software or hardware)
-                        if (settingsContainer.platformHardwareCompass)
-                            gpsPredictor.setCompassHeading(platformContainer.headingRadians);
-                        else {
-                            gpsPredictor.calculateHeadingFromGPS();
-                            platformContainer.headingRadians = gpsPredictor.getCompassHeading();
-                        }
                         // Send predicted waypoint
                         linkSender.sendGPSWaypoint(gpsPredictor.getGPSPredicted());
                         // Store current position for next cycle
@@ -475,13 +468,13 @@ public class PositionHandler {
                 checksPassed = preFlightError("Drone error " + telemetryContainer.errorStatus);
         }
         if (!settingsContainer.onlyOpticalStabilization) {
-            if (platformContainer.satellitesNum < settingsContainer.minSatellitesNumStart)
+            if (platformContainer.gps.getSatellitesNum() < settingsContainer.minSatellitesNumStart)
                 checksPassed = preFlightError("Not enough GPS satellites on the platform");
-            if (platformContainer.speed > settingsContainer.maxPlatformSpeed)
+            if (platformContainer.gps.getGroundSpeed() > settingsContainer.maxPlatformSpeed)
                 checksPassed = preFlightError("The platform moves faster than " +
                         settingsContainer.maxPlatformSpeed + " km/h");
             if (settingsContainer.isTelemetryNecessary
-                    && telemetryContainer.satellitesNum < settingsContainer.minSatellitesNumStart)
+                    && telemetryContainer.gps.getSatellitesNum() < settingsContainer.minSatellitesNumStart)
                 checksPassed = preFlightError("Not enough GPS satellites on the drone");
         }
         if (checksPassed) {

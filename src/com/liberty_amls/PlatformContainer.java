@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2021 Fern Hertz (Pavel Neshumov), Liberty-Way Landing System Project
- * This software is part of Autonomous Multirotor Landing System (AMLS) Project
+ * Copyright (C) 2021 Fern H. (Pavel Neshumov), Liberty-Way Landing System Project
+ * This software is part of Liberty Drones Project aka AMLS (Autonomous Multirotor Landing System)
  *
  * Licensed under the GNU Affero General Public License, Version 3.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,12 +36,10 @@ public class PlatformContainer {
     public int packetsNumber;
     public double illumination;
     public double cameraExposure;
-    public int fixType, satellitesNum;
     public int pressure;
-    public double speed;
     public boolean backlight;
     public int gripsCommand;
-    public double headingRadians;
+
 
     /**
      * This class contains all data from the platform
@@ -52,14 +50,9 @@ public class PlatformContainer {
         platformLost = true;
         packetsNumber = 0;
         illumination = 0.0;
-        speed = 0;
         pressure = 0;
-        fixType = 0;
-        satellitesNum = 0;
         cameraExposure = 0;
-        speed = 0.0;
         backlight = false;
         gripsCommand = 0;
-        headingRadians = 0.0;
     }
 }
