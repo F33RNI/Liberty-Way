@@ -63,6 +63,10 @@ I2C ultrasonic rangefinder
 Way to improve GPS navigation using multiple receivers
 - https://github.com/XxOinvizioNxX/Liberty-Way/tree/main/GPS-mixer
 
+### GPS to Serial
+Android app to send phone GPS coordinates via USB serial port
+- https://github.com/XxOinvizioNxX/GPS-to-Serial
+
 ----------
 
 ## Feedback
