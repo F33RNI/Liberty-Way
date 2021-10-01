@@ -132,9 +132,9 @@ AMLS and Liberty-X logo was designed by Pavel Neshumov (Fern H.)
 
 ## Building and running
 
-You can build the application yourself or run a ready-made .jar from releases (recommended).
+You can build the application yourself or run a ready-made .jar from releases (recommended). Also, **nightly builds** (.jar) can be launched simply by downloading the main branch and running the START_WINDOWS.bat or START_LINUX.sh file
 
-Liberty-Way is a cross-platform application and has been **tested on Linux and Windows**. You can try running the application on any other operating system. But you first need to build the OpenCV-contrib library (**The releases include libraries for Windows and Linux**).
+Liberty-Way is a cross-platform application and has been **tested on Linux and Windows**. You can try running the application on any other operating system. But you first need to build the OpenCV-contrib library (**The releases and main branch include libraries for Windows and Linux**).
 
 All of the controls is performed only from the browser.
 When starting the application, you can specify the arguments:
