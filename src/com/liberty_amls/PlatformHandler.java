@@ -38,7 +38,7 @@ public class PlatformHandler implements Runnable {
     private final PositionContainer positionContainer;
     private final SerialHandler serialHandler;
     private final UDPHandler udpHandler;
-    private final byte[] platformRxBuffer = new byte[19];
+    private final byte[] platformRxBuffer = new byte[22];
     private final byte[] platformTxBuffer = new byte[6];
     private byte platformRxBytePrevious = 0;
     private int platformRxBufferPosition = 0;
@@ -121,10 +121,10 @@ public class PlatformHandler implements Runnable {
             byte checkByte = 0;
 
             // Calculate check sum
-            for (int i = 0; i <= 15; i++)
+            for (int i = 0; i <= 18; i++)
                 checkByte ^= platformRxBuffer[i];
 
-            if (checkByte == platformRxBuffer[16]) {
+            if (checkByte == platformRxBuffer[19]) {
                 // Parse data if the checksums are equal
 
                 // Error status
@@ -177,7 +177,7 @@ public class PlatformHandler implements Runnable {
             platformRxBufferPosition++;
 
             // Reset buffer on overflow
-            if (platformRxBufferPosition > 18)
+            if (platformRxBufferPosition > 21)
                 platformRxBufferPosition = 0;
         }
     }

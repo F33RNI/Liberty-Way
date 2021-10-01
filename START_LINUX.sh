@@ -1,3 +1,4 @@
+#!/bin/bash
 set echo off
 echo Java home: $JAVA_HOME
 java -version ""
