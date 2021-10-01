@@ -25,7 +25,7 @@ All the code excluding the dependencies block, was written by Pavel Neshumov (Fe
   - [Eitude](#eitude)
   - [Sonarus](#sonarus)
   - [GPS Mixer](#gps-mixer)
-  - [GPS Mixer](#gps-to-serial)
+  - [GPS to Serial](#gps-to-serial)
 - [Feedback](#feedback)
 - [For project development](#for-project-development)
 - [Dependencies](#dependencies)
