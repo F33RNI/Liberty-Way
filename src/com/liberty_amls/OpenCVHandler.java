@@ -92,8 +92,9 @@ public class OpenCVHandler implements Runnable {
 
     /**
      * Loads settings and opens the camera
+     * @return true if camera opened successfully false if not
      */
-    public void start() {
+    public boolean start() {
         try {
             // Load camera corrections from jsons
             cameraMatrix = FileWorkers.loadCameraMatrix(settingsContainer.cameraMatrixFile);
@@ -120,19 +121,20 @@ public class OpenCVHandler implements Runnable {
             if (settingsContainer.disableAutoFocus)
                 videoCapture.set(Videoio.CAP_PROP_AUTOFOCUS, 0);
             videoCapture.set(Videoio.CAP_PROP_EXPOSURE, settingsContainer.maxExposure);
-            openCVRunning = true;
-            if (!videoCapture.isOpened()) {
-                return;
-            }
 
             // Capture the first frame
             videoCapture.read(frame);
 
-            logger.info("Camera " + cameraID + " opened!");
-
+            // Check if camera opened and first frame is not empty
+            if (videoCapture.isOpened() && !frame.empty()) {
+                openCVRunning = true;
+                logger.info("Camera " + cameraID + " opened!");
+                return true;
+            }
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Error opening camera " + cameraID + " !", e);
         }
+        return false;
     }
 
     /**

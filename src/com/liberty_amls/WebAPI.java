@@ -255,34 +255,18 @@ public class WebAPI {
                 setupData.get("link_port").getAsString().length() > 0 ?
                         setupData.get("link_baudrate").getAsString() : "",
                 settingsContainer.serialReconnectTime);
-        serialHandlerLink.openPort();
 
         // Create SerialHandler class for serial communication with Platform
         serialHandlerPlatform = new SerialHandler(setupData.get("platform_port").getAsString(),
                 setupData.get("platform_port").getAsString().length() > 0 ?
                         setupData.get("platform_baudrate").getAsString() : "",
                 settingsContainer.serialReconnectTime);
-        serialHandlerPlatform.openPort();
 
         // Create UDPHandler class for UDP communication with Liberty-Link
         udpHandlerLink = new UDPHandler(setupData.get("link_udp").getAsString(), settingsContainer.udpTimeout);
-        udpHandlerLink.openUDP();
-        if (udpHandlerLink.isUdpPortOpened()) {
-            // Create and start a new thread with the normal priority for the UDP handler (async reader)
-            Thread udpLinkThread = new Thread(udpHandlerLink);
-            udpLinkThread.setPriority(Thread.NORM_PRIORITY);
-            udpLinkThread.start();
-        }
 
         // Create UDPHandler class for UDP communication with Platform
         udpHandlerPlatform = new UDPHandler(setupData.get("platform_udp").getAsString(), settingsContainer.udpTimeout);
-        udpHandlerPlatform.openUDP();
-        if (udpHandlerPlatform.isUdpPortOpened()) {
-            // Create and start a new thread with the normal priority for the UDP handler (async reader)
-            Thread udpPlatformThread = new Thread(udpHandlerPlatform);
-            udpPlatformThread.setPriority(Thread.NORM_PRIORITY);
-            udpPlatformThread.start();
-        }
 
         // Create PositionContainer class for store current position
         positionContainer = new PositionContainer();
@@ -299,24 +283,10 @@ public class WebAPI {
         // Create PlatformHandler class for integrating with platform
         platformHandler = new PlatformHandler(platformContainer, positionContainer,
                 serialHandlerPlatform, udpHandlerPlatform, settingsContainer);
-        // Create and start a new thread for the platformHandler if platform port is open
-        if (serialHandlerPlatform.isPortOpened() || udpHandlerPlatform.isUdpPortOpened()) {
-            Thread platformThread = new Thread(platformHandler);
-            platformThread.start();
-        } else
-            logger.warn("No communication with the platform!");
 
         // Create TelemetryHandler class for read the telemetry data
         telemetryHandler = new TelemetryHandler(telemetryContainer, serialHandlerLink,
                 udpHandlerLink, settingsContainer);
-
-        // Create and start a new thread for the platformHandler if Liberty-Link port is open
-        if (serialHandlerLink.isPortOpened() || udpHandlerLink.isUdpPortOpened()) {
-            Thread telemetryThread = new Thread(telemetryHandler);
-            telemetryThread.setPriority(Thread.NORM_PRIORITY);
-            telemetryThread.start();
-        } else
-            logger.warn("No Liberty-Link port! Telemetry data cannot be read!");
 
         // Create OSDHandler and VideoStream classes
         osdHandler = new OSDHandler(new VideoStream(InetAddress.getByName(hostName), videoPort,
@@ -327,10 +297,6 @@ public class WebAPI {
         // Create BlackboxHandler class for logging all events and position
         blackboxHandler = new BlackboxHandler(positionContainer,
                 platformContainer, telemetryContainer, settingsContainer.blackboxFolder);
-        // Create and start a new thread with the normal priority for the blackbox
-        Thread blackboxThread = new Thread(blackboxHandler);
-        blackboxThread.setPriority(Thread.NORM_PRIORITY);
-        blackboxThread.start();
 
         // Create LinkSender class for to send liberty-link packets to the drone
         linkSender = new LinkSender(serialHandlerLink, udpHandlerLink, settingsContainer);
@@ -351,7 +317,52 @@ public class WebAPI {
                 platformContainer,
                 osdHandler,
                 settingsContainer);
-        openCVHandler.start();
+
+        // Check camera
+        if (!openCVHandler.start()) {
+            logger.error("Can't open camera!");
+            return;
+        }
+
+        // Open serial and UDP ports
+        serialHandlerLink.openPort();
+        serialHandlerPlatform.openPort();
+        udpHandlerLink.openUDP();
+        udpHandlerPlatform.openUDP();
+
+        // Create and start a new thread with the normal priority for the UDP handler (async reader)
+        if (udpHandlerLink.isUdpPortOpened()) {
+            Thread udpLinkThread = new Thread(udpHandlerLink);
+            udpLinkThread.setPriority(Thread.NORM_PRIORITY);
+            udpLinkThread.start();
+        }
+
+        // Create and start new thread with the normal priority for the UDP handler (async reader)
+        if (udpHandlerPlatform.isUdpPortOpened()) {
+            Thread udpPlatformThread = new Thread(udpHandlerPlatform);
+            udpPlatformThread.setPriority(Thread.NORM_PRIORITY);
+            udpPlatformThread.start();
+        }
+
+        // Create and start new thread for the platformHandler if platform port is open
+        if (serialHandlerPlatform.isPortOpened() || udpHandlerPlatform.isUdpPortOpened()) {
+            Thread platformThread = new Thread(platformHandler);
+            platformThread.start();
+        } else
+            logger.warn("No communication with the platform!");
+
+        // Create and start new thread for the platformHandler if Liberty-Link port is open
+        if (serialHandlerLink.isPortOpened() || udpHandlerLink.isUdpPortOpened()) {
+            Thread telemetryThread = new Thread(telemetryHandler);
+            telemetryThread.setPriority(Thread.NORM_PRIORITY);
+            telemetryThread.start();
+        } else
+            logger.warn("No Liberty-Link port! Telemetry data cannot be read!");
+
+        // Create and start a new thread with the normal priority for the blackbox
+        Thread blackboxThread = new Thread(blackboxHandler);
+        blackboxThread.setPriority(Thread.NORM_PRIORITY);
+        blackboxThread.start();
 
         // Create and start a new thread with the highest priority for opencv handler
         Thread openCVThread = new Thread(openCVHandler);
