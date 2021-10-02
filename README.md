@@ -132,7 +132,19 @@ AMLS and Liberty-X logo was designed by Pavel Neshumov (Fern H.)
 
 ## Building and running
 
-You can build the application yourself or run a ready-made .jar from releases (recommended). Also, **nightly builds** (.jar) can be launched simply by downloading the main branch and running the START_WINDOWS.bat or START_LINUX.sh file
+Liberty-Way is a cross-platform application and has been tested on:
+- Microsoft Windows 10 Pro 10.0.19041 N/A Build 19041, Intel(R) Core(TM) i7-9750H (x64)
+- macOS 11.6 20G165, Intel(R) Core(TM) i7-9750H (x64)
+- 5.6.0-kali2-amd64 SMP Debian 5.6.14-1kali1 (2020-05-25) x86_64 GNU/Linux, Intel(R) Core(TM) i7-9750H (x64)
+
+You can run Liberty-Way on other operating systems. But it is strongly recommended to build the native OpenCV library from source for your operating system. Native libraries compiled on the listed operating systems are **contained in the release archives**, as well as **in the main branch**. If you build your native library, **put the library file next to the Liberty-Way.jar file**. Don't rename the native library file.
+
+You can build the Liberty-Way application yourself or **run a ready-made .jar from releases (recommended)**. Also, **nightly builds** (.jar) can be downloaded from main branch.
+
+To run the application, you must use command `java -Djava.library.path=. -jar "./Liberty-Way.jar" -c ""` or lauch file `START_WINDOWS.bat` or `START_LINUX.sh` or `START_MACOS.sh` (depends on your operating system)
+
+TODO: Add building script
+
 
 Liberty-Way is a cross-platform application and has been **tested on Linux and Windows**. You can try running the application on any other operating system. But you first need to build the OpenCV-contrib library (**The releases and main branch include libraries for Windows and Linux**).
 
