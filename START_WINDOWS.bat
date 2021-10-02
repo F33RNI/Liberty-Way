@@ -1,4 +1,4 @@
 @echo off
 echo Java home: %JAVA_HOME%
-java -jar Liberty-Way.jar
+java -Djava.library.path=. -jar Liberty-Way.jar
 pause

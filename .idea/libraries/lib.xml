@@ -9,7 +9,7 @@
       <root url="jar://$PROJECT_DIR$/lib/flak-spi-1.2.0.jar!/" />
       <root url="jar://$PROJECT_DIR$/lib/flak-resource-1.2.0.jar!/" />
       <root url="jar://$PROJECT_DIR$/lib/flak-backend-jdk-1.2.0.jar!/" />
-      <root url="jar://$PROJECT_DIR$/lib/opencv-453.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/opencv-451.jar!/" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />
