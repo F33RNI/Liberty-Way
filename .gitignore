@@ -9,3 +9,4 @@ out
 gen
 blackbox
 build
+/out/production/
