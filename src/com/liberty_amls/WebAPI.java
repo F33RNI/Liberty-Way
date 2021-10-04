@@ -249,6 +249,7 @@ public class WebAPI {
         // Load native library (from java-library-path)
         logger.info("Loading OpenCV Native Library");
         System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
+        logger.info("Library loaded");
 
         // Create SerialHandler class for serial communication with Liberty-Link
         serialHandlerLink = new SerialHandler(setupData.get("link_port").getAsString(),

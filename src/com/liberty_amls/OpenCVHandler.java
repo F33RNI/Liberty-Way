@@ -111,6 +111,7 @@ public class OpenCVHandler implements Runnable {
                     settingsContainer.frameHeight / 2.0);
 
             // Start camera with provided ID
+            logger.info("Opening camera with id: " + cameraID);
             videoCapture.open(cameraID);
             videoCapture.set(Videoio.CAP_PROP_FRAME_WIDTH, settingsContainer.frameWidth);
             videoCapture.set(Videoio.CAP_PROP_FRAME_HEIGHT, settingsContainer.frameHeight);
