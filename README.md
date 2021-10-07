@@ -401,6 +401,7 @@ All data that is sent to the drone or comes from the drone (telemetry) is arrang
 ----------
 
 ### IDLE (Link command 0)
+
 In IDLE mode, the drone does not perform any new calculations and simply continues its flight in the previous mode.
 
 The payload bytes must be equal to 0, the Link Command byte is equal to 0, then the check-sum (0) and 2 bytes of the end of the packet.
@@ -418,6 +419,7 @@ The table below shows the detailed structure of the packet
 ----------
 
 ### Direct control (Link command 1)
+
 In direct control mode, the values for the roll, pitch, yaw and throttle axes are transmitted to the drone. In fact, with these packets, the drone is controlled as from a remote control.
 
 The payload bytes are in big-endian order (2 bytes per value), then the Link Command byte is equal to 1, then the check-sum and 2 bytes of the end of the packet.
@@ -435,6 +437,7 @@ The table below shows the detailed structure of the packet
 ----------
 
 ### Pressure Waypoint (Link command 2)
+
 The pressure waypoint is used at the end of the Liberty-Way sequence when the drone descends over the platform. 4 bytes transmit atmospheric pressure (in Pascals) to the drone.
 
 The payload bytes are in big-endian order (4 bytes for value), then the Link Command byte is equal to 2, then the check-sum and 2 bytes of the end of the packet.
