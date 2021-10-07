@@ -5,7 +5,7 @@
 This project was originated as a part of project activity in Moscow Polytech University by students of group 181-311.
 The project participated in the CopterHack 2021 hackathon carried out by Copter Express.
 
-Eitude AMLS Platform Controller © 2021 Pavel Neshumov (Fern Hertz)
+Eitude AMLS Platform Controller © 2021 Fern H. (aka Pavel Neshumov)
 
 ----------
 
