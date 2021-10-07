@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Fern Hertz (Pavel Neshumov), Eitude AMLS Platform controller
+ * Copyright (C) 2021 Fern H. (aka Pavel Neshumov), Eitude AMLS Platform controller
  * This software is part of Autonomous Multirotor Landing System (AMLS) Project
  *
  * Licensed under the GNU Affero General Public License, Version 3.0 (the "License");
@@ -18,6 +18,20 @@
  * OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
  * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
+ *
+ * IT IS STRICTLY PROHIBITED TO USE THE PROJECT (OR PARTS OF THE PROJECT / CODE)
+ * FOR MILITARY PURPOSES. ALSO, IT IS STRICTLY PROHIBITED TO USE THE PROJECT (OR PARTS OF THE PROJECT / CODE)
+ * FOR ANY PURPOSE THAT MAY LEAD TO INJURY, HUMAN, ANIMAL OR ENVIRONMENTAL DAMAGE.
+ * ALSO, IT IS PROHIBITED TO USE THE PROJECT (OR PARTS OF THE PROJECT / CODE) FOR ANY PURPOSE THAT
+ * VIOLATES INTERNATIONAL HUMAN RIGHTS OR HUMAN FREEDOM.
+ * BY USING THE PROJECT (OR PART OF THE PROJECT / CODE) YOU AGREE TO ALL OF THE ABOVE RULES.
+ */
+
+ /*
+  * ATTENTION! THIS IS A BETA VERSION OF EITUDE. INSTEAD OF GPS-MIXER,
+  * WE USE GETTING GPS-COORDINATES FROM THE PHONE USING THE GPS-TO-SERIAL APP
+  * MORE INFO AT: https://github.com/XxOinvizioNxX/GPS-to-Serial
+  *
  */
 
 /// <summary>
@@ -43,8 +57,14 @@ void transmit_data(void) {
 	// Send the number_used_sats variable as a byte
 	tx_buffer[9] = number_used_sats;
 
-	// Send the fix_type variable as a byte
-	tx_buffer[10] = fix_type;
+	// Send bytes of the ground_heading variable (multiplied by 100)
+	tx_buffer[10] = ground_heading >> 8;
+	tx_buffer[11] = ground_heading;
+
+	// Send bytes of the ground_speed variable (multiplied by 10)
+	tx_buffer[12] = ground_speed >> 8;
+	tx_buffer[13] = ground_speed;
+
 #else
 	tx_buffer[1] = 0;
 	tx_buffer[2] = 0;
@@ -56,28 +76,31 @@ void transmit_data(void) {
 	tx_buffer[8] = 0;
 	tx_buffer[9] = 0;
 	tx_buffer[10] = 0;
+	tx_buffer[11] = 0;
+	tx_buffer[12] = 0;
+	tx_buffer[13] = 0;
 #endif
 
 	// Send bytes of the pressure variable
 #ifdef BAROMETER
-	tx_buffer[11] = (int32_t)actual_pressure >> 24;
-	tx_buffer[12] = (int32_t)actual_pressure >> 16;
-	tx_buffer[13] = (int32_t)actual_pressure >> 8;
-	tx_buffer[14] = (int32_t)actual_pressure;
+	tx_buffer[14] = (int32_t)actual_pressure >> 24;
+	tx_buffer[15] = (int32_t)actual_pressure >> 16;
+	tx_buffer[16] = (int32_t)actual_pressure >> 8;
+	tx_buffer[17] = (int32_t)actual_pressure;
 #else
-	tx_buffer[11] = 0;
-	tx_buffer[12] = 0;
-	tx_buffer[13] = 0;
 	tx_buffer[14] = 0;
+	tx_buffer[15] = 0;
+	tx_buffer[16] = 0;
+	tx_buffer[17] = 0;
 #endif
 
 	// Send illumination variable as a byte
-	tx_buffer[15] = lux_sqrt_data;
+	tx_buffer[18] = lux_sqrt_data;
 
 	// Calculate and send the check-byte
-	tx_buffer[16] = 0;
-	for (count_var = 0; count_var <= 15; count_var++)
-		tx_buffer[16] ^= tx_buffer[count_var];
+	tx_buffer[19] = 0;
+	for (count_var = 0; count_var <= 18; count_var++)
+		tx_buffer[19] ^= tx_buffer[count_var];
 
 	// Push data to the serial or UDP port
 #ifdef UDP_PORT

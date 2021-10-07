@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Fern Hertz (Pavel Neshumov), Eitude AMLS Platform controller
+ * Copyright (C) 2021 Fern H. (aka Pavel Neshumov), Eitude AMLS Platform controller
  * This software is part of Autonomous Multirotor Landing System (AMLS) Project
  *
  * Licensed under the GNU Affero General Public License, Version 3.0 (the "License");
@@ -18,6 +18,20 @@
  * OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
  * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
+ *
+ * IT IS STRICTLY PROHIBITED TO USE THE PROJECT (OR PARTS OF THE PROJECT / CODE)
+ * FOR MILITARY PURPOSES. ALSO, IT IS STRICTLY PROHIBITED TO USE THE PROJECT (OR PARTS OF THE PROJECT / CODE)
+ * FOR ANY PURPOSE THAT MAY LEAD TO INJURY, HUMAN, ANIMAL OR ENVIRONMENTAL DAMAGE.
+ * ALSO, IT IS PROHIBITED TO USE THE PROJECT (OR PARTS OF THE PROJECT / CODE) FOR ANY PURPOSE THAT
+ * VIOLATES INTERNATIONAL HUMAN RIGHTS OR HUMAN FREEDOM.
+ * BY USING THE PROJECT (OR PART OF THE PROJECT / CODE) YOU AGREE TO ALL OF THE ABOVE RULES.
+ */
+
+ /*
+  * ATTENTION! THIS IS A BETA VERSION OF EITUDE. INSTEAD OF GPS-MIXER,
+  * WE USE GETTING GPS-COORDINATES FROM THE PHONE USING THE GPS-TO-SERIAL APP
+  * MORE INFO AT: https://github.com/XxOinvizioNxX/GPS-to-Serial
+  *
  */
 
 #ifdef LUX_METER
@@ -82,8 +96,14 @@ void lux_meter_setup(void) {
 /// Reads illumination from the BH1750 sensor or from the LDR
 /// </summary>
 void lux_meter(void) {
-	// Check illumination every LUX_CHECK_TIME ms
-	if (millis() - lux_timer >= LUX_CHECK_TIME) {
+	// Increment counter every cycle
+	lux_cycle_counter++;
+
+	// Last cycle. Request LUX data
+	if (lux_cycle_counter >= LUX_REQUST_CYCLES) {
+		// Restart counter
+		lux_cycle_counter = 0;
+
 #ifdef LUX_METER
 		// Read data from BH1750
 		Wire.requestFrom(LUX_METER_ADDRESS, (uint8_t)2);
@@ -104,17 +124,11 @@ void lux_meter(void) {
 		// Change the code below to the proper conversion from ldrResistance to LUX
 		converted_lux = LUX_CALC_SCALAR * pow(ldr_resistance, LUX_CALC_EXPONENT);
 
-		// Convert value to raw 16 bit value
-		lux_raw_data = converted_lux * 0.54;
-
 #endif
 		// Convert to sinle byte (just find sqrt)
-		lux_raw_data = sqrt(lux_raw_data);
-		if (lux_raw_data > 255)
-			lux_raw_data = 255;
-		lux_sqrt_data = lux_raw_data;
-
-		// Reset timer
-		lux_timer = millis();
+		converted_lux = pow(converted_lux, 0.475);
+		if (converted_lux > 255.0)
+			converted_lux = 255.0;
+		lux_sqrt_data = converted_lux;
 	}
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Fern Hertz (Pavel Neshumov), Eitude AMLS Platform controller
+ * Copyright (C) 2021 Fern H. (aka Pavel Neshumov), Eitude AMLS Platform controller
  * This software is part of Autonomous Multirotor Landing System (AMLS) Project
  *
  * Licensed under the GNU Affero General Public License, Version 3.0 (the "License");
@@ -18,7 +18,21 @@
  * OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
  * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
+ *
+ * IT IS STRICTLY PROHIBITED TO USE THE PROJECT (OR PARTS OF THE PROJECT / CODE)
+ * FOR MILITARY PURPOSES. ALSO, IT IS STRICTLY PROHIBITED TO USE THE PROJECT (OR PARTS OF THE PROJECT / CODE)
+ * FOR ANY PURPOSE THAT MAY LEAD TO INJURY, HUMAN, ANIMAL OR ENVIRONMENTAL DAMAGE.
+ * ALSO, IT IS PROHIBITED TO USE THE PROJECT (OR PARTS OF THE PROJECT / CODE) FOR ANY PURPOSE THAT
+ * VIOLATES INTERNATIONAL HUMAN RIGHTS OR HUMAN FREEDOM.
+ * BY USING THE PROJECT (OR PART OF THE PROJECT / CODE) YOU AGREE TO ALL OF THE ABOVE RULES.
  */
+
+/*
+ * ATTENTION! THIS IS A BETA VERSION OF EITUDE. INSTEAD OF GPS-MIXER, 
+ * WE USE GETTING GPS-COORDINATES FROM THE PHONE USING THE GPS-TO-SERIAL APP
+ * MORE INFO AT: https://github.com/XxOinvizioNxX/GPS-to-Serial
+ *
+*/
 
 // External libraries
 #include <Wire.h>
@@ -39,12 +53,14 @@ Adafruit_NeoPixel ws_leds = Adafruit_NeoPixel(3, STATUS_STRIP_PIN, NEO_GRB + NEO
 void setup()
 {
 	// Store packet ending in tx_buffer
-	tx_buffer[17] = PACKET_SUFFIX_1;
-	tx_buffer[18] = PACKET_SUFFIX_2;
+	tx_buffer[20] = PACKET_SUFFIX_1;
+	tx_buffer[21] = PACKET_SUFFIX_2;
 
 	// Hardware setup
 	// Power pins for LDR module
 	pinMode(A2, OUTPUT);
+	pinMode(3, OUTPUT);
+	digitalWrite(3, 0);
 	digitalWrite(A2, 0);
 	pinMode(A3, OUTPUT);
 	digitalWrite(A3, 1);
@@ -122,11 +138,6 @@ void setup()
 	COMMUNICATION_SERIAL.flush();
 #endif
 
-	// Reset GPS
-#ifdef GPS
-	gps_reset_flag = 1;
-#endif
-
 	// Store loop time
 	loop_timer = micros();
 }
@@ -140,10 +151,9 @@ void loop()
 	serial_receive_data();
 #endif
 
-	// Read and parse data from GPS module
+	// Read data from GPS module
 #ifdef GPS
 	gps_read();
-	gps_handler();
 #endif
 
 	// Read and parse data from barometer
@@ -176,8 +186,8 @@ void loop()
 		transmit_data();
 #ifdef GPS
 	// New connection -> flush GPS on timeout
-	if (micros() - loop_timer > MAX_ALLOWED_LOOP_PERIOD)
-		gps_reset_flag = 1;
+	//if (micros() - loop_timer > MAX_ALLOWED_LOOP_PERIOD)
+		//gps_buffer_position = 0;
 #endif
 #endif
 

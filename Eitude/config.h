@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Fern Hertz (Pavel Neshumov), Eitude AMLS Platform controller
+ * Copyright (C) 2021 Fern H. (aka Pavel Neshumov), Eitude AMLS Platform controller
  * This software is part of Autonomous Multirotor Landing System (AMLS) Project
  *
  * Licensed under the GNU Affero General Public License, Version 3.0 (the "License");
@@ -18,6 +18,20 @@
  * OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
  * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
+ *
+ * IT IS STRICTLY PROHIBITED TO USE THE PROJECT (OR PARTS OF THE PROJECT / CODE)
+ * FOR MILITARY PURPOSES. ALSO, IT IS STRICTLY PROHIBITED TO USE THE PROJECT (OR PARTS OF THE PROJECT / CODE)
+ * FOR ANY PURPOSE THAT MAY LEAD TO INJURY, HUMAN, ANIMAL OR ENVIRONMENTAL DAMAGE.
+ * ALSO, IT IS PROHIBITED TO USE THE PROJECT (OR PARTS OF THE PROJECT / CODE) FOR ANY PURPOSE THAT
+ * VIOLATES INTERNATIONAL HUMAN RIGHTS OR HUMAN FREEDOM.
+ * BY USING THE PROJECT (OR PART OF THE PROJECT / CODE) YOU AGREE TO ALL OF THE ABOVE RULES.
+ */
+
+ /*
+  * ATTENTION! THIS IS A BETA VERSION OF EITUDE. INSTEAD OF GPS-MIXER,
+  * WE USE GETTING GPS-COORDINATES FROM THE PHONE USING THE GPS-TO-SERIAL APP
+  * MORE INFO AT: https://github.com/XxOinvizioNxX/GPS-to-Serial
+  *
  */
 
 #ifndef CONFIG_H
@@ -55,7 +69,7 @@ const uint32_t COMMUNICATION_BAUDRATE = 57600;
 
 // Unique pair of HEX symbols as packet ending
 const uint8_t PACKET_SUFFIX_1 PROGMEM = 0xEE;
-const uint8_t PACKET_SUFFIX_2 PROGMEM = 0xEE;
+const uint8_t PACKET_SUFFIX_2 PROGMEM = 0xEF;
 
 
 
@@ -68,14 +82,14 @@ const uint8_t PACKET_SUFFIX_2 PROGMEM = 0xEE;
 // LDR constants
 // Measure this for best results
 #ifndef LUX_METER
-#define ADC_REF_VOLTAGE 4.2
+#define ADC_REF_VOLTAGE 4.97
 #define REF_RESISTANCE 10020 
-#define LUX_CALC_SCALAR 12518931
-#define LUX_CALC_EXPONENT -1.405
+#define LUX_CALC_SCALAR 37000000 //12518931
+#define LUX_CALC_EXPONENT -1.350 //-1.405
 #endif
 
-// Measure illumination every ms
-const uint16_t LUX_CHECK_TIME PROGMEM = 100;
+// Request LUX value every 25 * 4ms = 100ms
+const uint8_t LUX_REQUST_CYCLES PROGMEM = 25;
 
 
 /******************************/
@@ -111,8 +125,15 @@ const uint8_t STATUS_STRIP_PIN PROGMEM = 8;
 // GPS serial port
 #define GPS_SERIAL	Serial
 
-// If no data in 250 * LOOP_PERIOD the gps will be considered lost
-const uint16_t GPS_LOST_CYCLES PROGMEM = 250;
+// Baud rate of GPS mixer serial port
+const uint32_t GPS_BAUD_RATE = 115200;
+
+// If no data in 750 * 4ms = 3000ms the gps will be considered lost
+const uint16_t GPS_LOST_CYCLES PROGMEM = 750;
+
+// Unique pair of suffix
+const uint8_t GPS_SUFFIX_1 PROGMEM = 0xEE;
+const uint8_t GPS_SUFFIX_2 PROGMEM = 0xEF;
 #endif
 
 
@@ -144,12 +165,12 @@ const uint16_t LEDS_ERROR_CYCLES PROGMEM = 63;
 #define COLOR_ERROR				255, 110, 0
 #define COLOR_GRIPS				0, 255, 0
 #define COLOR_GPS				255, 255, 255
+
 #define COLOR_IDLE				127, 0, 127
 #define COLOR_STAB				0, 255, 0
 #define COLOR_LAND				0, 255, 255
 #define COLOR_PREV				255, 127, 0
 #define COLOR_LOST				255, 0, 0
-#define COLOR_TKOF				0, 0, 255
 #define COLOR_WAYP				63, 63, 63
 #define COLOR_DONE				127, 127, 127
 #endif

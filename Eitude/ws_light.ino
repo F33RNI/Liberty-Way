@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Fern Hertz (Pavel Neshumov), Eitude AMLS Platform controller
+ * Copyright (C) 2021 Fern H. (aka Pavel Neshumov), Eitude AMLS Platform controller
  * This software is part of Autonomous Multirotor Landing System (AMLS) Project
  *
  * Licensed under the GNU Affero General Public License, Version 3.0 (the "License");
@@ -18,6 +18,20 @@
  * OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
  * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
+ *
+ * IT IS STRICTLY PROHIBITED TO USE THE PROJECT (OR PARTS OF THE PROJECT / CODE)
+ * FOR MILITARY PURPOSES. ALSO, IT IS STRICTLY PROHIBITED TO USE THE PROJECT (OR PARTS OF THE PROJECT / CODE)
+ * FOR ANY PURPOSE THAT MAY LEAD TO INJURY, HUMAN, ANIMAL OR ENVIRONMENTAL DAMAGE.
+ * ALSO, IT IS PROHIBITED TO USE THE PROJECT (OR PARTS OF THE PROJECT / CODE) FOR ANY PURPOSE THAT
+ * VIOLATES INTERNATIONAL HUMAN RIGHTS OR HUMAN FREEDOM.
+ * BY USING THE PROJECT (OR PART OF THE PROJECT / CODE) YOU AGREE TO ALL OF THE ABOVE RULES.
+ */
+
+ /*
+  * ATTENTION! THIS IS A BETA VERSION OF EITUDE. INSTEAD OF GPS-MIXER,
+  * WE USE GETTING GPS-COORDINATES FROM THE PHONE USING THE GPS-TO-SERIAL APP
+  * MORE INFO AT: https://github.com/XxOinvizioNxX/GPS-to-Serial
+  *
  */
 
 #ifdef WS_LEDS
@@ -48,28 +62,28 @@ void ws_light(void) {
 			ws_leds.setPixelColor(0, COLOR_IDLE);
 			break;
 		case 1:
+			// MKWT
+			ws_leds.setPixelColor(0, COLOR_IDLE);
+			break;
+		case 2:
+			// WAYP
+			ws_leds.setPixelColor(0, COLOR_WAYP);
+			break;
+		case 3:
 			// STAB
 			ws_leds.setPixelColor(0, COLOR_STAB);
 			break;
-		case 2:
+		case 4:
 			// LAND
 			ws_leds.setPixelColor(0, COLOR_LAND);
 			break;
-		case 3:
+		case 5:
 			// PREV
 			ws_leds.setPixelColor(0, COLOR_PREV);
 			break;
-		case 4:
+		case 6:
 			// LOST
 			ws_leds.setPixelColor(0, COLOR_LOST);
-			break;
-		case 5:
-			// TKOF
-			ws_leds.setPixelColor(0, COLOR_TKOF);
-			break;
-		case 6:
-			// WAYP
-			ws_leds.setPixelColor(0, COLOR_WAYP);
 			break;
 		case 7:
 			// DONE
@@ -89,7 +103,7 @@ void ws_light(void) {
 
 		// Third LED - GPS state
 #ifdef GPS
-		if ((number_used_sats >= 8 || leds_tick_counter) && gps_lost_counter < GPS_LOST_CYCLES)
+		if (gps_lost_counter < GPS_LOST_CYCLES)
 			ws_leds.setPixelColor(2, COLOR_GPS);
 		else
 			ws_leds.setPixelColor(2, 0);
