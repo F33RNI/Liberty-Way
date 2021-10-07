@@ -48,24 +48,35 @@ All the code excluding the dependencies block, was written by Pavel Neshumov (Fe
 ----------
 
 ## More projects
+
 ### Liberty-X
+
 Drone flight controller
+
 - https://github.com/XxOinvizioNxX/Liberty-X
 
 ### Eitude
+
 AMLS Platform controller
+
 - https://github.com/XxOinvizioNxX/Liberty-Way/tree/main/Eitude
 
 ### Sonarus
+
 I2C ultrasonic rangefinder
+
 - https://github.com/XxOinvizioNxX/Liberty-Way/tree/main/Sonarus
 
 ### GPS Mixer
+
 Way to improve GPS navigation using multiple receivers
+
 - https://github.com/XxOinvizioNxX/Liberty-Way/tree/main/GPS-mixer
 
 ### GPS to Serial
+
 Android app to send phone GPS coordinates via USB serial port
+
 - https://github.com/XxOinvizioNxX/GPS-to-Serial
 
 ----------
@@ -316,7 +327,7 @@ These are the parameters presented in settings.json file that are used by the pr
 
 `"adaptive_thresh_constant": 15` - detector of parameters (ARUCO)
 
-`"aruco_dictionary": 0` - index of used ARUco dictionary (default = 0 which is 50 4x4 marks) 
+`"aruco_dictionary": 0` - index of used ARUco dictionary (default = 0 which is 50 4x4 marks)
 
 `"allowed_ids": [9]` - array of allowed tracking markers ARUCO ids
 
