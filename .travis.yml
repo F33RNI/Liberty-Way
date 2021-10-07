@@ -19,6 +19,17 @@ jobs:
   fast_finish: true
   include:
     - stage: Build
+      name: 'Documentation'
+      language: node_js
+      node_js:
+        - "10"
+      before_script:
+        - npm install markdownlint-cli -g
+        - markdownlint -V
+      script:
+        - markdownlint '**/*.md'
+
+    - stage: Build
       name: 'Liberty-Way Build'
       language: java
       script: ant main
@@ -48,15 +59,3 @@ jobs:
         
         - cd ../GPS-mixer
         - ino compile --fqbn stm32duino:STM32F1:genericSTM32F103C GPS-mixer.ino
-        
-    - stage: Build
-      name: 'Documentation'
-      language: node_js
-      node_js:
-        - "10"
-      before_script:
-        - npm install markdownlint-cli -g
-        - markdownlint -V
-      script:
-        - markdownlint '**/*.md'
-        
