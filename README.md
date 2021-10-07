@@ -145,6 +145,7 @@ AMLS and Liberty-X logo was designed by Pavel Neshumov (Fern H.)
 ## Building and running
 
 Liberty-Way is a cross-platform application and has been tested on:
+
 - Microsoft Windows 10 Pro 10.0.19041 N/A Build 19041, Intel(R) Core(TM) i7-9750H (x64)
 - 5.6.0-kali2-amd64 SMP Debian 5.6.14-1kali1 (2020-05-25) x86_64 GNU/Linux, Intel(R) Core(TM) i7-9750H (x64)
 
