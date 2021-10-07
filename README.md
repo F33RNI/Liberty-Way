@@ -250,9 +250,9 @@ These are the parameters presented in settings.json file that are used by the pr
 
 `"allowed_landing_range_yaw": 5.0` - range of the landing allowance (degrees)
 
-`"min_satellites_num_start": 0` - 
+`"min_satellites_num_start": 0` - the minimum number of sattelites is set for the start
 
-`"min_satellites_num": 0` - 
+`"min_satellites_num": 0` - the minimum number of sattelites allowed
 
 `"setpoint_x": 0.0` - setpoint of PID controller (absolute estimated x)
 
@@ -272,25 +272,23 @@ These are the parameters presented in settings.json file that are used by the pr
 
 `"planet_radius": 6378.137` - the radius of the planet the project is running on
 
-`"pressure_term_above_platform": 70` - 
+`"pressure_term_above_platform": 30` - amount of pressure (Pa) above the platform which is equivalent to 3 meters above the ground
 
-`"send_idle_cycles_num": 0` - 
+`"send_idle_cycles_num": 0` - amount of cycles in which telemetry data is sent between GPS data (0 - only GPS data)
 
-`"is_telemetry_necessary": true` - 
+`"is_telemetry_necessary": true` - is it necessary to use telemetry
 
-`"max_platform_speed": 10` - 
+`"max_platform_speed": 10` - the allowed maximum speed for the platform
 
-`"send_idle_in_wait_mode": true` - 
+`"send_idle_in_wait_mode": true` - is it necessary to send telemetry data while the drone isn't active
 
-`"is_gps_prediction_allowed": false` - 
+`"is_gps_prediction_allowed": false` - is it necessary to predicr future positions
 
-`"stop_prediction_on_distance": 10` - 
+`"stop_prediction_on_distance": 10` - amount of meters on which the prediction of future positions stops operating
 
-`"platform_hardware_compass": false` - 
+`"log_fps": false` - is it necessary to log fps while operating
 
-`"log_fps": false` - 
-
-`"log_api_requests": false` - 
+`"log_api_requests": false` - is it necessary to log processed requests
 
 ### PID
 
