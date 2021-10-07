@@ -149,6 +149,7 @@ Liberty-Way is a cross-platform application and has been tested on:
 
 - Microsoft Windows 10 Pro 10.0.19041 N/A Build 19041, Intel(R) Core(TM) i7-9750H (x64)
 - Microsoft Windows 11 Pro 10.0.22000 N/A Build 22000, Intel(R) Core(TM) i5-9300H (x64)
+- Microsoft Windows 10 Pro 10.0.19042 N/A Build 19042, Intel(R) Core(TM) i5-8300H (x64)
 - 5.6.0-kali2-amd64 SMP Debian 5.6.14-1kali1 (2020-05-25) x86_64 GNU/Linux, Intel(R) Core(TM) i7-9750H (x64)
 
 You can run Liberty-Way on other operating systems. But it is strongly recommended to build the native OpenCV library from source for your operating system. Native libraries compiled on the listed operating systems are **contained in the release archives**, as well as **in the main branch**. If you build your native library, **put the library file next to the Liberty-Way.jar file**. Don't rename the native library file.
