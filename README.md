@@ -134,16 +134,98 @@ AMLS and Liberty-X logo was designed by Pavel Neshumov (Fern H.)
 
 Liberty-Way is a cross-platform application and has been tested on:
 - Microsoft Windows 10 Pro 10.0.19041 N/A Build 19041, Intel(R) Core(TM) i7-9750H (x64)
-- macOS 11.6 20G165, Intel(R) Core(TM) i7-9750H (x64)
 - 5.6.0-kali2-amd64 SMP Debian 5.6.14-1kali1 (2020-05-25) x86_64 GNU/Linux, Intel(R) Core(TM) i7-9750H (x64)
 
 You can run Liberty-Way on other operating systems. But it is strongly recommended to build the native OpenCV library from source for your operating system. Native libraries compiled on the listed operating systems are **contained in the release archives**, as well as **in the main branch**. If you build your native library, **put the library file next to the Liberty-Way.jar file**. Don't rename the native library file.
+
+Commands to build native OpenCV library on Linux:
+
+Install dependecies:
+
+```
+sudo apt-get install build-essential
+sudo apt-get install cmake git libgtk2.0-dev pkg-config libavcodec-dev libavformat-dev libswscale-dev
+sudo apt-get install python-dev python-numpy libtbb2 libtbb-dev libjpeg-dev libpng-dev libtiff-dev libjasper-dev libdc1394-22-dev
+```
+
+Install Ant:
+
+```
+sudo apt-get install ant
+```
+
+Install JDK:
+
+```
+sudo mkdir /usr/lib/jvm
+cd /usr/lib/jvm
+wget https://download.oracle.com/java/17/latest/jdk-17_linux-x64_bin.tar.gz
+sudo tar -xvzf jdk-17_linux-x64_bin.tar.gz
+
+
+export J2SDKDIR="/usr/lib/jvm/jdk-17"
+export J2REDIR="/usr/lib/jvm/jdk-17/jre"
+export JAVA_HOME="/usr/lib/jvm/jdk-17"
+export DERBY_HOME="/usr/lib/jvm/jdk-17/db"
+```
+
+Configure your operating folder:
+
+```
+cd ~
+
+mkdir opencv
+cd opencv
+```
+
+Build the library itself:
+
+```
+wget https://github.com/opencv/opencv/archive/4.5.3.tar.gz
+mv 4.5.3.tar.gz opencv-4.5.3.tar.gz
+wget https://github.com/opencv/opencv_contrib/archive/4.5.3.tar.gz
+mv 4.5.3.tar.gz opencv_contrib-4.5.3.tar.gz
+tar -xf opencv-4.5.3.tar.gz
+tar -xf opencv_contrib-4.5.3.tar.gz
+cd opencv-4.5.3
+mkdir build
+cd build
+mkdir install
+
+cmake .. \
+  -D CMAKE_SYSTEM_PROCESSOR=arm64 \
+  -D CMAKE_OSX_ARCHITECTURES=arm64 \
+  -D WITH_IPP=OFF \
+  -D BUILD_opencv_java=ON \
+  -D CMAKE_BUILD_TYPE=RELEASE \
+  -D CMAKE_INSTALL_PREFIX=~/opencv/opencv-4.5.3/build/install \
+  -D OPENCV_EXTRA_MODULES_PATH=~/opencv/opencv_contrib-4.5.3/modules \
+  -D BUILD_opencv_python2=OFF \
+  -D BUILD_opencv_python3=OFF \
+  -D INSTALL_PYTHON_EXAMPLES=OFF \
+  -D INSTALL_C_EXAMPLES=OFF \
+  -D OPENCV_ENABLE_NONFREE=ON \
+  -D BUILD_EXAMPLES=OFF \
+  -D OPENCV_JAVA_TARGET_VERSION=1.8 \
+  -D BUILD_SHARED_LIBS=OFF \
+  -D BUILD_FAT_JAVA_LIB=ON
+  
+make
+```
 
 You can build the Liberty-Way application yourself or **run a ready-made .jar from releases (recommended)**. Also, **nightly builds** (.jar) can be downloaded from main branch.
 
 To run the application, you must use command `java -Djava.library.path=. -jar "./Liberty-Way.jar" -c ""` or lauch file `START_WINDOWS.bat` or `START_LINUX.sh` or `START_MACOS.sh` (depends on your operating system)
 
-Examples of commands which build Liberty-Way on Linux OS: 
+Examples of commands which build Liberty-Way on Linux:
+
+```
+sudo apt-get install git
+sudo apt-get install ant
+git clone https://github.com/XxOinvizioNxX/Liberty-Way
+cd Liberty-Way
+ant main
+```
 
 Liberty-Way is a cross-platform application and has been **tested on Linux and Windows**. You can try running the application on any other operating system. But you first need to build the OpenCV-contrib library (**The releases and main branch include libraries for Windows and Linux**).
 
@@ -287,7 +369,7 @@ These are the parameters presented in settings.json file that are used by the pr
 
 `"log_fps": false` - is it necessary to log fps while operating
 
-`"log_api_requests": false` - is it necessary to log processed requests
+`"log_api_requests": false` - is it necessary to log processed POST requests to API
 
 ### PID
 
