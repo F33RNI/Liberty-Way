@@ -45,7 +45,7 @@ All the code excluding the dependencies block, was written by Pavel Neshumov (Fe
   - [Start Liberty-Way sequence (Link command 5)](#start-liberty-way-sequence-link-command-5)
   - [Abort (Link command 6)](#abort-link-command-6)
 - [TODO](#todo)
-- 
+
 ----------
 
 ## More projects
