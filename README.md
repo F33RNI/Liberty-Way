@@ -95,6 +95,7 @@ Android app to send phone GPS coordinates via USB serial port
 - **jSerialComm** (Serial communication): https://github.com/Fazecast/jSerialComm
 - **GSon** (JSON implementation): https://github.com/google/gson
 - **Augmented-UI** (WEB framework for Cyberpunk-style UI): https://github.com/propjockey/augmented-ui
+- **Mapbox** (Maps from mapbox): https://www.mapbox.com/
 - **Bing Maps** (Maps from Microsoft): https://www.bing.com/maps/
 
 ----------
