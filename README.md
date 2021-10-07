@@ -143,8 +143,7 @@ You can build the Liberty-Way application yourself or **run a ready-made .jar fr
 
 To run the application, you must use command `java -Djava.library.path=. -jar "./Liberty-Way.jar" -c ""` or lauch file `START_WINDOWS.bat` or `START_LINUX.sh` or `START_MACOS.sh` (depends on your operating system)
 
-TODO: Add building script
-
+Examples of commands which build Liberty-Way on Linux OS: 
 
 Liberty-Way is a cross-platform application and has been **tested on Linux and Windows**. You can try running the application on any other operating system. But you first need to build the OpenCV-contrib library (**The releases and main branch include libraries for Windows and Linux**).
 
