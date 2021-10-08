@@ -8,7 +8,6 @@
   "pid_file": "pid.json",
   "camera_matrix_file": "camera_matrix.json",
   "camera_distortions_file": "camera_distortions.json",
-  "watermark_file": "watermark.png",
   "web_resources_folder": "web/static",
   "web_templates_folder": "web/templates",
   "blackbox_folder": "blackbox/",

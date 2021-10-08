@@ -67,7 +67,18 @@ public class Main {
         options.addOption(Option.builder("c")
                 .longOpt("color")
                 .hasArg(false)
-                .desc("write colored logs.")
+                .desc("write colored logs")
+                .required(false)
+                .build());
+        options.addOption(Option.builder("t")
+                .longOpt("test")
+                .hasArg(true)
+                .desc("execute tests instead of running the application. Levels:" +
+                        "\nbuild - check if the app starts successfully" +
+                        "\nopencv - check opencv native library" +
+                        "\ncamera - test opencv library and cameras" +
+                        "\nserver - check if the server can be started" +
+                        "\nfull - full environmental check")
                 .required(false)
                 .build());
         CommandLineParser parser = new DefaultParser();
@@ -78,15 +89,6 @@ public class Main {
             PropertyConfigurator.configure(Main.class.getResource("log4j.properties"));
             CommandLine cmd = parser.parse(options, args);
 
-            // Print app version
-            logger.info("Liberty-Way AMLS Landing Controller. Version: " + version);
-
-            // Create settings container and parse app settings
-            SettingsContainer settingsContainer = new SettingsContainer();
-            SettingsHandler settingsHandler = new SettingsHandler(settingsContainer,
-                    FileWorkers.loadJsonObject("settings.json"));
-            settingsHandler.parseSettings();
-
             // Use colorful logs properties if 'c' argument specified
             if (cmd.hasOption("c")) {
                 PropertyConfigurator.configure(Main.class.getResource("log4j_color.properties"));
@@ -95,36 +97,54 @@ public class Main {
                 logger.info("Default logs format will be used");
             }
 
-            // Custom server IP (Default is specified in the settings.json)
-            String serverIP = settingsContainer.defaultServerHost;
-            if (cmd.hasOption("i")) {
-                serverIP = cmd.getOptionValue("i");
-                logger.info("Server IP argument provided. IP " + serverIP + " will be used");
-            }
+            // Print app version
+            logger.info("Liberty-Way AMLS Landing Controller. Version: " + version);
 
-            // Custom server port (Default is specified in the settings.json)
-            int serverPort = settingsContainer.defaultServerPort;
-            if (cmd.hasOption("sp")) {
-                serverPort = Integer.parseInt(cmd.getOptionValue("sp"));
-                logger.info("Server Port argument provided. Port " + serverPort + " will be used");
-            }
+            // Tests (without running the application)
+            if (cmd.hasOption("t")) {
+                // Run application tests
+                String testLevel = cmd.getOptionValue("t");
+                logger.warn("--test " + testLevel + " argument provided. Running application's tests");
+                new Tester(testLevel).testByLevel();
+            } else {
+                // Create settings container and parse app settings
+                SettingsContainer settingsContainer = new SettingsContainer();
+                SettingsHandler settingsHandler = new SettingsHandler(settingsContainer,
+                        FileWorkers.loadJsonObject("settings.json"));
+                settingsHandler.parseSettings();
 
-            // Custom server IP (Default is specified in the settings.json)
-            int videoPort = settingsContainer.defaultVideoPort;
-            if (cmd.hasOption("vp")) {
-                videoPort = Integer.parseInt(cmd.getOptionValue("vp"));
-                logger.info("Video stream port argument provided. Port " + videoPort + " will be used");
-            }
+                // Custom server IP (Default is specified in the settings.json)
+                String serverIP = settingsContainer.defaultServerHost;
+                if (cmd.hasOption("i")) {
+                    serverIP = cmd.getOptionValue("i");
+                    logger.info("Server IP argument provided. IP " + serverIP + " will be used");
+                }
 
-            // Start the server with given IP and Port
-            WebServer webServer = new WebServer(serverIP, serverPort, videoPort, settingsContainer);
-            webServer.start();
+                // Custom server port (Default is specified in the settings.json)
+                int serverPort = settingsContainer.defaultServerPort;
+                if (cmd.hasOption("sp")) {
+                    serverPort = Integer.parseInt(cmd.getOptionValue("sp"));
+                    logger.info("Server Port argument provided. Port " + serverPort + " will be used");
+                }
+
+                // Custom server IP (Default is specified in the settings.json)
+                int videoPort = settingsContainer.defaultVideoPort;
+                if (cmd.hasOption("vp")) {
+                    videoPort = Integer.parseInt(cmd.getOptionValue("vp"));
+                    logger.info("Video stream port argument provided. Port " + videoPort + " will be used");
+                }
+
+                // Start the server with given IP and Port
+                WebServer webServer = new WebServer(serverIP, serverPort, videoPort, settingsContainer);
+                webServer.start();
+            }
         } catch (ParseException | NumberFormatException e) {
-            logger.error("Error parsing command-line arguments!", e);
+            logger.error("Error parsing command-line arguments!");
             HelpFormatter formatter = new HelpFormatter();
             // Print help message if wrong arguments provided
             formatter.printHelp(
-                    "java -jar Liberty-Way.jar [-i <ip>] [-sp <server_port>] [-vp <video_port>] [-c]"
+                    "java -jar Liberty-Way.jar " +
+                            "[-t build/opencv/camera/server/full] [-i <ip>] [-sp <server_port>] [-vp <video_port>] [-c]"
                     , options);
             // Exit because no correct arguments provided
             System.exit(1);

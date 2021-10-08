@@ -249,7 +249,6 @@ public class WebAPI {
         // Load native library (from java-library-path)
         logger.info("Loading OpenCV Native Library");
         System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
-        logger.info("Library loaded");
 
         // Create SerialHandler class for serial communication with Liberty-Link
         serialHandlerLink = new SerialHandler(setupData.get("link_port").getAsString(),
@@ -293,7 +292,7 @@ public class WebAPI {
         osdHandler = new OSDHandler(new VideoStream(InetAddress.getByName(hostName), videoPort,
                 settingsContainer.frameWidth,
                 settingsContainer.frameHeight),
-                positionContainer, platformContainer, settingsContainer.watermarkFile);
+                positionContainer, platformContainer);
 
         // Create BlackboxHandler class for logging all events and position
         blackboxHandler = new BlackboxHandler(positionContainer,

@@ -154,4 +154,12 @@ public class WebServer {
             System.exit(1);
         }
     }
+
+    /**
+     * Stops Flak server
+     */
+    public void stop() {
+        logger.info("Stopping the server");
+        app.stop();
+    }
 }

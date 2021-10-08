@@ -41,7 +41,6 @@ public class SettingsContainer {
     public String pidFile;
     public String cameraMatrixFile;
     public String cameraDistortionsFile;
-    public String watermarkFile;
     public String webResourcesFolder;
     public String webTemplatesFolder;
     public String blackboxFolder;

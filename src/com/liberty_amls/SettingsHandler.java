@@ -91,11 +91,6 @@ public class SettingsHandler {
             if (!new File(settingsContainer.cameraDistortionsFile).exists())
                 exitWithError("Camera distortions file doesn't exists");
 
-            // Watermark file
-            settingsContainer.watermarkFile = jsonSettings.get("watermark_file").getAsString();
-            if (!new File(settingsContainer.watermarkFile).exists())
-                exitWithError("Watermark file doesn't exists");
-
             // Web resources folder
             settingsContainer.webResourcesFolder = jsonSettings.get("web_resources_folder").getAsString();
             if (!new File(settingsContainer.webResourcesFolder).exists())

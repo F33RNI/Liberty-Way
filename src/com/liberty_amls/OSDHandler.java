@@ -43,7 +43,6 @@ public class OSDHandler implements Runnable {
     private final VideoStream videoStream;
     private final PositionContainer positionContainer;
     private final PlatformContainer platformContainer;
-    private final String watermarkFile;
     private boolean streamEnabled = false;
     private boolean streamEnabledLast = false;
     private boolean newFrameFlag = false;
@@ -65,12 +64,10 @@ public class OSDHandler implements Runnable {
      */
     public OSDHandler(VideoStream videoStream,
                       PositionContainer positionContainer,
-                      PlatformContainer platformContainer,
-                      String watermarkFile) {
+                      PlatformContainer platformContainer) {
         this.videoStream = videoStream;
         this.positionContainer = positionContainer;
         this.platformContainer = platformContainer;
-        this.watermarkFile = watermarkFile;
     }
 
     /**
@@ -399,7 +396,7 @@ public class OSDHandler implements Runnable {
      */
     @Override
     public void run() {
-        watermark = FileWorkers.loadImageAsMat(watermarkFile);
+        watermark = FileWorkers.loadImageAsMat("watermark.png");
         while (handlerRunning)
             proceedFrame();
     }
