@@ -41,6 +41,10 @@ public class Tester {
 
     private final String testLevel;
 
+    /**
+     * This class provides a series of automated tests to be performed to check system compatibility
+     * @param testLevel level of test (build, opencv, camera, server, full)
+     */
     Tester(String testLevel) {
         this.testLevel = testLevel;
     }
