@@ -32,7 +32,9 @@ jobs:
     - stage: Build
       name: 'Liberty-Way Build'
       language: java
-      script: ant main
+      script:
+        - ant main
+        - java -Djava.library.path=. -jar build/jar/Liberty-Way.jar -t build ''
       
     - stage: Build
       name: 'Arduino builds'
