@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Fern H. (Pavel Neshumov), Sonarus - I2C ultrasonic rangefinder
+ * Copyright (C) 2021 Fern H. (aka Pavel Neshumov), Sonarus - I2C ultrasonic rangefinder
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,43 +26,42 @@
  * BY USING THE PROJECT (OR PART OF THE PROJECT / CODE) YOU AGREE TO ALL OF THE ABOVE RULES.
  */
 
-// I2C library
+ // I2C library
 #include <Wire.h>
-
-// System variables
-boolean power_state, power_mode, resolution;
-boolean start_flag;
-float filter;
-uint64_t sonar_1_timer, sonar_2_timer;
-uint64_t sonar_1_duration, sonar_2_duration;
-float distance_1_raw, distance_2_raw, distance_1, distance_2;
-uint8_t s_distance_1, s_distance_2;
-uint16_t l_distance_1, l_distance_2;
-boolean sonar_1_timeout, sonar_2_timeout;
-float sonar_1_correction, sonar_2_correction;
-uint8_t i2c_command;
-uint16_t i2c_sound_speed;
-
-// Speed of sound in m/s divided by 10000
-float sound_speed = 0.03431;
 
 // I2C address of sink
 const uint8_t I2C_ADDRESS PROGMEM = 0xEE;
 
-// Sonar 1 hardware pins
-#define SONAR_1_TRIG_PORT   PORTD
+// Sonars hardware pins
+#define SONAR_TRIG_PORT   PORTD
 const uint8_t SONAR_1_TRIG_PIN PROGMEM = B00010000;
+const uint8_t SONAR_2_TRIG_PIN PROGMEM = B00100000;
 const uint8_t SONAR_1_TRIG_ARD_PIN PROGMEM = 4;
 const uint8_t SONAR_1_ECHO_ARD_PIN PROGMEM = 2;
-
-// Sonar 2 hardware pins
-#define SONAR_2_TRIG_PORT   PORTD
-const uint8_t SONAR_2_TRIG_PIN PROGMEM = B00100000;
 const uint8_t SONAR_2_TRIG_ARD_PIN PROGMEM = 5;
 const uint8_t SONAR_2_ECHO_ARD_PIN PROGMEM = 3;
 
-// Maximum time to wait for a response from sonar. MIN: ((255 * 2) / SOUND_SPEED * 2)
-const uint16_t TIMEOUT_US PROGMEM = 32000;
+// Default speed of sound in m/s divided by 10000
+double sound_speed = 0.03431;
+
+// Maximum time to wait for a response from sonar
+const uint64_t TIMEOUT_US PROGMEM = 75000;
+
+// Maximum allowable distance after which 0 will be returned
+const double MAX_DISTANCE PROGMEM = 600;
+
+// System variables
+boolean power_state, power_mode, resolution;
+boolean start_flag;
+double filter;
+uint64_t sonar_1_timer, sonar_2_timer, cycle_timer;
+uint64_t sonar_1_duration, sonar_2_duration;
+double distance_1_raw, distance_2_raw, distance_1, distance_2;
+uint8_t s_distance_1, s_distance_2;
+uint16_t l_distance_1, l_distance_2;
+double sonar_1_correction, sonar_2_correction;
+uint8_t i2c_command;
+uint16_t i2c_sound_speed;
 
 void setup()
 {
@@ -142,15 +141,15 @@ void on_receive_event(int amount) {
 
     // Set factor of the filter
     else if (i2c_command == 0x04)
-        filter = (float)Wire.read() / 100.0;
+        filter = (double)Wire.read() / 100.0;
 
     // Set sound speed
     else if (i2c_command == 0x05) {
         // Set from 2 bytes
         i2c_sound_speed = Wire.read() << 8 | Wire.read();
 
-        // Convert to float
-        sound_speed = (float)i2c_sound_speed / 10000.0;
+        // Convert to double
+        sound_speed = (double)i2c_sound_speed / 10000.0;
     }
 
     // Set distance corrections
@@ -168,117 +167,67 @@ void on_receive_event(int amount) {
 }
 
 /// <summary>
-/// Masures distance using both sonars
+/// Measures distance using first sonar. The maximum void time is TIMEOUT_US
 /// </summary>
 void sonarus(void) {
     // Check if powered on
     if (power_state) {
-        // Measure distances
-        delay(2);
-        sonar_1();
-        delay(2);
-        sonar_2();
-    }
-}
+        // Reset variables
+        sonar_1_duration = 0;
+        sonar_2_duration = 0;
 
-/// <summary>
-/// Measures distance using first sonar. The maximum void time is TIMEOUT_US
-/// </summary>
-void sonar_1(void) {
-    // Reset variables
-    sonar_1_timeout = 0;
-    sonar_1_duration = 0;
+        // Turn on builtin led
+        digitalWrite(LED_BUILTIN, 1);
 
-    // Turn on builtin led
-    digitalWrite(LED_BUILTIN, 1);
+        // Send 10us pulse for tx burst
+        SONAR_TRIG_PORT = SONAR_1_TRIG_PIN | SONAR_2_TRIG_PIN;
+        delayMicroseconds(10);
+        SONAR_TRIG_PORT = 0;
 
-    // Send 10us pulse for tx burst
-    SONAR_1_TRIG_PORT = SONAR_1_TRIG_PIN;
-    delayMicroseconds(10);
-    SONAR_1_TRIG_PORT = 0;
+        // Save the end time of the tx signal
+        cycle_timer = micros();
+        sonar_1_timer = cycle_timer;
+        sonar_2_timer = cycle_timer;
 
-    // Save the end time of the tx signal
-    sonar_1_timer = micros();
+        // Turn off builtin led
+        digitalWrite(LED_BUILTIN, 0);
 
-    // Turn off builtin led
-    digitalWrite(LED_BUILTIN, 0);
+        // Wait for the response from sonar
+        while (micros() - cycle_timer < TIMEOUT_US &&
+            (!sonar_1_duration || !sonar_2_duration));
 
-    // Wait for the end of the measurement
-    while (!sonar_1_duration) {
-        if (micros() - sonar_1_timer > TIMEOUT_US) {
-            sonar_1_timeout = 1;
-            break;
+        // Calculate distance in cm for first sonar
+        distance_1_raw = (double)sonar_1_duration * sound_speed / 2.0 + sonar_1_correction;
+
+        // Check distance range
+        if (distance_1_raw < 0 || distance_1_raw > MAX_DISTANCE) {
+            // Timeout waiting for reply or distance > MAX_DISTANCE
+            distance_1_raw = 0;
+            // distance_1 = 0;
         }
-    }
 
-    // Calculate distance in cm
-    if (sonar_1_timeout)
-        distance_1_raw = 0.0;
-    else {
-        distance_1_raw = (float)sonar_1_duration * sound_speed / 2.0 + sonar_1_correction;
-        if (distance_1_raw > 510.0 || distance_1_raw < 0.0)
-            distance_1_raw = 0.0;
-    }
-
-    // Filter distance
-    if (distance_1_raw == 0.0)
-        distance_1 = 0.0;
-    else
+        // Filter distance
         distance_1 = distance_1 * filter + (1.0 - filter) * distance_1_raw;
 
-    // Convert float to other types
-    s_distance_1 = distance_1 / 2.0;
-    l_distance_1 = distance_1 * 100.0;
-}
+        // Calculate distance in cm for second sonar
+        distance_2_raw = (double)sonar_2_duration * sound_speed / 2.0 + sonar_2_correction;
 
-/// <summary>
-/// Measures distance using second sonar. The maximum void time is TIMEOUT_US
-/// </summary>
-void sonar_2(void) {
-    // Reset variables
-    sonar_2_timeout = 0;
-    sonar_2_duration = 0;
-
-    // Turn on builtin led
-    digitalWrite(LED_BUILTIN, 1);
-
-    // Send 10us pulse for tx burst
-    SONAR_2_TRIG_PORT = SONAR_2_TRIG_PIN;
-    delayMicroseconds(10);
-    SONAR_2_TRIG_PORT = 0;
-
-    // Save the end time of the tx signal
-    sonar_2_timer = micros();
-
-    // Turn off builtin led
-    digitalWrite(LED_BUILTIN, 0);
-
-    // Wait for the end of the measurement
-    while (!sonar_2_duration) {
-        if (micros() - sonar_2_timer > TIMEOUT_US) {
-            sonar_2_timeout = 2;
-            break;
+        // Check distance range
+        if (distance_2_raw < 0 || distance_2_raw > MAX_DISTANCE) {
+            // Timeout waiting for reply or distance > MAX_DISTANCE
+            distance_2_raw = 0;
+            // distance_2 = 0;
         }
-    }
 
-    // Calculate distance in cm
-    if (sonar_2_timeout)
-        distance_2_raw = 0.0;
-    else {
-        distance_2_raw = (float)sonar_2_duration * sound_speed / 2.0 + sonar_2_correction;
-        if (distance_2_raw > 510.0 || distance_2_raw < 0.0)
-            distance_2_raw = 0.0;
-    }
-
-    // Filter distance
-    if (distance_2_raw == 0.0)
-        distance_2 = 0.0;
-    else
+        // Filter distance
         distance_2 = distance_2 * filter + (1.0 - filter) * distance_2_raw;
 
-    // Convert float to other types
-    s_distance_2 = distance_2 / 2.0;
-    l_distance_2 = distance_2 * 100.0;
+        // Convert double to other types
+        s_distance_1 = distance_1 > 510.0 ? 0 : distance_1 / 2.0;
+        l_distance_1 = distance_1 > 6553.0 ? 0 : distance_1 * 10.0;
+        s_distance_2 = distance_2 > 510.0 ? 0 : distance_2 / 2.0;
+        l_distance_2 = distance_2 > 6553.0 ? 0 : distance_2 * 10.0;
+    }
 }
 
 /// <summary>

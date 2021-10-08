@@ -12,3 +12,10 @@ build
 /Eitude/.vs/
 /Eitude/Release/
 !/Eitude/Release/Eitude.hex
+/Sonarus/.vs/
+/Sonarus/__vm/
+/Sonarus/Release/
+/Sonarus/Sonarus.vcxproj
+/Sonarus/Sonarus.vcxproj.filters
+/Sonarus/Sonarus.vcxproj.user
+!/Sonarus/Release/Sonarus.hex
