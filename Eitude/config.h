@@ -164,7 +164,7 @@ const uint16_t LEDS_ERROR_CYCLES PROGMEM = 63;
 #define COLOR_CALIBRATION		63, 0, 255
 #define COLOR_ERROR				255, 110, 0
 #define COLOR_GRIPS				0, 255, 0
-#define COLOR_GPS				255, 255, 255
+#define COLOR_GPS				0, 127, 255
 
 #define COLOR_IDLE				127, 0, 127
 #define COLOR_STAB				0, 255, 0
