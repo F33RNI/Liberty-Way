@@ -4,3 +4,11 @@ out
 gen
 blackbox
 build
+/Eitude/Eitude.sln
+/Eitude/Eitude.vcxproj
+/Eitude/Eitude.vcxproj.filters
+/Eitude/Eitude.vcxproj.user
+/Eitude/__vm/
+/Eitude/.vs/
+/Eitude/Release/
+!/Eitude/Release/Eitude.hex
