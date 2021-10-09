@@ -169,11 +169,15 @@ public class Tester {
             // Test camera
             boolean captureState;
             try {
-                logger.info("Testing camera " + i + "...");
+                logger.info("Opening VideoCapture " + i + "...");
                 testVideoCapture.open(i);
+                logger.info("Reading frame...");
                 testVideoCapture.read(testMat);
+                logger.info("Checking state...");
                 captureState = testVideoCapture.isOpened();
+                logger.info("Releasing capture...");
                 testVideoCapture.release();
+                logger.info("Done.");
             } catch (Exception ignored) {
                 captureState = false;
             }

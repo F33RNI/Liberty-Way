@@ -34,7 +34,9 @@ jobs:
       language: java
       script:
         - ant main
+        - java -Djava.library.path=. -jar build/jar/liberty-way.jar -t build ''
         - java -Djava.library.path=. -jar build/jar/liberty-way.jar -t opencv ''
+        - sudo java -Djava.library.path=. -jar build/jar/liberty-way.jar -t server ''
       
     - stage: Build
       name: 'Arduino builds'
