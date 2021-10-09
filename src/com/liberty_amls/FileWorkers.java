@@ -35,10 +35,16 @@ import com.google.gson.JsonObject;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.imgcodecs.Imgcodecs;
+import org.opencv.imgproc.Imgproc;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferByte;
 import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+
+import static java.awt.image.BufferedImage.TYPE_4BYTE_ABGR;
 
 public class FileWorkers {
     /**
@@ -66,13 +72,36 @@ public class FileWorkers {
 
     /**
      * Loads file into OpenCV Mat
-     * @param file path to the file
-     * @return Mat (image) with IMREAD_UNCHANGED flag
+     * @param file path to the .png file (type: ABGR)
+     * @return Mat (image) of type BGRA
      */
-    public static Mat loadImageAsMat(String file) {
-        Main.logger.info("Loading " + file);
+    public static Mat loadImageAsMat(File file) {
+        // Check if file exists
+        if (!file.exists()) {
+            Main.logger.error("Error! File " + file.getAbsolutePath() + " not exists");
+            return null;
+        }
+
         try {
-            return Imgcodecs.imread(file, Imgcodecs.IMREAD_UNCHANGED);
+            // Load image as byte array
+            Main.logger.info("Loading " + file.getAbsolutePath());
+            BufferedImage bufferedImage = ImageIO.read(file);
+            byte[] pixels = ((DataBufferByte) bufferedImage.getRaster().getDataBuffer()).getData();
+
+            // Convert from ABGR to BGRA
+            byte tempPixel;
+            for (int i = 0; i < pixels.length; i += 4) {
+                tempPixel = pixels[i];
+                pixels[i] = pixels[i + 1];
+                pixels[i + 1] = pixels[i + 2];
+                pixels[i + 2] = pixels[i + 3];
+                pixels[i + 3] = tempPixel;
+            }
+
+            // Convert to OpenCV Mat
+            Mat image = new Mat(bufferedImage.getHeight(), bufferedImage.getWidth(), CvType.CV_8UC4);
+            image.put(0, 0, pixels);
+            return image;
         } catch (Exception e) {
             Main.logger.error("Error loading " + file, e);
         }

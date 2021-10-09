@@ -33,6 +33,7 @@ import org.apache.log4j.Logger;
 import org.opencv.core.*;
 import org.opencv.imgproc.Imgproc;
 
+import java.io.File;
 import java.text.DecimalFormat;
 import java.util.Vector;
 
@@ -396,7 +397,7 @@ public class OSDHandler implements Runnable {
      */
     @Override
     public void run() {
-        watermark = FileWorkers.loadImageAsMat("watermark.png");
+        watermark = FileWorkers.loadImageAsMat(new File("watermark.png"));
         while (handlerRunning)
             proceedFrame();
     }

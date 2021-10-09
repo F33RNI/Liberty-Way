@@ -34,6 +34,7 @@ import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.videoio.VideoCapture;
 
+import java.io.File;
 import java.util.Objects;
 
 public class Tester {
@@ -144,11 +145,11 @@ public class Tester {
         System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
 
         // Load watermark.png as Mat object for test
-        if (!Objects.requireNonNull(FileWorkers.loadImageAsMat("watermark.png")).empty()) {
+        if (!Objects.requireNonNull(FileWorkers.loadImageAsMat(new File("watermark.png"))).empty()) {
             logger.info("OpenCV Native Library test passed");
             return true;
         } else
-            logger.error("Watermark Mat is empty. Test failed!");
+            logger.error("Watermark Mat is empty or null. Test failed!");
         return false;
     }
 
