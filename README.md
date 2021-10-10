@@ -158,6 +158,7 @@ Liberty-Way is a cross-platform application and has been tested on:
 - 5.6.0-kali2-amd64 SMP Debian 5.6.14-1kali1 (2020-05-25) x86_64 GNU/Linux, Intel(R) Core(TM) i7-9750H (x64), openjdk version "11.0.7-ea"
 - Ubuntu 20.04.1 LTS, Intel(R) Core(TM) i7-9750H (x64), openjdk version "1.8.0_292"
 - macOS 11.6 20G165, Intel(R) Core(TM) i7-9750H (x64), openjdk version "11.0.12"
+- macOS 11.0.1 20B50, Intel(R) Core(TM) i5-7360U (x64), openjdk version "11.0.12"
 
 You can run Liberty-Way on other operating systems. **Recommended operating system - Windows.**
 
