@@ -268,6 +268,7 @@ Building Liberty-Way is done simply by typing `ant main`
   - `mkdir install`
 
 - Run CMAKE:
+
 ```
 cmake .. \
   -D WITH_IPP=OFF \
@@ -287,7 +288,7 @@ cmake .. \
   -D BUILD_FAT_JAVA_LIB=ON
 ```
 
-- Make sure cmake ran without errors and `Java: ant:` and `Java: JNI:` are found in the log and `Java wrappers: ` is `YES`. If not, check your JDK and ant installation again
+- Make sure cmake ran without errors and `Java: ant:` and `Java: JNI:` are found in the log and `Java wrappers:` is `YES`. If not, check your JDK and ant installation again
 - Finally, run `make` (To speed up, you can use `make -j NUMBER OF CPU CORES`)
 
 ----------
