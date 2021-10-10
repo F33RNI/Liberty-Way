@@ -1,6 +1,6 @@
 # Liberty-Way AMLS Landing Controller
 
-![Logo](/git_images/logo_book.png "Logo")
+![Logo](git_images/logo_book.png "Logo")
 
 [![Twitter](https://img.shields.io/twitter/url?color=gray&label=twitter&logo=twitter&style=flat-square&url=https%3A%2F%2Ftwitter.com%2Fliberty_drones)](https://twitter.com/liberty_drones)
 [![GitHub license](https://img.shields.io/github/license/XxOinvizioNxX/Liberty-Way?color=red&style=flat-square)](https://github.com/XxOinvizioNxX/Liberty-Way/blob/main/LICENSE)
@@ -8,7 +8,7 @@
 ![GitHub All Releases](https://img.shields.io/github/downloads/XxOinvizioNxX/Liberty-Way/total?color=yellow&style=flat-square "GitHub All Releases")
 [![Travis (.com)](https://img.shields.io/travis/com/XxOinvizioNxX/Liberty-Way?color=green&style=flat-square)](https://www.travis-ci.com/github/XxOinvizioNxX)
 [![GitHub stars](https://img.shields.io/github/stars/XxOinvizioNxX/Liberty-Way?color=blue&style=flat-square)](https://github.com/XxOinvizioNxX/Liberty-Way/stargazers)
-[![Liberty-Way_beta_3.0.0](https://img.shields.io/badge/latest_version-beta_3.0.0-informational?logo=Github&style=flat-square&color=purple "Liberty-Way_beta_3.0.0")](https://github.com/XxOinvizioNxX/Liberty-Way/releases/tag/beta_3.0.0 "Liberty-Way_beta_3.0.0")
+[![Liberty-Way_beta_3.0.0](https://img.shields.io/badge/latest_version-beta_3.0.0-informational?logo=Github&style=flat-square&color=purple "Liberty-Way_beta_3.0.0")](https://github.com/XxOinvizioNxX/Liberty-Way/releases "Liberty-Way_beta_3.0.0")
 
 This project is a part of project activity in Moscow Polytech University by students of group 181-311
 
@@ -33,6 +33,11 @@ All the code excluding the dependencies block, was written by Pavel Neshumov (Fe
 - [Licenses](#licenses)
 - [Logotype](#logotype)
 - [Building and running](#building-and-running)
+  - [Run on Windows](#run-on-windows)
+  - [Run on macOS](#run-on-macos)
+  - [Run on Linux](#run-on-linux)
+  - [Build Liberty-Way](#build-liberty-way)
+  - [Build OpenCV native library on Linux](#build-opencv-native-library-on-linux)
 - [Configuration](#configuration)
   - [Settings](#settings)
   - [PID](#pid)
@@ -125,7 +130,7 @@ This application processes the frame received from the camera located on the pla
 
 ## Licenses
 
-Liberty-Way is licensed under AGPLv3, you can find it’s contents in the main branch.
+Liberty-Way is licensed under AGPLv3, you can find its contents in the main branch.
 
 The dependencies are certificated by following licenses:
 
@@ -139,7 +144,7 @@ The dependencies are certificated by following licenses:
 
 ## Logotype
 
-AMLS and Liberty-X logo was designed by Pavel Neshumov (Fern H.)
+AMLS and Liberty-X logo was designed by Fern H. aka Pavel Neshumov
 
 ----------
 
@@ -147,105 +152,19 @@ AMLS and Liberty-X logo was designed by Pavel Neshumov (Fern H.)
 
 Liberty-Way is a cross-platform application and has been tested on:
 
-- Microsoft Windows 10 Pro 10.0.19041 N/A Build 19041, Intel(R) Core(TM) i7-9750H (x64)
-- Microsoft Windows 11 Pro 10.0.22000 N/A Build 22000, Intel(R) Core(TM) i5-9300H (x64)
-- Microsoft Windows 10 Pro 10.0.19042 N/A Build 19042, Intel(R) Core(TM) i5-8300H (x64)
-- 5.6.0-kali2-amd64 SMP Debian 5.6.14-1kali1 (2020-05-25) x86_64 GNU/Linux, Intel(R) Core(TM) i7-9750H (x64)
+- Microsoft Windows 10 Pro 10.0.19041 N/A Build 19041, Intel(R) Core(TM) i7-9750H (x64), JDK 15
+- Microsoft Windows 11 Pro 10.0.22000 N/A Build 22000, Intel(R) Core(TM) i5-9300H (x64), JRE 8
+- Microsoft Windows 10 Pro 10.0.19042 N/A Build 19042, Intel(R) Core(TM) i5-8300H (x64), JRE 8
+- 5.6.0-kali2-amd64 SMP Debian 5.6.14-1kali1 (2020-05-25) x86_64 GNU/Linux, Intel(R) Core(TM) i7-9750H (x64), JDK 8
+- macOS 11.6 20G165, Intel(R) Core(TM) i7-9750H (x64), JDK 11
 
-You can run Liberty-Way on other operating systems. But it is strongly recommended to build the native OpenCV library from source for your operating system. Native libraries compiled on the listed operating systems are **contained in the release archives**, as well as **in the main branch**. If you build your native library, **put the library file next to the Liberty-Way.jar file**. Don't rename the native library file.
+You can run Liberty-Way on other operating systems. **Recommended operating system - Windows.**
 
-Commands to build native OpenCV library on Linux:
-
-Install dependecies:
-
-```
-sudo apt-get install build-essential
-sudo apt-get install cmake git libgtk2.0-dev pkg-config libavcodec-dev libavformat-dev libswscale-dev
-sudo apt-get install python-dev python-numpy libtbb2 libtbb-dev libjpeg-dev libpng-dev libtiff-dev libjasper-dev libdc1394-22-dev
-```
-
-Install Ant:
-
-```
-sudo apt-get install ant
-```
-
-Install JDK:
-
-```
-sudo mkdir /usr/lib/jvm
-cd /usr/lib/jvm
-wget https://download.oracle.com/java/17/latest/jdk-17_linux-x64_bin.tar.gz
-sudo tar -xvzf jdk-17_linux-x64_bin.tar.gz
-
-
-export J2SDKDIR="/usr/lib/jvm/jdk-17"
-export J2REDIR="/usr/lib/jvm/jdk-17/jre"
-export JAVA_HOME="/usr/lib/jvm/jdk-17"
-export DERBY_HOME="/usr/lib/jvm/jdk-17/db"
-```
-
-Configure your operating folder:
-
-```
-cd ~
-
-mkdir opencv
-cd opencv
-```
-
-Build the library itself:
-
-```
-wget https://github.com/opencv/opencv/archive/4.5.3.tar.gz
-mv 4.5.3.tar.gz opencv-4.5.3.tar.gz
-wget https://github.com/opencv/opencv_contrib/archive/4.5.3.tar.gz
-mv 4.5.3.tar.gz opencv_contrib-4.5.3.tar.gz
-tar -xf opencv-4.5.3.tar.gz
-tar -xf opencv_contrib-4.5.3.tar.gz
-cd opencv-4.5.3
-mkdir build
-cd build
-mkdir install
-
-cmake .. \
-  -D CMAKE_SYSTEM_PROCESSOR=arm64 \
-  -D CMAKE_OSX_ARCHITECTURES=arm64 \
-  -D WITH_IPP=OFF \
-  -D BUILD_opencv_java=ON \
-  -D CMAKE_BUILD_TYPE=RELEASE \
-  -D CMAKE_INSTALL_PREFIX=~/opencv/opencv-4.5.3/build/install \
-  -D OPENCV_EXTRA_MODULES_PATH=~/opencv/opencv_contrib-4.5.3/modules \
-  -D BUILD_opencv_python2=OFF \
-  -D BUILD_opencv_python3=OFF \
-  -D INSTALL_PYTHON_EXAMPLES=OFF \
-  -D INSTALL_C_EXAMPLES=OFF \
-  -D OPENCV_ENABLE_NONFREE=ON \
-  -D BUILD_EXAMPLES=OFF \
-  -D OPENCV_JAVA_TARGET_VERSION=1.8 \
-  -D BUILD_SHARED_LIBS=OFF \
-  -D BUILD_FAT_JAVA_LIB=ON
-  
-make
-```
+It is strongly recommended building the native OpenCV library from a source for your operating system. Native libraries compiled on the listed operating systems are **contained in the release archives**, as well as **in the main branch**. If you build your native library, **put the library file next to the Liberty-Way.jar file**. Don't rename the native library file.
 
 You can build the Liberty-Way application yourself or **run a ready-made .jar from releases (recommended)**. Also, **nightly builds** (.jar) can be downloaded from main branch.
 
-To run the application, you must use command `java -Djava.library.path=. -jar "./Liberty-Way.jar" -c ""` or lauch file `START_WINDOWS.bat` or `START_LINUX.sh` or `START_MACOS.sh` (depends on your operating system)
-
-Examples of commands which build Liberty-Way on Linux:
-
-```
-sudo apt-get install git
-sudo apt-get install ant
-git clone https://github.com/XxOinvizioNxX/Liberty-Way
-cd Liberty-Way
-ant main
-```
-
-Liberty-Way is a cross-platform application and has been **tested on Linux and Windows**. You can try running the application on any other operating system. But you first need to build the OpenCV-contrib library (**The releases and main branch include libraries for Windows and Linux**).
-
-All of the controls is performed only from the browser.
+All the controls is performed only from the browser.
 When starting the application, you can specify the arguments:
 
 ```
@@ -259,13 +178,125 @@ Also, the server address and ports can be specified in the configuration (settin
 
 When launched, the console displays the IP address of the user interface. You need to go to it in your browser
 
+### Run on Windows
+
+- Download and install Java x64
+- Download the latest Liberty-Way release from Releases
+- Unpack Liberty-Way archive
+- Run `START_WINDOWS.bat`
+
+### Run on macOS
+
+- Download and install Homebrew (`/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"`)
+- Install java11 or later with brew (`brew install java11`)
+- Check java version with `java -version`
+- If java version is not the same as installed, set JAVA_HOME environment variable (for example `export JAVA_HOME=/usr/local/Cellar/openjdk@11/11.0.12/`)
+- Install opencv dependencies (`brew install opencv`) (OpenCV is built into Liberty-Way, but other system dependencies are also required, so the easiest way is to let homebrew install them automatically)
+- Download the latest Liberty-Way release from Releases
+- Unpack Liberty-Way archive
+- Run `START_MACOS.sh` or navigate into Liberty-Way folder (using `cd`) and type `java -Djava.library.path=. -jar Liberty-Way.jar -c`
+
+### Run on Linux
+
+- Install Java (for example `sudo apt-get install openjdk-11-jdk`)
+- Check java version with `java -version`
+- If java version is not the same as installed, set JAVA_HOME environment variable (for example `export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64/`)
+- Install opencv dependencies
+  - `sudo apt install libgtk2.0-dev pkg-config libavcodec-dev libavformat-dev libswscale-dev`
+  - `sudo apt install libtbb2 libtbb-dev libjpeg-dev libpng-dev libtiff-dev libdc1394-22-dev`
+  - `sudo apt install libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev**`
+- Download the latest Liberty-Way release from Releases
+- Unpack Liberty-Way archive
+- Run `START_LINUX.sh` or navigate into Liberty-Way folder (using `cd`) and type `java -Djava.library.path=. -jar Liberty-Way.jar -c`
+
+### Build Liberty-Way
+
+Building Liberty-Way is done simply by typing `ant main`
+
+- Install JDK (1.8+)
+- Install ant
+- Install git
+- Set `JAVA_HOME` and `ANT_HOME` environment variables
+- Check java version with `java -version`
+- Check ant version with `ant -version`
+- Type `git clone https://github.com/XxOinvizioNxX/Liberty-Way`
+- Navigate to Liberty-Way folder `cd Liberty-Way`
+- Run ant script `ant main`
+
+### Build OpenCV native library on Linux
+
+- Install dependencies:
+  - `sudo apt install build-essential git cmake`
+  - `sudo apt install libgtk2.0-dev pkg-config libavcodec-dev libavformat-dev libswscale-dev`
+  - `sudo apt install libtbb2 libtbb-dev libjpeg-dev libpng-dev libtiff-dev libdc1394-22-dev`
+  - `sudo apt install libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev**`
+
+- Install Ant:
+  - `sudo apt-get install ant`
+
+- Install JDK. JDK 17 Installation Example:
+  - `sudo mkdir /usr/lib/jvm`
+  - `sudo cd /usr/lib/jvm`
+  - `sudo wget https://download.oracle.com/java/17/latest/jdk-17_linux-x64_bin.tar.gz`
+  - `sudo tar -xvzf jdk-17_linux-x64_bin.tar.gz`
+  - `export J2SDKDIR="/usr/lib/jvm/jdk-17"`
+  - `export J2REDIR="/usr/lib/jvm/jdk-17/jre"`
+  - `export JAVA_HOME="/usr/lib/jvm/jdk-17"`
+  - `export DERBY_HOME="/usr/lib/jvm/jdk-17/db"`
+  - `export PATH=$JAVA_HOME/bin:$PATH`
+
+- Check JDK and ant:
+  - `java -version`
+  - `ant -version`
+  - Both of these commands should show the JDK and ant versions without error. If not, check if you have installed JDK and ant and set system variables.
+
+- Go to the folder where you want to build opencv. Example:
+  - `cd ~`
+  - `mkdir opencv`
+  - `cd opencv`
+
+- Download OpenCV:
+  - `wget https://github.com/opencv/opencv/archive/4.5.3.tar.gz`
+  - `mv 4.5.3.tar.gz opencv-4.5.3.tar.gz`
+  - `wget https://github.com/opencv/opencv_contrib/archive/4.5.3.tar.gz`
+  - `mv 4.5.3.tar.gz opencv_contrib-4.5.3.tar.gz`
+  - `tar -xf opencv-4.5.3.tar.gz`
+  - `tar -xf opencv_contrib-4.5.3.tar.gz`
+  - `cd opencv-4.5.3`
+  - `mkdir build`
+  - `cd build`
+  - `mkdir install`
+
+- Run CMAKE:
+```
+cmake .. \
+  -D WITH_IPP=OFF \
+  -D BUILD_opencv_java=ON \
+  -D CMAKE_BUILD_TYPE=RELEASE \
+  -D CMAKE_INSTALL_PREFIX=../../opencv-4.5.3/build/install \
+  -D OPENCV_EXTRA_MODULES_PATH=../../opencv_contrib-4.5.3/modules \
+  -D BUILD_opencv_python2=OFF \
+  -D BUILD_opencv_python3=OFF \
+  -D INSTALL_PYTHON_EXAMPLES=OFF \
+  -D INSTALL_C_EXAMPLES=OFF \
+  -D OPENCV_ENABLE_NONFREE=ON \
+  -D BUILD_EXAMPLES=OFF \
+  -D OPENCV_JAVA_SOURCE_VERSION=1.8 \
+  -D OPENCV_JAVA_TARGET_VERSION=1.8 \
+  -D BUILD_SHARED_LIBS=OFF \
+  -D BUILD_FAT_JAVA_LIB=ON
+```
+
+- Make sure cmake ran without errors and `Java: ant:` and `Java: JNI:` are found in the log and `Java wrappers: ` is `YES`. If not, check your JDK and ant installation again
+- Finally, run `make` (To speed up, you can use `make -j NUMBER OF CPU CORES`)
+
 ----------
 
 ## Configuration
 
 ### Settings
 
-These are the parameters presented in settings.json file that are used by the program and can be changed depending of its application:
+These are the parameters presented in settings.json file that are used by the program and can be changed depending on of its application:
 
 `"marker_size": 5.0` - length of one side of the tracking marker (cm)
 
@@ -301,7 +332,7 @@ These are the parameters presented in settings.json file that are used by the pr
 
 `"disable_auto_wb": true` - disabling/enabling auto white balance feature
 
-`"disable_auto_focus": true` - disabling/enabling auto focus feature
+`"disable_auto_focus": true` - disabling/enabling autofocus feature
 
 `"default_server_host": "localhost"` - server host which can be overridden by cmd argument
 
@@ -347,9 +378,9 @@ These are the parameters presented in settings.json file that are used by the pr
 
 `"allowed_landing_range_yaw": 5.0` - range of the landing allowance (degrees)
 
-`"min_satellites_num_start": 0` - the minimum number of sattelites is set for the start
+`"min_satellites_num_start": 0` - the minimum number of satellites is set for the start
 
-`"min_satellites_num": 0` - the minimum number of sattelites allowed
+`"min_satellites_num": 0` - the minimum number of satellites allowed
 
 `"setpoint_x": 0.0` - setpoint of PID controller (absolute estimated x)
 
@@ -379,7 +410,7 @@ These are the parameters presented in settings.json file that are used by the pr
 
 `"send_idle_in_wait_mode": true` - is it necessary to send telemetry data while the drone isn't active
 
-`"is_gps_prediction_allowed": false` - is it necessary to predicr future positions
+`"is_gps_prediction_allowed": false` - is it necessary to predict future positions
 
 `"stop_prediction_on_distance": 10` - amount of meters on which the prediction of future positions stops operating
 
@@ -389,7 +420,7 @@ These are the parameters presented in settings.json file that are used by the pr
 
 ### PID
 
-These are the PID regulation parameters for each processed axle (x, y, z and yaw) which can be found in pid.json file:
+These are the PID regulation parameters for each processed axle (x, y, z and yaw) which can be found in the pid.json file:
 
 ```
 "P",              proportional term coefficient 
@@ -407,7 +438,7 @@ These are the PID regulation parameters for each processed axle (x, y, z and yaw
 
 Structure of Liberty-Link packets that Liberty-Way sends to the drone
 
-Each packet consists of 12 bytes. The first 8 bytes are the payload. Next comes 1 byte Link Command, which tells the drone what to do with this packet. Then 1 byte XOR of the check-sum of the previous 9 bytes. At the end there are 2 bytes indicating the end of the packet (indicated in three. By default it is 0xEE 0xEF).
+Each packet consists of 12 bytes. The first 8 bytes are the payload. Next comes 1 byte Link Command, which tells the drone what to do with this packet. Then 1 byte XOR of the check-sum of the previous 9 bytes. At the end there are 2 bytes indicating the end of the packet (indicated in three. By default, it is 0xEE 0xEF).
 
 For each packet sent (even IDLE), the drone returns 1 or several bytes (the number is specified in the Liberty-X settings) of telemetry.
 
@@ -507,7 +538,7 @@ The table below shows the detailed structure of the packet
 
 ### Start Liberty-Way sequence (Link command 5)
 
-In Start Sequene mode, drone starts the Liberty-Way sequence and prepares to take off.
+In Start Sequence mode, drone starts the Liberty-Way sequence and prepares to take off.
 
 The payload bytes are in big-endian order, then the Link Command byte is equal to 5, then the check-sum and 2 bytes of the end of the packet.
 
@@ -543,7 +574,7 @@ The table below shows the detailed structure of the packet
 
 ## TODO
 
-- Find a solution to the error when accessing the camera on macOS
+- Test Liberty-Way on Ubuntu
 - Make the GPS Mixer a standalone device with its own IP address
 - Test the entire system under real conditions
 - Add flight to waypoints (waypoints are set by the user)
