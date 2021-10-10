@@ -152,11 +152,12 @@ AMLS and Liberty-X logo was designed by Fern H. aka Pavel Neshumov
 
 Liberty-Way is a cross-platform application and has been tested on:
 
-- Microsoft Windows 10 Pro 10.0.19041 N/A Build 19041, Intel(R) Core(TM) i7-9750H (x64), JDK 15
-- Microsoft Windows 11 Pro 10.0.22000 N/A Build 22000, Intel(R) Core(TM) i5-9300H (x64), JRE 8
-- Microsoft Windows 10 Pro 10.0.19042 N/A Build 19042, Intel(R) Core(TM) i5-8300H (x64), JRE 8
-- 5.6.0-kali2-amd64 SMP Debian 5.6.14-1kali1 (2020-05-25) x86_64 GNU/Linux, Intel(R) Core(TM) i7-9750H (x64), JDK 8
-- macOS 11.6 20G165, Intel(R) Core(TM) i7-9750H (x64), JDK 11
+- Microsoft Windows 10 Pro 10.0.19041 N/A Build 19041, Intel(R) Core(TM) i7-9750H (x64), java version "1.8.0_281"
+- Microsoft Windows 11 Pro 10.0.22000 N/A Build 22000, Intel(R) Core(TM) i5-9300H (x64)
+- Microsoft Windows 10 Pro 10.0.19042 N/A Build 19042, Intel(R) Core(TM) i5-8300H (x64)
+- 5.6.0-kali2-amd64 SMP Debian 5.6.14-1kali1 (2020-05-25) x86_64 GNU/Linux, Intel(R) Core(TM) i7-9750H (x64), openjdk version "11.0.7-ea"
+- Ubuntu 20.04.1 LTS, Intel(R) Core(TM) i7-9750H (x64), openjdk version "1.8.0_292"
+- macOS 11.6 20G165, Intel(R) Core(TM) i7-9750H (x64), openjdk version "11.0.12"
 
 You can run Liberty-Way on other operating systems. **Recommended operating system - Windows.**
 
