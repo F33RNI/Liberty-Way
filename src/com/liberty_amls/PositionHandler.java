@@ -166,17 +166,17 @@ public class PositionHandler {
                             settingsContainer.allowedLostFrames + " frames");
                     lostCounter++;
                     positionContainer.status = 5;
+                } else {
+                    // Switch to LAND mode if landing conditions are met
+                    if (settingsContainer.landingAllowed
+                            && Math.abs(positionContainer.x - positionContainer.setpointAbsX) <
+                            settingsContainer.allowedLandingRangeXY
+                            && Math.abs(positionContainer.y - positionContainer.setpointAbsY) <
+                            settingsContainer.allowedLandingRangeXY
+                            && Math.abs(positionContainer.yaw - positionContainer.setpointYaw) <
+                            settingsContainer.allowedLandingRangeYaw)
+                        positionContainer.status = 4;
                 }
-
-                // Switch to LAND mode if landing conditions are met
-                if (settingsContainer.landingAllowed
-                        && Math.abs(positionContainer.x - positionContainer.setpointAbsX) <
-                        settingsContainer.allowedLandingRangeXY
-                        && Math.abs(positionContainer.y - positionContainer.setpointAbsY) <
-                        settingsContainer.allowedLandingRangeXY
-                        && Math.abs(positionContainer.yaw - positionContainer.setpointYaw) <
-                        settingsContainer.allowedLandingRangeYaw)
-                    positionContainer.status = 4;
 
                 // Log new data
                 blackboxHandler.newEntryFlag();
@@ -185,36 +185,44 @@ public class PositionHandler {
                 // ---------------------------------------------
                 // LAND - Optical landing
                 // ---------------------------------------------
-                if (positionContainer.z <= settingsContainer.motorsTurnOffHeight) {
-                    // Landing done
-                    logger.warn("Landed successfully! Turning off the motors.");
-                    linkSender.sendMotorsStop();
-                    if (settingsContainer.isTelemetryNecessary && !telemetryContainer.telemetryLost) {
-                        if (!telemetryContainer.takeoffDetected)
-                            // Switch to DONE state if the drone has landed
-                            positionContainer.status = 7;
-                    } else
-                        // TODO: detect drone landing using platform
-                        positionContainer.status = 7;
+                // Switch to PREV mode if marker was lost
+                if (!newMarkerPosition || z > settingsContainer.maxMarkerHeight) {
+                    logger.warn("The marker is lost! The previous position will be used for next " +
+                            settingsContainer.allowedLostFrames + " frames");
+                    lostCounter++;
+                    positionContainer.status = 5;
                 } else {
-                    // Landing in process
-                    // Check landing conditions
-                    if (Math.abs(positionContainer.x - positionContainer.setpointAbsX) <
-                            settingsContainer.allowedLandingRangeXY
-                            && Math.abs(positionContainer.y - positionContainer.setpointAbsY) <
-                            settingsContainer.allowedLandingRangeXY
-                            && Math.abs(positionContainer.yaw - positionContainer.setpointYaw) <
-                            settingsContainer.allowedLandingRangeYaw) {
-                        // Slowly lowering the altitude
-                        if (positionContainer.setpointZ > 1)
-                            positionContainer.setpointZ -= settingsContainer.landingDecrement;
-                        miniPIDZ.setSetpoint(positionContainer.setpointZ);
-                    } else
-                        // If landing conditions are not met, return to STAB mode
-                        positionContainer.status = 3;
+                    if (positionContainer.z <= settingsContainer.motorsTurnOffHeight) {
+                        // Landing done
+                        logger.warn("Landed successfully! Turning off the motors.");
+                        linkSender.sendMotorsStop();
+                        if (settingsContainer.isTelemetryNecessary && !telemetryContainer.telemetryLost) {
+                            if (!telemetryContainer.takeoffDetected)
+                                // Switch to DONE state if the drone has landed
+                                positionContainer.status = 7;
+                        } else
+                            // TODO: detect drone landing using platform
+                            positionContainer.status = 7;
+                    } else {
+                        // Landing in process
+                        // Check landing conditions
+                        if (Math.abs(positionContainer.x - positionContainer.setpointAbsX) <
+                                settingsContainer.allowedLandingRangeXY
+                                && Math.abs(positionContainer.y - positionContainer.setpointAbsY) <
+                                settingsContainer.allowedLandingRangeXY
+                                && Math.abs(positionContainer.yaw - positionContainer.setpointYaw) <
+                                settingsContainer.allowedLandingRangeYaw) {
+                            // Slowly lowering the altitude
+                            if (positionContainer.setpointZ > 1)
+                                positionContainer.setpointZ -= settingsContainer.landingDecrement;
+                            miniPIDZ.setSetpoint(positionContainer.setpointZ);
+                        } else
+                            // If landing conditions are not met, return to STAB mode
+                            positionContainer.status = 3;
 
-                    // Calculate and send direct controls
-                    opticalStabilization(x, y, z, yaw);
+                        // Calculate and send direct controls
+                        opticalStabilization(x, y, z, yaw);
+                    }
                 }
 
                 // Log new data
