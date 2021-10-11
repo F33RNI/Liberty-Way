@@ -239,15 +239,15 @@ public class PositionHandler {
                 if (newMarkerPosition && z <= settingsContainer.maxMarkerHeight) {
                     logger.warn("The marker is back in sight!");
                     positionContainer.status = 3;
-                }
+                } else {
+                    // Increment lost frames counter
+                    lostCounter++;
+                    if (lostCounter > settingsContainer.allowedLostFrames) {
+                        logger.error("The marker is completely lost! Optical stabilization will be terminated!");
 
-                // Increment lost frames counter
-                lostCounter++;
-                if (lostCounter > settingsContainer.allowedLostFrames) {
-                    logger.error("The marker is completely lost! Optical stabilization will be terminated!");
-
-                    // Switch to LOST mode if marker is completely lost
-                    positionContainer.status = 6;
+                        // Switch to LOST mode if marker is completely lost
+                        positionContainer.status = 6;
+                    }
                 }
 
                 // Log new data
