@@ -8,7 +8,7 @@
 ![GitHub All Releases](https://img.shields.io/github/downloads/XxOinvizioNxX/Liberty-Way/total?color=yellow&style=flat-square "GitHub All Releases")
 [![Travis (.com)](https://img.shields.io/travis/com/XxOinvizioNxX/Liberty-Way?color=green&style=flat-square)](https://www.travis-ci.com/github/XxOinvizioNxX)
 [![GitHub stars](https://img.shields.io/github/stars/XxOinvizioNxX/Liberty-Way?color=blue&style=flat-square)](https://github.com/XxOinvizioNxX/Liberty-Way/stargazers)
-[![Liberty-Way_beta_3.0.0](https://img.shields.io/badge/latest_version-beta_3.0.0-informational?logo=Github&style=flat-square&color=purple "Liberty-Way_beta_3.0.0")](https://github.com/XxOinvizioNxX/Liberty-Way/releases "Liberty-Way_beta_3.0.0")
+[![Liberty-Way_beta_4.0.0](https://img.shields.io/badge/latest_version-beta_4.0.0-informational?logo=Github&style=flat-square&color=purple "Liberty-Way_beta_4.0.0")](https://github.com/XxOinvizioNxX/Liberty-Way/releases "Liberty-Way_beta_4.0.0")
 
 This project is a part of project activity in Moscow Polytech University by students of group 181-311
 
