@@ -1,6 +1,5 @@
 <!--
-   - Copyright (C) 2021 Fern Hertz (Pavel Neshumov), Liberty-Way Landing System Project
-   -
+   - Copyright (C) 2021 Fern H. (aka Pavel Neshumov), Liberty-Way Landing System Project
    - This software is part of Autonomous Multirotor Landing System (AMLS) Project
    -
    - Licensed under the GNU Affero General Public License, Version 3.0 (the "License");
@@ -43,7 +42,8 @@
 		<style>
 			:root {
 
-				--color-containers-border: linear-gradient(var(--color-global-primary-hsl), var(--color-global-secondary-hsl));
+				--color-containers-border: linear-gradient(var(--color-global-primary-hsl),
+				var(--color-global-secondary-hsl));
 				--color-containers-glow: var(--color-global-secondary-hsl);
 			}
 			/*body {
@@ -62,10 +62,12 @@
 	<body>
 		<div class="center-container">
 			<div class="aug-container-glow" aria-hidden="true">
-				<div class="center-aug-container" data-augmented-ui="tl-2-clip-y tr-clip bl-clip br-clip-y border"></div>
+				<div class="center-aug-container" data-augmented-ui="tl-2-clip-y tr-clip bl-clip br-clip-y border">
+				</div>
 			</div>
 			<div class="aug-container-glow" aria-hidden="true" style="filter: none;">
-				<div class="center-aug-container" data-augmented-ui="tl-2-clip-y tr-clip bl-clip br-clip-y both" style="--aug-border-all: 2px; backdrop-filter: blur(4px);"></div>
+				<div class="center-aug-container" data-augmented-ui="tl-2-clip-y tr-clip bl-clip br-clip-y both"
+					 style="--aug-border-all: 2px; backdrop-filter: blur(4px);"></div>
 			</div>
 			
 			<img class="watermark" src="amls-watermark.png" alt="AMLS logotype">
@@ -101,6 +103,10 @@
 								<option value="33600">33600</option>
 								<option value="38400">38400</option>
 								<option value="115200">115200</option>
+								<option value="230400">230400</option>
+								<option value="460800">460800</option>
+								<option value="576000">576000</option>
+								<option value="921600">921600</option>
 							</select>
 						</div>
 					</div>
@@ -115,6 +121,20 @@
 						<div class="input-container" data-augmented-ui="br-clip both">
 							<input type="text" id="link_udp" placeholder="xxx.xxx.xxx.xxx:xxxx"
 								   value="192.168.9.184:9999"/>
+						</div>
+					</div>
+				</div>
+
+				<div class="setup-data-container">
+					<div>
+						<label class="labels-text" for="link_udp_tx" style="padding-left: 1.5em">
+							UDP Tx Port:
+						</label>
+					</div>
+					<div>
+						<div class="input-container" data-augmented-ui="br-clip both" style="width: 4.6em;">
+							<input type="text" id="link_udp_tx" placeholder="xxxx"
+								   value="9999"/>
 						</div>
 					</div>
 				</div>
@@ -143,6 +163,10 @@
 								<option value="33600">33600</option>
 								<option value="38400">38400</option>
 								<option value="115200">115200</option>
+								<option value="230400">230400</option>
+								<option value="460800">460800</option>
+								<option value="576000">576000</option>
+								<option value="921600">921600</option>
 							</select>
 						</div>
 					</div>
@@ -157,6 +181,20 @@
 						<div class="input-container" data-augmented-ui="br-clip both">
 							<input type="text" id="platform_udp" placeholder="xxx.xxx.xxx.xxx:xxxx"
 								   value="192.168.9.185:8888"/>
+						</div>
+					</div>
+				</div>
+
+				<div class="setup-data-container">
+					<div>
+						<label class="labels-text" for="platform_udp_tx" style="padding-left: 1.5em">
+							UDP Tx Port:
+						</label>
+					</div>
+					<div>
+						<div class="input-container" data-augmented-ui="br-clip both" style="width: 4.6em;">
+							<input type="text" id="platform_udp_tx" placeholder="xxxx"
+								   value="8888"/>
 						</div>
 					</div>
 				</div>

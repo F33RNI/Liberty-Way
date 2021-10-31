@@ -242,8 +242,10 @@ public class WebAPI {
         logger.info("Liberty-Link Port: " + setupData.get("link_port").getAsString());
         if (setupData.get("link_port").getAsString().length() > 0)
             logger.info("Liberty-Link Port baudrate: " + setupData.get("link_baudrate").getAsString());
-        logger.info("Liberty-Link UDP: " + setupData.get("link_udp").getAsString());
-        logger.info("Platform UDP: " + setupData.get("platform_udp").getAsString());
+        logger.info("Liberty-Link UDP: " + setupData.get("link_udp").getAsString() + ", " +
+                setupData.get("link_udp_tx").getAsString());
+        logger.info("Platform UDP: " + setupData.get("platform_udp").getAsString() + ", " +
+                setupData.get("platform_udp_tx").getAsString());
         logger.info("Camera ID: " + setupData.get("camera_id").getAsString());
 
         // Load native library (from java-library-path)
@@ -263,10 +265,12 @@ public class WebAPI {
                 settingsContainer.serialReconnectTime);
 
         // Create UDPHandler class for UDP communication with Liberty-Link
-        udpHandlerLink = new UDPHandler(setupData.get("link_udp").getAsString(), settingsContainer.udpTimeout);
+        udpHandlerLink = new UDPHandler(setupData.get("link_udp").getAsString(),
+                setupData.get("link_udp_tx").getAsString(), settingsContainer.udpTimeout);
 
         // Create UDPHandler class for UDP communication with Platform
-        udpHandlerPlatform = new UDPHandler(setupData.get("platform_udp").getAsString(), settingsContainer.udpTimeout);
+        udpHandlerPlatform = new UDPHandler(setupData.get("platform_udp").getAsString(),
+                setupData.get("platform_udp_tx").getAsString(), settingsContainer.udpTimeout);
 
         // Create PositionContainer class for store current position
         positionContainer = new PositionContainer();

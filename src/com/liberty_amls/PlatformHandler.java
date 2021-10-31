@@ -70,14 +70,19 @@ public class PlatformHandler implements Runnable {
         // Set loop flag and start main loop
         logger.info("Starting main loop");
         handleRunning = true;
-        while (handleRunning)
-            platformLoop();
+        while (handleRunning) {
+            try {
+                platformLoop();
+            } catch (InterruptedException e) {
+                logger.error("Error while communicating with the platform!", e);
+            }
+        }
     }
 
     /**
      * Main platform loop
      */
-    private void platformLoop() {
+    private void platformLoop() throws InterruptedException {
         // Check lost status
         if (!platformContainer.platformLost &&
                 System.currentTimeMillis() - platformLastPacketTime >= settingsContainer.platformLostTime) {
@@ -93,6 +98,10 @@ public class PlatformHandler implements Runnable {
 
             // Reset timer
             loopTimer = System.currentTimeMillis();
+
+            // Wait one cycle in case of platform lost
+            if (platformContainer.platformLost)
+                Thread.sleep(settingsContainer.platformLoopTimer);
         }
 
         // Read and parse data from serial or UDP port

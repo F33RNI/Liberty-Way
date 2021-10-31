@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Fern Hertz (Pavel Neshumov), Liberty-Way Landing System Project
+ * Copyright (C) 2021 Fern H. (aka Pavel Neshumov), Liberty-Way Landing System Project
  * This software is part of Autonomous Multirotor Landing System (AMLS) Project
  *
  * Licensed under the GNU Affero General Public License, Version 3.0 (the "License");
@@ -83,8 +83,10 @@ function startController() {
 
 		if (document.getElementById("link_udp_enabled").checked) {
 			jsonRequest.link_udp = document.getElementById("link_udp").value;
+			jsonRequest.link_udp_tx = document.getElementById("link_udp_tx").value;
 		} else {
 			jsonRequest.link_udp = "";
+			jsonRequest.link_udp_tx = "";
 		}
 
 		if (document.getElementById("platform_port_enabled").checked) {
@@ -96,8 +98,10 @@ function startController() {
 
 		if (document.getElementById("platform_udp_enabled").checked) {
 			jsonRequest.platform_udp = document.getElementById("platform_udp").value;
+			jsonRequest.platform_udp_tx = document.getElementById("platform_udp_tx").value;
 		} else {
 			jsonRequest.platform_udp = "";
+			jsonRequest.platform_udp_tx = "";
 		}
 
 

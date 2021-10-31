@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Fern Hertz (Pavel Neshumov), Liberty-Way Landing System Project
+ * Copyright (C) 2021 Fern H. (aka Pavel Neshumov), Liberty-Way Landing System Project
  * This software is part of Autonomous Multirotor Landing System (AMLS) Project
  *
  * Licensed under the GNU Affero General Public License, Version 3.0 (the "License");

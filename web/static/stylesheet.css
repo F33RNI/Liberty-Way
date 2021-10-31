@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Fern Hertz (Pavel Neshumov), Liberty-Way Landing System Project
+ * Copyright (C) 2021 Fern H. (aka Pavel Neshumov), Liberty-Way Landing System Project
  * This software is part of Autonomous Multirotor Landing System (AMLS) Project
  *
  * Licensed under the GNU Affero General Public License, Version 3.0 (the "License");
@@ -135,7 +135,7 @@ body {
 	font-family: 'Blender Pro Book';
 	background-color: var(--color-page-background);
 	text-align: center;
-	color: var(--color-text-primary);
+	color: var(--color-global-text);
 	background-image: url('background.jpg');
 	background-repeat: no-repeat;
 	background-attachment: fixed;
@@ -433,8 +433,8 @@ select:focus {
 	position: absolute;
 	width: 100%;
 	height: 100%;
-	left: 0px;
-	top: 0px;
+	left: 0;
+	top: 0;
 }
 .aug-container-glow {
 	filter: drop-shadow(0 0 3px var(--color-containers-glow)) drop-shadow(0 0 1px var(--color-containers-glow)) brightness(1.0);
@@ -470,10 +470,7 @@ select:focus {
 	right: 1em;
 	margin-left: auto; 
 	margin-right: auto;
-	padding-left: 2.3em;
-	padding-right: 2.2em;
-	padding-bottom: 1.4em;
-	padding-top: 0.8em;
+	padding: 0.8em 2.2em 1.4em 2.3em;
 	z-index: 99;
 }
 .timeline-aug-container {
@@ -491,7 +488,7 @@ select:focus {
 	display: flex;
 	justify-content: space-between;
 	margin: 0;
-	filter: drop-shadow(0 0 0.2em var(--color-telemetry-text));
+	filter: drop-shadow(0 0 0.2em var(--color-global-text));
 }
 
 .tickmarks p {

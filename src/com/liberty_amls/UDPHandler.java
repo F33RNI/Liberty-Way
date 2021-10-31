@@ -41,10 +41,10 @@ import java.util.concurrent.BlockingQueue;
 public class UDPHandler implements Runnable {
     private final Logger logger = Logger.getLogger(this.getClass().getSimpleName());
     private DatagramSocket datagramSocket;
-    private final String udpIPPort;
+    private final String udpIPPortRx, udpTxPort;
     private final int udpTimeout;
     private InetAddress inetAddress;
-    private int port;
+    private int portTx;
     private boolean udpPortOpened = false;
     private byte[] udpData;
     private final byte[] packetBuffer = new byte[1024];
@@ -53,10 +53,12 @@ public class UDPHandler implements Runnable {
 
     /**
      * This class takes an array of bytes (udpData) and sends it as a packet via an UDP
-     * @param udpIPPort String with format 'IP:PORT'
+     * @param udpIPPortRx String with format 'IP:PORT'. IP + Port on which Liberty-Way will receive data
+     * @param udpTxPort String with format 'PORT'. Port on which Liberty-Way will send data
      */
-    public UDPHandler(String udpIPPort, int udpTimeout) {
-        this.udpIPPort = udpIPPort;
+    public UDPHandler(String udpIPPortRx, String udpTxPort, int udpTimeout) {
+        this.udpIPPortRx = udpIPPortRx;
+        this.udpTxPort = udpTxPort;
         this.udpTimeout = udpTimeout;
     }
 
@@ -65,17 +67,18 @@ public class UDPHandler implements Runnable {
      */
     public void openUDP() {
         try {
-            if (udpIPPort != null && udpIPPort.length() > 0) {
-                inetAddress = InetAddress.getByName(udpIPPort.split(":")[0]);
-                port = Integer.parseInt(udpIPPort.split(":")[1]);
-                datagramSocket = new DatagramSocket(port);
+            if (udpIPPortRx != null && udpIPPortRx.length() > 0 && udpTxPort != null && udpTxPort.length() > 0) {
+                inetAddress = InetAddress.getByName(udpIPPortRx.split(":")[0]);
+                int portRx = Integer.parseInt(udpIPPortRx.split(":")[1]);
+                portTx = Integer.parseInt(udpTxPort);
+                datagramSocket = new DatagramSocket(portRx);
                 udpData = new byte[1];
                 udpPortOpened = true;
                 pushData();
             }
         } catch (Exception e) {
             udpPortOpened = false;
-            logger.error("Error starting UDP socket " + udpIPPort, e);
+            logger.error("Error starting UDP socket " + udpIPPortRx + ", " + udpTxPort, e);
             // Exit because UDP is a vital node when turned on
             System.exit(1);
         }
@@ -96,12 +99,12 @@ public class UDPHandler implements Runnable {
         try {
             if (udpPortOpened && udpData != null && udpData.length > 0) {
                 DatagramPacket packet = new DatagramPacket(
-                        udpData, udpData.length, inetAddress, port
+                        udpData, udpData.length, inetAddress, portTx
                 );
                 datagramSocket.send(packet);
             }
         } catch (Exception e) {
-            logger.error("Error pushing data to " + udpIPPort, e);
+            logger.error("Error pushing data to " + udpTxPort, e);
         }
     }
 
@@ -144,9 +147,9 @@ public class UDPHandler implements Runnable {
                 }
             }
         } catch (SocketTimeoutException e) {
-            logger.error("Timeout reading data from " + udpIPPort);
+            logger.error("Timeout reading data from " + udpIPPortRx);
         } catch (Exception e) {
-            logger.error("Error reading data from " + udpIPPort, e);
+            logger.error("Error reading data from " + udpIPPortRx, e);
         }
     }
 
@@ -169,7 +172,7 @@ public class UDPHandler implements Runnable {
      * Closes datagramSocket and sets udpPortOpened flag to false
      */
     public void closeUDP() {
-        logger.warn("Closing UDP port " + udpIPPort);
+        logger.warn("Closing UDP port " + udpIPPortRx + ", " + udpTxPort);
         handlerRunning = false;
         if (udpPortOpened)
             datagramSocket.close();
