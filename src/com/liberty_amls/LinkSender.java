@@ -53,19 +53,11 @@ public class LinkSender {
     }
 
     /**
-     * Sends IDLE command to the drone (disables all corrections and requests telemetry)
-     * Link command = 0
+     * Sends IDLE command to the drone (requests telemetry)
+     * Link command = 0b10000000
      */
     public void sendIDLE() {
-        // Reset body bytes
-        for (int i = 0; i <= 7; i++)
-            linkBuffer[i] = 0;
-
-        // Link command
-        linkBuffer[8] = (byte) 0;
-
-        // Transmit data
-        pushLinkData();
+        pushCommand(0, 0);
     }
 
     /**
@@ -86,35 +78,11 @@ public class LinkSender {
         // Throttle
         linkBuffer[6] = (byte) ((ddcZ >> 8) & 0xFF);
         linkBuffer[7] = (byte) (ddcZ & 0xFF);
-        // Link command (1 - direct control)
-        linkBuffer[8] = (byte) 1;
+
+        // Direct control mode (P = 1, CCC = 001, XXXX = 0000)
+        linkBuffer[8] = (byte) 0b10010000;
 
         // Transmit direct control data
-        pushLinkData();
-    }
-
-    /**
-     * Sends pressure waypoint to the drone
-     * Link command = 2
-     * @param pressure atm. pressure in Pascals
-     */
-    public void sendPressureWaypoint(int pressure) {
-        // Pressure waypoint
-        linkBuffer[0] = (byte) ((pressure >> 24) & 0xFF);
-        linkBuffer[1] = (byte) ((pressure >> 16) & 0xFF);
-        linkBuffer[2] = (byte) ((pressure >> 8) & 0xFF);
-        linkBuffer[3] = (byte) (pressure & 0xFF);
-
-        // Empty other part of the packet
-        linkBuffer[4] = 0;
-        linkBuffer[5] = 0;
-        linkBuffer[6] = 0;
-        linkBuffer[7] = 0;
-
-        // Link command
-        linkBuffer[8] = (byte) 2;
-
-        // Transmit pressure waypoint
         pushLinkData();
     }
 
@@ -140,8 +108,8 @@ public class LinkSender {
         linkBuffer[6] = (byte) ((lonInt >> 8) & 0xFF);
         linkBuffer[7] = (byte) (lonInt & 0xFF);
 
-        // Link command
-        linkBuffer[8] = (byte) 3;
+        // Waypoint fill mode (P = 0, CCC = 011, XXXX = 0000)
+        linkBuffer[8] = (byte) 0b00110000;
 
         // Transmit GPS coordinates
         pushLinkData();
@@ -149,49 +117,50 @@ public class LinkSender {
 
     /**
      * Sends a command to turn off the motors.
-     * Link command = 4
+     * Link command = 0b11100000
      */
-    public void sendMotorsStop() {
-        // Reset body bytes
-        for (int i = 0; i <= 7; i++)
-            linkBuffer[i] = 0;
-
-        // Link command
-        linkBuffer[8] = (byte) 4;
-
-        // Transmit data
-        pushLinkData();
+    public void sendMotorsOFF() {
+        pushCommand(0b110, 0);
     }
 
     /**
-     * Sends a command to turn off the motors.
-     * Link command = 5
+     * Sends a command to start auto-takeoff sequence
+     * Link command = 0b10100000
      */
-    public void sendStartSequence() {
-        // Reset body bytes
-        for (int i = 0; i <= 7; i++)
-            linkBuffer[i] = 0;
-
-        // Link command
-        linkBuffer[8] = (byte) 5;
-
-        // Transmit data
-        pushLinkData();
+    public void sendTakeoff() {
+        pushCommand(0b010, 0);
     }
 
     /**
-     * Sends abort command to the drone
-     * (Clears flags, resets direct corrections, waypoint flags and sharply jumps up to prevent a collision)
-     * Link command = 6
+     * Sends a command to start auto-landing sequence
+     * Link command = 0b10100000
      */
-    public void sendAbort() {
-        logger.warn("Sending abort command");
+    public void sendLand() {
+        pushCommand(0b010, 0);
+    }
+
+
+    /**
+     * Sends a command to execute flight termination system
+     * Link command = 0b11111111
+     */
+    public void sendFTS() {
+        logger.error("Sending FTS command!");
+        pushCommand(0b111, 0b1111);
+    }
+
+    /**
+     * Pushes command (P = 1) (PCCCXXXX)
+     * @param commandBits first 3 bits of command (after P bit) - CCC
+     * @param bodyBits last 4 bits of command (aka data bits) - XXXX
+     */
+    private void pushCommand(int commandBits, int bodyBits) {
         // Reset body bytes
         for (int i = 0; i <= 7; i++)
             linkBuffer[i] = 0;
 
-        // Link command
-        linkBuffer[8] = (byte) 6;
+        // Parse command
+        linkBuffer[8] = (byte) (((commandBits << 4) | 0b10000000 | bodyBits) & 0xFF);
 
         // Transmit data
         pushLinkData();

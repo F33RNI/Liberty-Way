@@ -51,6 +51,7 @@ public class PositionHandler {
      * This class takes the absolute coordinates of the marker as input,
      * passes them through the PID controllers,
      * generates Direct Control values and sends them to the drone via the Serial port or UDP
+     * TODO: Add proper waypoints fly
      * @param linkSender LinkSender class object to send data
      */
     public PositionHandler(LinkSender linkSender,
@@ -195,7 +196,7 @@ public class PositionHandler {
                     if (positionContainer.z <= settingsContainer.motorsTurnOffHeight) {
                         // Landing done
                         logger.warn("Landed successfully! Turning off the motors.");
-                        linkSender.sendMotorsStop();
+                        linkSender.sendMotorsOFF();
                         if (settingsContainer.isTelemetryNecessary && !telemetryContainer.telemetryLost) {
                             if (!telemetryContainer.takeoffDetected)
                                 // Switch to DONE state if the drone has landed
@@ -245,24 +246,10 @@ public class PositionHandler {
                     if (lostCounter > settingsContainer.allowedLostFrames) {
                         logger.error("The marker is completely lost! Optical stabilization will be terminated!");
 
-                        // Switch to LOST mode if marker is completely lost
-                        positionContainer.status = 6;
+                        // Switch to the MKWT mode if marker is completely lost
+                        positionContainer.status = 1;
                     }
                 }
-
-                // Log new data
-                blackboxHandler.newEntryFlag();
-                break;
-            case 6:
-                // ---------------------------------------------
-                // LOST - The marker is lost
-                // ---------------------------------------------
-                // Send abort command
-                logger.error("Sending Abort Command to the drone!");
-                linkSender.sendAbort();
-
-                // Switch to the MKWT mode
-                positionContainer.status = 1;
 
                 // Log new data
                 blackboxHandler.newEntryFlag();
@@ -300,71 +287,42 @@ public class PositionHandler {
      * Sends the platform GPS coordinates and pressure waypoint to the drone
      */
     private void sendCurrentPlatformPosition() {
+        // If platform connected
         if (!platformContainer.platformLost) {
-            // If platform connected
-            switch (waypointStep) {
-                case 0:
-                    // ---------------------------------------------
-                    // Step 1. Send and predict gps waypoint
-                    // ---------------------------------------------
-                    if (!telemetryContainer.telemetryLost
-                            && positionContainer.distance <= settingsContainer.stopPredictionOnDistance)
-                        // Send real waypoint if distance is less than stopPredictionOnDistance
-                        linkSender.sendGPSWaypoint(platformContainer.gps);
-                    else if (settingsContainer.isGPSPredictionAllowed) {
-                        // Feed new GPS coordinates
-                        gpsPredictor.setGPSCurrent(platformContainer.gps);
-                        // Send predicted waypoint
-                        linkSender.sendGPSWaypoint(gpsPredictor.getGPSPredicted());
-                        // Store current position for next cycle
-                        gpsPredictor.setGPSLast(platformContainer.gps);
-                    } else
-                        // Send real waypoint
-                        linkSender.sendGPSWaypoint(platformContainer.gps);
-                    // Switch to step 2
-                    waypointStep = 1;
-                    break;
-                case 1:
-                    // ---------------------------------------------
-                    // Step 2. Send altitude waypoint
-                    // ---------------------------------------------
-                    linkSender.sendPressureWaypoint(platformContainer.pressure
-                            - settingsContainer.pressureTermAbovePlatform);
-                    // Switch to step 3
-                    waypointStep = 2;
-                    break;
-                case 2:
-                    // ---------------------------------------------
-                    // Step 3. Send command to begin Liberty Way
-                    // ---------------------------------------------
-                    linkSender.sendStartSequence();
-                    // Switch to step 4 if sending of IDLE packets is enabled
-                    if (settingsContainer.sendIdleCyclesNum > 0)
-                        waypointStep = 3;
-                    else
-                        waypointStep = 0;
-                    break;
-                default:
-                    // ---------------------------------------------
-                    // Other steps. IDLE state (telemetry receiving)
-                    // ---------------------------------------------
-                    linkSender.sendIDLE();
-                    // Increment counter
-                    waypointStep++;
-                    // Reset counter
-                    if (waypointStep >= 3 + settingsContainer.sendIdleCyclesNum)
-                        waypointStep = 0;
-                    break;
+
+            // Step 1. Send and predict gps waypoint
+            if (waypointStep == 0) {
+                if (!telemetryContainer.telemetryLost
+                        && positionContainer.distance <= settingsContainer.stopPredictionOnDistance)
+                    // Send real waypoint if distance is less than stopPredictionOnDistance
+                    linkSender.sendGPSWaypoint(platformContainer.gps);
+                else if (settingsContainer.isGPSPredictionAllowed) {
+                    // Feed new GPS coordinates
+                    gpsPredictor.setGPSCurrent(platformContainer.gps);
+                    // Send predicted waypoint
+                    linkSender.sendGPSWaypoint(gpsPredictor.getGPSPredicted());
+                    // Store current position for next cycle
+                    gpsPredictor.setGPSLast(platformContainer.gps);
+                } else
+                    // Send real waypoint
+                    linkSender.sendGPSWaypoint(platformContainer.gps);
+                // Switch to step 2
+                waypointStep++;
+            }
+
+            // Step 2. Send command to begin auto-takwoff sequence
+            else {
+                linkSender.sendTakeoff();
+                waypointStep = 0;
             }
         } else {
             // If platform lost
             // Reset counter
             waypointStep = 0;
             // Print error message
-            logger.error("Error sending waypoints! Platform connection lost. " +
-                    "The Abort command will be sent to the drone!");
-            // Send abort command
-            linkSender.sendAbort();
+            logger.error("Error sending waypoints! Platform connection lost");
+            // Send IDLE command
+            linkSender.sendIDLE();
         }
     }
 
@@ -429,8 +387,8 @@ public class PositionHandler {
             if (this.libertyWayEnabled) {
                 // Disable Liberty-Way
                 if (telemetryContainer.takeoffDetected)
-                    // Send abort command if closed in flight
-                    linkSender.sendAbort();
+                    // Send auto landing command if closed in flight
+                    linkSender.sendLand();
 
                 // Disable blackbox
                 blackboxHandler.setBlackboxEnabled(false);

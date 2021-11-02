@@ -410,8 +410,8 @@ public class WebAPI {
         // Redirect to the home page with aborted flag provided
         aborted = true;
         try {
-            // Send abort command
-            linkSender.sendAbort();
+            // Send flight termination command
+            linkSender.sendFTS();
 
             // Stop all the handler
             blackboxHandler.stop();
@@ -502,21 +502,18 @@ public class WebAPI {
             // MKWT or WAYP modes
             if (!telemetryContainer.telemetryLost) {
                 if (telemetryContainer.linkWaypointStep == 1) {
-                    // Pre-starting the motors
-                    return (100.0 / 6.0) * 0.5;
-                } else if (telemetryContainer.linkWaypointStep == 2) {
                     // Waiting for taking off
                     if (progressTick)
                         return (100.0 / 6.0) * 1;
                     else
                         return (100.0 / 6.0) * 0.5;
-                } else if (telemetryContainer.linkWaypointStep == 3) {
+                } else if (telemetryContainer.linkWaypointStep == 2) {
                     // Ascending
                     if (progressTick)
                         return (100.0 / 6.0) * 2;
                     else
                         return (100.0 / 6.0) * 1;
-                } else if (telemetryContainer.linkWaypointStep == 4 || telemetryContainer.linkWaypointStep == 5) {
+                } else if (telemetryContainer.linkWaypointStep >= 3 && telemetryContainer.linkWaypointStep <= 5) {
                     // GPS Flight
                     if (progressTick)
                         return (100.0 / 6.0) * 3;
