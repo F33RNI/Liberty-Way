@@ -577,7 +577,6 @@ The table below shows the detailed structure of the packet
 
 ## TODO
 
-- Test Liberty-Way on Ubuntu
 - Make the GPS Mixer a standalone device with its own IP address
 - Test the entire system under real conditions
 - Add flight to waypoints (waypoints are set by the user)
