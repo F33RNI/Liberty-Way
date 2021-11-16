@@ -113,7 +113,7 @@ Two main parts of the whole system are:
 
 - And the platform
 
-![Platform](https://github.com/XxOinvizioNxX/Liberty-Way/raw/main/git_images/platform_side_transparent.png) "Platform")
+![Platform](https://github.com/XxOinvizioNxX/Liberty-Way/raw/main/git_images/platform_side_transparent.png "Platform")
 
 How the system operates:
 
@@ -147,7 +147,7 @@ GPS-module will be used from the UBlox group (for instance, UBlox Neo-M8). There
 
 Modules operate via UART, configured to send data 5 times per second. The Liberty-Link firmware will read data from the modules and calculate the coordinates of the current position.
 
-But, for now, these modules are substituted with a smartphone that generates GPS coordinates (for more info refer to [GPS to Serial](#gps-to-serial)).
+But, for now, these modules are substituted with a smartphone that generates GPS coordinates (for more info refer to [GPS to Serial](#15-gps-to-serial)).
 
 ### 3.1. Serial reading
 
