@@ -69,7 +69,7 @@ Drone flight controller firmware for STM32 microcontroller. This flight controll
 
 - https://github.com/XxOinvizioNxX/Liberty-X
 
-### Eitude(ass)
+### Eitude
 
 Liberty Drones Platform controller This is a fully functional and reliable part of the Liberty Drones system from the platform perspective. Controller will be operating with such data as its own GPS location, level of illumination around it, its speed and the data that would be sent from the drone which is descripted in Data packet structure paragraph in Liberty-Way Project. So far, this system is able to measure the level of illumination of the surroundings, the speed of the platform, and also turn on/off the backlight.
 
@@ -77,13 +77,15 @@ Liberty Drones Platform controller This is a fully functional and reliable part 
 
 ### Sonarus
 
-I2C ultrasonic rangefinder
+Sonarus I2C ultrasonic rangefinder. Sonarus is a system consisting of two HC-SR04 ultrasonic rangefinders connected to an Atmega328 microcontroller (Arduino). The purpose of the system is to provide the ability to measure distance from two sensors via the I2C bus. Currently, Sonarus is used on the Liberty-X drone in order to avoid collisions with obstacles, as well as to prevent accidental motors shutdown during landing. The first sensor is in front of the drone and looks forward, the second is at the bottom of the drone and looks below.
 
 - https://github.com/XxOinvizioNxX/Liberty-Way/tree/main/Sonarus
 
 ### GPS Mixer
 
-Way to improve GPS navigation using multiple receivers
+Way to improve GPS navigation using multiple receivers GPS Mixer uses several low-cost GPS receivers (Ublox NEO-M8n) to improve the accuracy and reliability of GPS coordinates. Up to 3 receivers are currently in use.
+
+GPS Mixer takes data from available receivers and calculates the arithmetic mean of the coordinates. Also, this solution will allow the drone to continue flying in the event of a loss of 1-2 receivers. In case of loss / appearance of receivers, there is a function to compensate for coordinate jumps.
 
 - https://github.com/XxOinvizioNxX/Liberty-Way/tree/main/GPS-mixer
 
