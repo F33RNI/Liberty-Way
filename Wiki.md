@@ -96,7 +96,7 @@ Android app to send phone GPS coordinates via USB serial port
 - https://github.com/XxOinvizioNxX/GPS-to-Serial
 
 ----------
-How the system operates:
+How the system operates:(assssssssss)
 
 - Firstly, a drone with a delivery package is far from the platform and it has no visual contact with it. The drone recieves GPS coordinates of a platform by using cellular communication or any other radio channel (The drone has Liberty-Link implemented on it. This module is able to adjust its position, whatever the firmware of the flight controller. The module is installed inside the line between a receiver and a flight controller.
 - The drone is moving to received coordinates. The coordinates might be renewed in the process (but not frequently, thus preventing the channel from overloading)
