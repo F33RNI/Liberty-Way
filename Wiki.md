@@ -1,12 +1,12 @@
-# Liberty Drones - EN
+# Autonomous Multirotor Landing System (AMLS) - EN
 
 ![Logo](https://github.com/XxOinvizioNxX/Liberty-Way/blob/main/git_images/logo_book.png "Logo")
 
-## The goal of our project is to create a system for autonomous control, tracking and landing of drones as a part of a bigger delivery system. 
-Our system is capable of guiding the drone towards GPS waypoints, stabilizing it over the platform using GPS and optical stabilizations, and performing capture and landing.
-### Liberty Drones Article
+## The goal is to automatically land a drone on a moving platform
 
-This Article describes the Libery Drones project. Namely,Liberty-X, Eitude, Sonarus, GPS Mixer and GPS to Serial app.
+### AMLS Article
+
+In this Article we will describe AMLS project. Namely, AMLS Optical stabilization, GPS holding, GPS following, Altitude holding, Grappling, Weather protection, Speed measurement and Illumination systems. In addition, we will make clear of how it works and how it was done!
 
 ### Our main GitHub repository
 
@@ -24,13 +24,8 @@ https://github.com/XxOinvizioNxX/Liberty-Way
 
 ## Table of contents
 
-- [0. Liberty Drones projects](#liberty-drones-project)
-  - [Liberty-X](#liberty-x)
-  - [Eitude](#eitude)
-  - [Sonarus](#sonarus)
-  - [GPS Mixer](#gps-mixer)
-  - [GPS to Serial](#gps-to-serial)
-- [1. Liberty-X](#liberty-x)
+- [0. How does it work?](#0-how-does-it-work)
+  - [0.1. A video about our project](#short-video-about-our-project-clickable)
 - [1. GPS hold and Flight to waypoints functions](#1-gps-hold-and-flight-to-waypoints-functions)
   - [1.1. Serial reading](#11-serial-reading)
   - [1.2. UBlox GPS parsing](#12-ublox-gps-parsing)
@@ -57,46 +52,19 @@ https://github.com/XxOinvizioNxX/Liberty-Way
 
 -----------
 
-## 0. What is Liberty Drones?
+## 0. How does it work?
 
-----------
+The AMLS system consists of two parts:
 
-The goal of our project is to create a system for autonomous control, tracking and landing of drones as a part of a bigger delivery system. Our system is capable of guiding the drone towards GPS waypoints, stabilizing it over the platform using GPS and optical stabilizations, and performing capture and landing.
+- The drone
 
-### Liberty-X
+![Liberty-X](https://github.com/XxOinvizioNxX/Liberty-Way/blob/main/git_images/liberty-x_side_cutout_2_small.png "Liberty-X")
 
-Drone flight controller firmware for STM32 microcontroller. This flight controller is suitable for camera drones, scientific drones or delivery drones (as part of the Liberty Drones project) The Liberty project was created as a part of project activities subject of Moscow Polytech University by the 181-311 group This project is a fork of the YMFC-32 project. The project is under development. Description, PCB files, schematics, OSD, etc. coming soon
+- And the platform either mobile (implemented on a vehicle), either stable (pick-up-point)
 
-- https://github.com/XxOinvizioNxX/Liberty-X
+![Platform](https://github.com/XxOinvizioNxX/Liberty-Way/blob/main/git_images/platform_side_transparent.png "Platform")
 
-### Eitude
-
-Liberty Drones Platform controller This is a fully functional and reliable part of the Liberty Drones system from the platform perspective. Controller will be operating with such data as its own GPS location, level of illumination around it, its speed and the data that would be sent from the drone which is descripted in Data packet structure paragraph in Liberty-Way Project. So far, this system is able to measure the level of illumination of the surroundings, the speed of the platform, and also turn on/off the backlight.
-
-- https://github.com/XxOinvizioNxX/Liberty-Way/tree/main/Eitude
-
-### Sonarus
-
-Sonarus I2C ultrasonic rangefinder. Sonarus is a system consisting of two HC-SR04 ultrasonic rangefinders connected to an Atmega328 microcontroller (Arduino). The purpose of the system is to provide the ability to measure distance from two sensors via the I2C bus. Currently, Sonarus is used on the Liberty-X drone in order to avoid collisions with obstacles, as well as to prevent accidental motors shutdown during landing. The first sensor is in front of the drone and looks forward, the second is at the bottom of the drone and looks below.
-
-- https://github.com/XxOinvizioNxX/Liberty-Way/tree/main/Sonarus
-
-### GPS Mixer
-
-Way to improve GPS navigation using multiple receivers GPS Mixer uses several low-cost GPS receivers (Ublox NEO-M8n) to improve the accuracy and reliability of GPS coordinates. Up to 3 receivers are currently in use.
-
-GPS Mixer takes data from available receivers and calculates the arithmetic mean of the coordinates. Also, this solution will allow the drone to continue flying in the event of a loss of 1-2 receivers. In case of loss / appearance of receivers, there is a function to compensate for coordinate jumps.
-
-- https://github.com/XxOinvizioNxX/Liberty-Way/tree/main/GPS-mixer
-
-### GPS to Serial
-
-Android app to send phone GPS coordinates via USB serial port
-
-- https://github.com/XxOinvizioNxX/GPS-to-Serial
-
-----------
-How the system operates:(assssssssss)
+How the system operates:
 
 - Firstly, a drone with a delivery package is far from the platform and it has no visual contact with it. The drone recieves GPS coordinates of a platform by using cellular communication or any other radio channel (The drone has Liberty-Link implemented on it. This module is able to adjust its position, whatever the firmware of the flight controller. The module is installed inside the line between a receiver and a flight controller.
 - The drone is moving to received coordinates. The coordinates might be renewed in the process (but not frequently, thus preventing the channel from overloading)
