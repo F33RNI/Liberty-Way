@@ -295,17 +295,17 @@ public class PositionHandler {
                 if (!telemetryContainer.telemetryLost
                         && positionContainer.distance <= settingsContainer.stopPredictionOnDistance)
                     // Send real waypoint if distance is less than stopPredictionOnDistance
-                    linkSender.sendGPSWaypoint(platformContainer.gps);
+                    linkSender.sendGPSWaypoint(platformContainer.gps, 0b011, 0);
                 else if (settingsContainer.isGPSPredictionAllowed) {
                     // Feed new GPS coordinates
                     gpsPredictor.setGPSCurrent(platformContainer.gps);
                     // Send predicted waypoint
-                    linkSender.sendGPSWaypoint(gpsPredictor.getGPSPredicted());
+                    linkSender.sendGPSWaypoint(gpsPredictor.getGPSPredicted(), 0b011, 0);
                     // Store current position for next cycle
                     gpsPredictor.setGPSLast(platformContainer.gps);
                 } else
                     // Send real waypoint
-                    linkSender.sendGPSWaypoint(platformContainer.gps);
+                    linkSender.sendGPSWaypoint(platformContainer.gps, 0b011, 0);
                 // Switch to step 2
                 waypointStep++;
             }

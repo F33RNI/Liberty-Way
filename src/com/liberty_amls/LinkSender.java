@@ -62,7 +62,7 @@ public class LinkSender {
 
     /**
      * Sends direct corrections (from positionContainer) to the drone (optical stabilization & landing)
-     * Link command = 1
+     * Link command = 0b10010000
      */
     public void sendDDC(int ddcRoll, int ddcPitch, int ddcZ, int ddcYaw) {
         // Form the DDC data package
@@ -87,14 +87,19 @@ public class LinkSender {
     }
 
     /**
-     * Sends gps waypoint
-     * Link command = 3
+     * Sends gps waypoint (P = 0) (PCCCXXXX)
      * @param gps GPS position
+     * @param command first 3 bits of command (after P bit) - CCC
+     * @param waypointIndex index of waypoint (0 - 15) - XXXX
      */
-    public void sendGPSWaypoint(GPS gps) {
+    public void sendGPSWaypoint(GPS gps, int command, int waypointIndex) {
         // Get integer values
         int latInt = gps.getLatInt();
         int lonInt = gps.getLonInt();
+
+        // Trim variables
+        command = command & 0b111;
+        waypointIndex = waypointIndex & 0b1111;
 
         // Lat
         linkBuffer[0] = (byte) ((latInt >> 24) & 0xFF);
@@ -155,6 +160,10 @@ public class LinkSender {
      * @param bodyBits last 4 bits of command (aka data bits) - XXXX
      */
     private void pushCommand(int commandBits, int bodyBits) {
+        // Trim variables
+        commandBits = commandBits & 0b111;
+        bodyBits = bodyBits & 0b1111;
+
         // Reset body bytes
         for (int i = 0; i <= 7; i++)
             linkBuffer[i] = 0;
