@@ -3,7 +3,7 @@
 
 <div style="width:100%;text-align:center;">
     <p align="center">
-        <img src="https://github.com/XxOinvizioNxX/Liberty-Way/raw/main/git_images/logo_book.png" width="600" height="auto">
+        <img src="https://github.com/XxOinvizioNxX/Liberty-Way/raw/main/git_images/logo_book.png" width="auto" height="auto">
     </p>
 </div>
 
@@ -210,7 +210,7 @@ Considering that our platform must work in various environmental conditions, and
         <img src="https://github.com/XxOinvizioNxX/Liberty-Way/raw/main/git_images/light_sensors.png" width="450" height="auto">
     </p>
 
-For more details please refer to [Eitude](https://github.com/XxOinvizioNxX/Eitude).
+For more details please refer to [Eitude](https://github.com/XxOinvizioNxX/Liberty-Way/tree/main/Eitude).
 
 -----------
 
@@ -231,5 +231,5 @@ In the future, we plan to do much more new and interesting stuff!
 
 <div style="width:100%;text-align:center;">
     <p align="center">
-        <img src="https://github.com/XxOinvizioNxX/Liberty-Way/raw/main/git_images/follow_the_white_rabbit.png" width="300" height="auto">
+        <img src="https://github.com/XxOinvizioNxX/Liberty-Way/raw/main/git_images/follow_the_white_rabbit.png" width="auto" height="auto">
     </p>
