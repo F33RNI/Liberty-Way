@@ -30,10 +30,6 @@ This Article describes the Libery Drones project which consist of Liberty-X, Eit
 
 ## Table of contents
 
-
-### TO-DO LATER ❗❗❗❗❗ 
-
-
 - [0. Liberty Drones projects](#liberty-drones-project)
   - [Liberty-X](#liberty-x)
   - [Eitude](#eitude)
