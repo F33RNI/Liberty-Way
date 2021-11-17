@@ -14,7 +14,7 @@ Our system is capable of guiding the drone towards GPS waypoints, stabilizing it
 
 ### Liberty Drones Article
 
-This Article describes the Libery Drones project which consist of Liberty-X, Eitude, Sonarus, GPS Mixer and GPS to Serial modules and how all of the above can be assembled.
+This Article describes the Libery Drones project which consist of Liberty-X, Eitude, Sonarus, GPS Mixer and GPS to Serial modules. And the instruction of how it can be created on your own.
 
 ### Our main GitHub repository
 
@@ -103,6 +103,8 @@ Android app to send phone GPS coordinates via USB serial port.
 
 - https://github.com/XxOinvizioNxX/GPS-to-Serial
 
+------
+
 #### How it works
 
 Two main parts of the whole system are:
@@ -141,9 +143,7 @@ Basic description of the whole process:
 
 As stated earlier, the drone is equipped with "universal" module Liberty-Link, which is receiving commands from the platform and adjusting the drone's position by interfering into the remote control signal (More in the following paragraphs).
 
-GPS module will be built in Liberty-Link, so it would have the ability to maintain the drone's GPS position and follow GPS points.
-
-GPS-module will be used from the UBlox group (for instance, UBlox Neo-M8). There has to be at least 1 and up to 3 modules in order to minimize the error.
+Liberty-Link is provided with GPS Mixed which has to have up to 3 UBlox modules in order to minimize the error, so it would have the ability to maintain the drone's GPS position and follow GPS points.
 
 <div style="width:100%;text-align:center;">
     <p align="center">
@@ -151,17 +151,15 @@ GPS-module will be used from the UBlox group (for instance, UBlox Neo-M8). There
     </p>
 </div>
 
-Modules operate via UART, configured to send data 5 times per second. The Liberty-Link firmware will read data from the modules and calculate the coordinates of the current position.
+GPS Mixer and Liberty-Link connect via UART that is configured to send data 5 times per second. Then Liberty-Link firmware will read data from the modules and calculate the coordinates of the current position.
 
-But, for now, these modules are substituted with a smartphone that generates GPS coordinates (for more info refer to [GPS to Serial](#15-gps-to-serial)).
+But, for now, GPS Mixer is presented as a smartphone that generates GPS coordinates (for more info refer to [GPS to Serial](#15-gps-to-serial)).
 
-#### Compass
+#### Compass and barometer
 
 Before optical stabilization launches (during GPS stabilization process), to calculate the GPS correction vector, you need to know the exact angle that the drone is rotated by. For this, a compass built into the GPS module is used. Because during the flight, the roll and pitch angles change and a user needs to correct the values from the compass.
 
 It is clear that the angle from the compass can also be used to maintain the yaw angle of the drone. With point-to-point flights, this may be realized. But at the moment, there is no urgent need for this, because after the start of optical stabilization, the algorithm is able to correct the drone regardless of its yaw angle because the program shifts it automatically.
-
-#### Altitude stabilization (barometer)
 
 Before optical stabilization launches (during GPS stabilization process), our Liberty-Link module will be able to maintain altitude using a barometer.
 
@@ -199,11 +197,13 @@ Liberty-Way connects to Liberty-Link module installed on the drone and adjusts i
 
 Both settings and bytes are described more thoroughly in [our main repository's description](https://github.com/XxOinvizioNxX/Liberty-Way).
 
+------
+
 #### Eitude Platform
 
-The platform is an interconnected system for landing the drone. The platform was planned to be controlled via the Serial interface, using the G-Code commands.
+The platform is a system for landing the drone. The platform was planned to be controlled via the Serial interface, using the G-Code commands.
 
-Considering that our platform must work in various environmental conditions, and optical stabilization is very demanding on the visibility of the ArUco marker, it is important to have an automatic system for measuring the camera exposure by the level of illumination around it, and turning on additional illumination if there is a lack of lighting. In the long term, it is planned to use specialized sensors, for example, the BH1750, as light sensors.
+Considering that our platform must work in various environmental conditions, and good visibility of the ArUco marker is crucial for optical stabilization, it is important to have an automatic system for measuring the camera exposure by the level of illumination around it, and turning on additional illumination if there is a lack of lighting. In the long term, it is planned to use specialized sensors, for example, the BH1750, as light sensors.
 
 <div style="width:100%;text-align:center;">
     <p align="center">
