@@ -1,7 +1,11 @@
 
 # Liberty Drones - EN
 
-![Logo](https://github.com/XxOinvizioNxX/Liberty-Way/raw/main/git_images/logo_book.png "Logo")
+<div style="width:100%;text-align:center;">
+    <p align="center">
+        <img src="https://github.com/XxOinvizioNxX/Liberty-Way/raw/main/git_images/logo_book.png" width="600" height="auto">
+    </p>
+</div>
 
 ### The goal
 
@@ -67,25 +71,25 @@ This Article describes the Libery Drones project which consist of Liberty-X, Eit
 
 The main project consist of several subprojects that are:
 
-### 1.1. Liberty-X
+#### Liberty-X
 
 Drone flight controller firmware for STM32 microcontroller. This flight controller is suitable for camera drones, scientific drones or delivery drones.
 
 - https://github.com/XxOinvizioNxX/Liberty-X
 
-### 1.2. Eitude
+#### Eitude
 
 Liberty Drones Platform controller. This is a fully functional and reliable part of the Liberty Drones system from the platform perspective. Controller will be operating with such data as its own GPS location, level of illumination around it, its speed and the data that would be sent from the drone which is descripted in Data packet structure paragraph in Liberty-Way Project. So far, this system is able to measure the level of illumination of the surroundings, the speed of the platform, and also turn on/off the backlight.
 
 - https://github.com/XxOinvizioNxX/Liberty-Way/tree/main/Eitude
 
-### 1.3. Sonarus
+#### Sonarus
 
 Sonarus I2C ultrasonic rangefinder. Sonarus is a system consisting of two HC-SR04 ultrasonic rangefinders connected to an Atmega328 microcontroller (Arduino). The purpose of the system is to provide the ability to measure distance from two sensors via the I2C bus. Currently, Sonarus is used on the Liberty-X drone in order to avoid collisions with obstacles, as well as to prevent accidental motors shutdown during landing. The first sensor is at front of the drone and looks forward, the second is at the bottom of the drone and looks below.
 
 - https://github.com/XxOinvizioNxX/Liberty-Way/tree/main/Sonarus
 
-### 1.4. GPS Mixer
+#### GPS Mixer
 
 Way to improve GPS navigation using multiple receivers. GPS Mixer uses several low-cost GPS receivers (Ublox NEO-M8n) to improve the accuracy and reliability of GPS coordinates. Up to 3 receivers are currently in use.
 
@@ -93,27 +97,33 @@ GPS Mixer takes data from available receivers and calculates the arithmetic mean
 
 - https://github.com/XxOinvizioNxX/Liberty-Way/tree/main/GPS-mixer
 
-### 1.5. GPS to Serial
+#### GPS to Serial
 
 Android app to send phone GPS coordinates via USB serial port.
 
 - https://github.com/XxOinvizioNxX/GPS-to-Serial
- 
------------
 
-## 2. How does it work?
+#### How it works
 
 Two main parts of the whole system are:
 
 - The drone
 
-![Drone 2](https://github.com/XxOinvizioNxX/Liberty-Way/raw/main/git_images/liberty-x_side_cutout_2_small.png "Drone 2")
+<div style="width:100%;text-align:center;">
+    <p align="center">
+        <img src="https://github.com/XxOinvizioNxX/Liberty-Way/raw/main/git_images/liberty-x_side_cutout_2_small.png" width="400" height="auto">
+    </p>
+</div>
 
 - And the platform
 
-![Platform](https://github.com/XxOinvizioNxX/Liberty-Way/raw/main/git_images/platform_side_transparent.png "Platform")
+<div style="width:100%;text-align:center;">
+    <p align="center">
+        <img src="https://github.com/XxOinvizioNxX/Liberty-Way/raw/main/git_images/platform_side_transparent.png" width="600" height="auto">
+    </p>
+</div>
 
-How the system operates:
+Basic description of the whole process:
 
 - Firstly, the drone with a delivery package is far from the platform and it has no visual contact with it. The drone receives GPS coordinates of a platform by using cellular communication or any other radio channel (the drone has Liberty-Link implemented on it). This module is able to adjust its position, whatever the firmware of the flight controller. The module is installed inside the line between the receiver and the flight controller.
 - The drone is moving to received coordinates. The coordinates might be renewed in the process (but not frequently, thus preventing the channel from overloading).
@@ -127,7 +137,7 @@ How the system operates:
 - When the landing has finished, the platform starts maintenance work and in order to protect the drone from external impact, the program enables weather protection and closes the roof above the landing area.
 - Landing accomplished!
 
-### 2.1. GPS hold and Flight to waypoints functions
+#### GPS hold and Flight to waypoints functions
 
 As stated earlier, the drone is equipped with "universal" module Liberty-Link, which is receiving commands from the platform and adjusting the drone's position by interfering into the remote control signal (More in the following paragraphs).
 
@@ -135,39 +145,53 @@ GPS module will be built in Liberty-Link, so it would have the ability to mainta
 
 GPS-module will be used from the UBlox group (for instance, UBlox Neo-M8). There has to be at least 1 and up to 3 modules in order to minimize the error.
 
-![GPS Module](https://github.com/XxOinvizioNxX/Liberty-Way/raw/main/git_images/liberty-x_front_cutout_2_small_gps.png "GPS Module")
+<div style="width:100%;text-align:center;">
+    <p align="center">
+        <img src="https://github.com/XxOinvizioNxX/Liberty-Way/raw/main/git_images/liberty-x_front_cutout_2_small_gps.png" width="400" height="auto">
+    </p>
+</div>
 
 Modules operate via UART, configured to send data 5 times per second. The Liberty-Link firmware will read data from the modules and calculate the coordinates of the current position.
 
 But, for now, these modules are substituted with a smartphone that generates GPS coordinates (for more info refer to [GPS to Serial](#15-gps-to-serial)).
 
-### 2.2. Compass
+#### Compass
 
 Before optical stabilization launches (during GPS stabilization process), to calculate the GPS correction vector, you need to know the exact angle that the drone is rotated by. For this, a compass built into the GPS module is used. Because during the flight, the roll and pitch angles change and a user needs to correct the values from the compass.
 
 It is clear that the angle from the compass can also be used to maintain the yaw angle of the drone. With point-to-point flights, this may be realized. But at the moment, there is no urgent need for this, because after the start of optical stabilization, the algorithm is able to correct the drone regardless of its yaw angle because the program shifts it automatically.
 
-### 2.3. Altitude stabilization (barometer)
+#### Altitude stabilization (barometer)
 
 Before optical stabilization launches (during GPS stabilization process), our Liberty-Link module will be able to maintain altitude using a barometer.
 
 The platform, as well as the Liberty-Link, will have MS5611 barometers.
 
-![MS5611](https://github.com/XxOinvizioNxX/Liberty-Way/raw/main/git_images/ms5611_barometer.png "MS5611")
-
 According to the documentation, the height resolution is 10 cm. The algorithm will take the pressure values and by passing them through the PID-controller the drone's altitude will be stabilized via changing the Throttle (3rd channel).
 
 Altitude hold test (clickable):
-[![Watch the video](https://github.com/XxOinvizioNxX/Liberty-Way/raw/main/git_images/youtube_pressure_holding.jpg)](https://youtu.be/xmvcGeZzEfc)
+
+<div style="width:100%;text-align:center;">
+    <p align="center">
+    <a href="https://youtu.be/xmvcGeZzEfc">
+        <img src="https://github.com/XxOinvizioNxX/Liberty-Way/raw/main/git_images/youtube_pressure_holding.jpg" width="600" height="auto">
+        </a>
+    </p>
 
 During the flight along the waypoint, the setpoint of the pressure will decrease in order to increase the altitude (it is safer to fly in a straight line at a higher altitude, so the drone would not crash into anything). And during GPS stabilization (when the drone is already close to the platform), the drone will be set with a setpoint of pressure that correlates with ~ 1.5 - 2 m above the platform.
 
-### 2.4. Optical stabilization
+#### Optical stabilization
 
 A cross-platform web sarvar application which proved to be very convenient for configuration and debugging. Which has a blackbox feature for recording logs, as well as communication with the platform and many other necessary algorithms.
 
 Example of the operating stabilization (clickable):
-[![Watch the video](https://github.com/XxOinvizioNxX/Liberty-Way/raw/main/git_images/youtube_holding_in_motion.jpg)](https://www.youtube.com/watch?v=8vB-8QIBoJU&ab_channel=AMLSMosPolytech)
+
+<div style="width:100%;text-align:center;">
+    <p align="center">
+    <a href="https://www.youtube.com/watch?v=8vB-8QIBoJU&ab_channel=AMLSMosPolytech">
+        <img src="https://github.com/XxOinvizioNxX/Liberty-Way/raw/main/git_images/youtube_holding_in_motion.jpg" width="600" height="auto">
+        </a>
+    </p>
 
 All basic settings are conveniently placed in separate JSON files (settings, PID), which allow a user to quickly change required parameters without rebuilding the application. In fact, to run the application, you just need to download the latest release, unpack the archive and run it through the launcher corresponding to the preferable OS.
 
@@ -175,15 +199,18 @@ Liberty-Way connects to Liberty-Link module installed on the drone and adjusts i
 
 Both settings and bytes are described more thoroughly in [our main repository's description](https://github.com/XxOinvizioNxX/Liberty-Way).
 
-### 2.5. Eitude Platform
+#### Eitude Platform
 
 The platform is an interconnected system for landing the drone. The platform was planned to be controlled via the Serial interface, using the G-Code commands.
 
 Considering that our platform must work in various environmental conditions, and optical stabilization is very demanding on the visibility of the ArUco marker, it is important to have an automatic system for measuring the camera exposure by the level of illumination around it, and turning on additional illumination if there is a lack of lighting. In the long term, it is planned to use specialized sensors, for example, the BH1750, as light sensors.
 
-![Light sensors](https://github.com/XxOinvizioNxX/Liberty-Way/raw/main/git_images/light_sensors.png "Light sensors")
+<div style="width:100%;text-align:center;">
+    <p align="center">
+        <img src="https://github.com/XxOinvizioNxX/Liberty-Way/raw/main/git_images/light_sensors.png" width="450" height="auto">
+    </p>
 
-For more info please refer to [Eitude](https://github.com/XxOinvizioNxX/Eitude).
+For more details please refer to [Eitude](https://github.com/XxOinvizioNxX/Eitude).
 
 -----------
 
@@ -202,4 +229,7 @@ Follow the updates:
 
 In the future, we plan to do much more new and interesting stuff!
 
-![Follow the white rabbit](https://github.com/XxOinvizioNxX/Liberty-Way/raw/main/git_images/follow_the_white_rabbit.png "Follow the white rabbit")
+<div style="width:100%;text-align:center;">
+    <p align="center">
+        <img src="https://github.com/XxOinvizioNxX/Liberty-Way/raw/main/git_images/follow_the_white_rabbit.png" width="300" height="auto">
+    </p>
