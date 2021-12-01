@@ -187,10 +187,25 @@ For more details please refer to [Eitude](https://github.com/XxOinvizioNxX/Liber
 -----------
 
 ## 2. How to build it
-
-
+    
+    First off all we have to assemble the drones frame from 3d printed and easily accessible materials from any construction store. Parts and .stl docs for 3d printing are listed down below.
+    ❗List of parts
+    
+    Now let's assemble the frame with step by step istruction
+    ❗Instruction.pdf
+    
+First of all you have to buy and gether all the electrical parts from the list downbelow. 
+    
+    ❗List of parts
+    
+Then let's assemble all the systems one by one.
+    
+    
 
 ❗ Naturally this has to be edited as well ❗
+
+  
+## 3. How to build it
 
 ## 7. Conclusion
 
