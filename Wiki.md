@@ -31,7 +31,7 @@ This Article describes the Libery Drones project which consist of Liberty-X, Eit
 ## Table of contents
 
 - [0. Liberty Drones projects](#liberty-drones-project)
-  - [Liberty-X](#liberty-x)
+  - [Liberty-X](#11-liberty-x)
   - [Eitude](#eitude)
   - [Sonarus](#sonarus)
   - [GPS Mixer](#gps-mixer)
