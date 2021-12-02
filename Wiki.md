@@ -43,7 +43,7 @@ This Article describes the Libery Drones project which consist of Liberty-X, Eit
 
 The main project consist of several subprojects that are:
 
-#### Liberty-X
+#### 1.1. Liberty-X
 
 Drone flight controller firmware for STM32 microcontroller. This flight controller is suitable for camera drones, scientific drones or delivery drones.
 
