@@ -1,4 +1,3 @@
-# Test
 # Liberty Drones - EN
 
 <div style="width:100%;text-align:center;">
@@ -30,16 +29,42 @@ This Article describes the Libery Drones project which consist of Liberty-X, Eit
 
 ## Table of contents
 
+### TO-DO LATER ❗❗❗❗❗
+
 - [0. Liberty Drones projects](#liberty-drones-project)
   - [Liberty-X](#liberty-x)
   - [Eitude](#eitude)
   - [Sonarus](#sonarus)
   - [GPS Mixer](#gps-mixer)
-  - [GPS to Serial](#gps-to-serial)  
+  - [GPS to Serial](#gps-to-serial)
+- [1. Liberty-X](#liberty-x)
+- [1. GPS hold and Flight to waypoints functions](#1-gps-hold-and-flight-to-waypoints-functions)
+  - [1.1. Serial reading](#11-serial-reading)
+  - [1.2. UBlox GPS parsing](#12-ublox-gps-parsing)
+  - [1.3. Set current waypoint](#13-set-current-waypoint)
+  - [1.4. Waypoint edition (To fly to waypoints)](#14-waypoint-edit-to-fly-to-waypoints)
+  - [1.5. Waypoint stabilization](#15-waypoint-stabilization)
+- [2. GPS following](#2-gps-following)
+- [3. Compass](#3-compass)
+- [4. Altitude stabilization (barometer)](#4-altitude-stabilization-barometer)
+- [5. Optical stabilization](#5-optical-stabilization)
+  - [5.1. So difficult and so important](#51-so-difficult-and-so-important)
+  - [5.2. First steps](#52-first-steps)
+  - [5.3. Inverse approach](#53-inverse-approach)
+  - [5.4. Java edition](#54-java-edition)
+  - [5.5. Liberty-Way](#55-liberty-way)
+  - [5.6. Communication with the drone](#56-communication-with-the-drone)
+  - [5.7. Camera gimbal](#57-camera-gimbal)
+- [6. Eitude AMLS Platform](#6-eitude-amls-platform)
+  - [6.1. Grabbing system](#61-grabbing-system)
+  - [6.2. Weather protection system](#62-weather-protection-system)
+  - [6.3. Speed measurement system](#63-platform-speedometer)
+  - [6.4. Illumination system](#64-platform-light-sensor)
+- [7. Conclusion](#7-conclusion)
 
 -----------
 
-## 1. What is Liberty Drones?
+## What is Liberty Drones?
 
 The main project consist of several subprojects that are:
 
@@ -51,7 +76,7 @@ Drone flight controller firmware for STM32 microcontroller. This flight controll
 
 #### Eitude
 
-Liberty Drones Platform controller. This is a fully functional and reliable part of the Liberty Drones system from the platform perspective. Controller will be operating with such data as its own GPS location, level of illumination around it, its speed and the data that would be sent from the drone which is descripted in Data packet structure paragraph in Liberty-Way Project. So far, this system is able to measure the level of illumination of the surroundings, the speed of the platform, and also turn on/off the backlight.
+Liberty Drones Platform controller. This is a fully functional and reliable part of the Liberty Drones system from the platform perspective. Controller will be operating with such data as its own GPS location, level of illumination around it, its speed and the data that would be sent from the drone which is described in Data packet structure paragraph in Liberty-Way Project. So far, this system is able to measure the level of illumination of the surroundings, the speed of the platform, and also turn on/off the backlight.
 
 - https://github.com/XxOinvizioNxX/Liberty-Way/tree/main/Eitude
 
@@ -75,7 +100,7 @@ Android app to send phone GPS coordinates via USB serial port.
 
 - https://github.com/XxOinvizioNxX/GPS-to-Serial
 
-------
+-----------
 
 #### How it works
 
@@ -147,6 +172,7 @@ Altitude hold test (clickable):
         <img src="https://github.com/XxOinvizioNxX/Liberty-Way/raw/main/git_images/youtube_pressure_holding.jpg" width="600" height="auto">
         </a>
     </p>
+</div>
 
 During the flight along the waypoint, the setpoint of the pressure will decrease in order to increase the altitude (it is safer to fly in a straight line at a higher altitude, so the drone would not crash into anything). And during GPS stabilization (when the drone is already close to the platform), the drone will be set with a setpoint of pressure that correlates with ~ 1.5 - 2 m above the platform.
 
@@ -162,6 +188,7 @@ Example of the operating stabilization (clickable):
         <img src="https://github.com/XxOinvizioNxX/Liberty-Way/raw/main/git_images/youtube_holding_in_motion.jpg" width="600" height="auto">
         </a>
     </p>
+</div>
 
 All basic settings are conveniently placed in separate JSON files (settings, PID), which allow a user to quickly change required parameters without rebuilding the application. In fact, to run the application, you just need to download the latest release, unpack the archive and run it through the launcher corresponding to the preferable OS.
 
@@ -169,7 +196,7 @@ Liberty-Way connects to Liberty-Link module installed on the drone and adjusts i
 
 Both settings and bytes are described more thoroughly in [our main repository's description](https://github.com/XxOinvizioNxX/Liberty-Way).
 
-------
+-----------
 
 #### Eitude Platform
 
@@ -181,33 +208,79 @@ Considering that our platform must work in various environmental conditions, and
     <p align="center">
         <img src="https://github.com/XxOinvizioNxX/Liberty-Way/raw/main/git_images/light_sensors.png" width="450" height="auto">
     </p>
+</div>
 
 For more details please refer to [Eitude](https://github.com/XxOinvizioNxX/Liberty-Way/tree/main/Eitude).
 
 -----------
 
-## 2. How to build it
-    
-    First off all we have to assemble the drones frame from 3d printed and easily accessible materials from any construction store. Parts and .stl docs for 3d printing are listed down below.
-    ❗List of parts
-    
-    Now let's assemble the frame with step by step istruction
-    ❗Instruction.pdf
-    
-First of all you have to buy and gether all the electrical parts from the list downbelow. 
-    
-    ❗List of parts
-    
-Then let's assemble all the systems one by one.
-    
-    
-
-❗ Naturally this has to be edited as well ❗
-
+## How to build it
   
-## 3. How to build it
+#### Build the frame
 
-## 7. Conclusion
+First off all we have to assemble the drone's frame from 3d printed and easily accessible materials bought from any construction store. Parts and .stl docs for 3d printing are listed down below:
+
+❗ List of parts
+
+Now let's assemble the frame with step by step instruction:
+
+❗ Instruction.pdf
+
+#### Assembly Liberty-X controller
+
+To build the controller, you have to buy and gather all the electrical parts from the list down below:
+
+❗ List of parts
+
+And then connect them as such:
+
+❗ Principal electrical schema
+
+#### Add Sonarus system
+
+For the Sonarus system you will need these components:
+
+❗ List of parts
+
+Which are connected likewise:
+
+❗ Picture of connection, I guess
+
+#### Add GPS Mixer system
+
+For the implementation of GPS Mixer you need these components to be installed on the drone's side:
+
+❗ List of parts for the drone
+
+And these to be installed onto the platform:
+
+❗ List of parts for the platform
+
+The drone's part is laid out like this:
+
+❗ Drone connection schematic
+
+In order to attach GPS Mixer to Eitude you have to make Eitude itself first!
+
+#### Build Eitude platform
+
+So for the platform you need to gather lightweight materials with similar parameters like those we used:
+
+❗ List of platform contents
+
+Then you will need to prepare these electronic parts:
+
+❗ List of platform electronics
+
+And lay them out as such:
+
+❗ Platform electronics schematic
+
+After Eitude will have been set as 'ready to go' then you yourself are ready to attach GPS Mixer to it just like this:
+
+❗ GPS Mixer to patform connection schematic
+
+## Conclusion
 
 At the moment, there is a debugged prototype of optical stabilization, GPS holding, altitude stabilization via barometer, different platform prototypes and a great amount of 3D models eager to be constructed.
 The project of the automatical landing of a drone onto a moving platform is not yet complete.
@@ -224,3 +297,4 @@ In the future, we plan to do much more new and interesting stuff!
     <p align="center">
         <img src="https://github.com/XxOinvizioNxX/Liberty-Way/raw/main/git_images/follow_the_white_rabbit.png" width="auto" height="auto">
     </p>
+</div>
