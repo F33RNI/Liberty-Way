@@ -72,7 +72,7 @@ const uint32_t TIMEOUT_TIME PROGMEM = 50;
 // In order to smooth out these changes, when receivers are lost / found, 
 // the difference between the values is calculated
 // The closer D_CORRECTION_TERM is to 0, the sharper the transition will be
-const double D_CORRECTION_TERM PROGMEM = 0.98;
+const float D_CORRECTION_TERM PROGMEM = 0.99f;
 
 // Time of one LED cycle
 const uint32_t LED_CYCLE_TIME PROGMEM = 200;

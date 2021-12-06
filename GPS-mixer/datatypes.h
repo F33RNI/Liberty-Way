@@ -53,8 +53,8 @@ uint8_t hdop;
 int16_t altitude;
 uint16_t ground_heading;
 uint16_t ground_speed;
-double avg_lat_prev, avg_lon_prev;
-double d_lat, d_lon;
+float avg_lat_prev, avg_lon_prev;
+float d_lat, d_lon;
 boolean receivers_changed;
 
 struct serial_container
@@ -70,13 +70,13 @@ struct gps_container
     boolean new_gga_available;
     boolean new_vtg_available;
     boolean is_working, is_working_last;
-    double lat, lon;
+    float lat, lon;
     uint8_t quality;
     uint8_t sats_num;
-    double hdop = 99.99;
-    double altitude;
-    double ground_heading;
-    double ground_speed;
+    float hdop = 99.99f;
+    float altitude;
+    float ground_heading;
+    float ground_speed;
 };
 
 gps_container gps_container_avg;
