@@ -375,6 +375,13 @@ public class PositionHandler {
     }
 
     /**
+     * @return true if liberty-way was started
+     */
+    public boolean isLibertyWayEnabled() {
+        return libertyWayEnabled;
+    }
+
+    /**
      * Enables or disables main Liberty-Way sequence
      */
     public void setLibertyWayEnabled(boolean libertyWayEnabled) {

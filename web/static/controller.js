@@ -49,6 +49,7 @@ let isHomePinSet = false;
 let dronePin = null;
 let isDronePinSet = false;
 let backgroundStreamImg = null;
+let waypointTempPin = null;
 
 window.onload = onLoad;
 
@@ -76,6 +77,30 @@ function onLoad() {
 		}).setPopup(new mapboxgl.Popup()
 			.setText('Drone location')
 			.addTo(map));
+
+		waypointTempPin = new mapboxgl.Marker({
+			draggable: true,
+			color: '#99daff'
+		}).setLngLat([0, 0]);
+
+		function onDrag() {
+			let lat = waypointTempPin.getLngLat().lat;
+			if (lat < -90)
+				lat += 180;
+			else if (lat > 90)
+				lat -= 180;
+
+			let lon = waypointTempPin.getLngLat().lng;
+			if (lon < -180)
+				lon += 360;
+			else if (lon > 180)
+				lon -= 360;
+
+			document.getElementById("waypoint_map_lat").innerText = lat.toFixed(6).toString();
+			document.getElementById("waypoint_map_lon").innerText = lon.toFixed(6).toString();
+		}
+		waypointTempPin.on('drag', onDrag);
+
 	} catch (err) {
 		map = null;
 		alert("Error loading map!\n" + err.message + "\nCheck your internet connection and reload the page");
@@ -119,7 +144,7 @@ function checkVideoOrMap() {
 				if (response.video.toLowerCase() === "enabled")
 					disableMapEnableCamera();
 				else
-					enableMapDisableCamera();
+					enableMapDisableCamera(true);
 			} else
 				alert("Error checking video stream status!\nPlease reload the page");
 		}
@@ -139,24 +164,28 @@ function disableMapEnableCamera() {
 	document.getElementById("map-container").style.visibility = "hidden";
 
 	/* Create background image */
-	backgroundStreamImg = document.createElement('div');
-	backgroundStreamImg.innerHTML = "<img class=\"background-video-stream-blurred\" src=\"/video_feed\" " +
-		"alt=\"Platform camera\">" +
-		"<img class=\"background-video-stream\" src=\"/video_feed\" alt=\"Platform camera\">";
-	document.getElementById("stream-container").appendChild(backgroundStreamImg);
+	if (backgroundStreamImg == null) {
+		backgroundStreamImg = document.createElement('div');
+		backgroundStreamImg.innerHTML = "<img class=\"background-video-stream-blurred\" src=\"/video_feed\" " +
+			"alt=\"Platform camera\">" +
+			"<img class=\"background-video-stream\" src=\"/video_feed\" alt=\"Platform camera\">";
+		document.getElementById("stream-container").appendChild(backgroundStreamImg);
+	}
 	document.getElementById("stream-container").style.visibility = "visible";
 }
 
 /**
  * Switches view to the map
  */
-function enableMapDisableCamera() {
+function enableMapDisableCamera(removeStream) {
 	/* Show map container */
 	document.getElementById("map-container").style.visibility = "visible";
 
 	/* Delete image stream */
-	if (backgroundStreamImg != null)
+	if (removeStream && backgroundStreamImg != null) {
 		backgroundStreamImg.remove();
+		backgroundStreamImg = null;
+	}
 	document.getElementById("stream-container").style.visibility = "hidden";
 }
 
@@ -290,6 +319,13 @@ function menu() {
 				}
 
 				const waypoints = response.waypoints;
+
+				/* Set ID of new waypoint */
+				document.getElementById("add_waypoint_text").innerText = "ADD WAYPOINT "
+					+ (waypoints.length + 1);
+				document.getElementById("edit_waypoint_text").innerText = "ADD WAYPOINT "
+					+ (waypoints.length + 1);
+
 				if (waypoints.length > 0) {
 					let waypointElement;
 					for (let i = 0; i < waypoints.length; i++) {
@@ -353,6 +389,15 @@ function menu() {
 	xmlHTTP.setRequestHeader("Content-Type", "application/json");
 	xmlHTTP.send(JSON.stringify({"action": "get_waypoints"}));
 
+	/* Reset selections */
+	document.getElementById('manual_action').selectedIndex = null;
+	document.getElementById('add_waypoint').selectedIndex = null;
+
+	/* Disable other blocks */
+	document.getElementById('from_map_menu').style.display = 'none';
+	document.getElementById('set_manually_menu').style.display = 'none';
+	document.getElementById('add_waypoint_menu').style.display = 'none';
+
 	/* Enable menu and overlay blocks */
 	document.getElementById('menu').style.display = 'block';
 	document.getElementById('overlay-container').style.display = 'block';
@@ -362,56 +407,126 @@ function menu() {
 function createWaypoint() {
 	document.getElementById('menu').style.display = 'none';
 	document.getElementById('add_waypoint_menu').style.display = 'block';
+	document.getElementById('add_waypoint').selectedIndex = null;
 }
 
 function deleteWaypoint(id) {
-	alert(id);
+	/* Refresh menu on result */
+	const xmlHTTP = new XMLHttpRequest();
+	xmlHTTP.onreadystatechange = function () {
+		if (this.readyState === 4)
+			menu();
+	};
+
+	/* Send delete_waypoint API request */
+	xmlHTTP.open("POST", "/api", true);
+	xmlHTTP.setRequestHeader("Content-Type", "application/json");
+	xmlHTTP.send(JSON.stringify({"action": "delete_waypoint", "index" : id}));
 }
 
 function addWaypoint(option) {
 	if (option === 'manual') {
 		document.getElementById('add_waypoint_menu').style.display = 'none';
 		document.getElementById('set_manually_menu').style.display = 'block';
+		document.getElementById('manual_action').selectedIndex = null;
 	}
 	else if (option === 'map') {
 		document.getElementById('add_waypoint_menu').style.display = 'none';
-		enableMapDisableCamera();
+		enableMapDisableCamera(false);
 		document.getElementById('map-container').style.zIndex = '70';
 		document.getElementById('from_map_menu').style.display = 'block';
-
-		const waypointPin = new mapboxgl.Marker({
-			draggable: true,
-			color: '#99daff'
-		})
-			.setLngLat([0, 0])
-			.addTo(map);
-		function onDragEnd() {
-			const lngLat = waypointPin.getLngLat();
-		}
-
-		waypointPin.on('dragend', onDragEnd);
-
+		waypointTempPin.addTo(map);
 	}
 }
 
-function closeWaypoint() {
+function applyManual() {
+	/* Refresh menu on result */
+	const xmlHTTP = new XMLHttpRequest();
+	xmlHTTP.onreadystatechange = function () {
+		if (this.readyState === 4)
+			menu();
+	};
 
+	/* Convert selected action to API's integer value */
+	let manualAction = document.getElementById("manual_action").value;
+	let manualAPI;
+	switch (manualAction) {
+		case ("fly"):
+			manualAPI = WAYPOINT_FLY;
+			break;
+		case ("descent"):
+			manualAPI = WAYPOINT_DESCENT;
+			break;
+		case ("parcel"):
+			manualAPI = WAYPOINT_PARCEL;
+			break;
+		case ("land"):
+			manualAPI = WAYPOINT_LAND;
+			break;
+		default:
+			manualAPI = WAYPOINT_SKIP;
+			break;
+	}
+
+	/* Send add_waypoint API request */
+	xmlHTTP.open("POST", "/api", true);
+	xmlHTTP.setRequestHeader("Content-Type", "application/json");
+	xmlHTTP.send(JSON.stringify({"action": "add_waypoint", "api" : manualAPI,
+		"lat" : document.getElementById("manual_lat").value,
+		"lon" : document.getElementById("manual_lon").value}));
 }
 
 function applyFromMap() {
+	let lat = waypointTempPin.getLngLat().lat;
+	if (lat < -90)
+		lat += 180;
+	else if (lat > 90)
+		lat -= 180;
 
+	let lon = waypointTempPin.getLngLat().lng;
+	if (lon < -180)
+		lon += 360;
+	else if (lon > 180)
+		lon -= 360;
+
+	document.getElementById("manual_lat").value = lat.toFixed(6);
+	document.getElementById("manual_lon").value = lon.toFixed(6);
+	closeFromMap();
+	addWaypoint('manual');
+}
+
+function closeWaypoint() {
+	menu();
 }
 
 function closeFromMap() {
-
-}
-
-function applyManual() {
-
+	document.getElementById('manual_action').selectedIndex = null;
+	document.getElementById('add_waypoint').selectedIndex = null;
+	document.getElementById('from_map_menu').style.display = 'none';
+	waypointTempPin.remove();
+	document.getElementById('map-container').style.zIndex = '0';
+	document.getElementById('add_waypoint_menu').style.display = 'block';
+	checkVideoOrMap();
 }
 
 function closeManual() {
+	document.getElementById('manual_action').selectedIndex = null;
+	document.getElementById('add_waypoint').selectedIndex = null;
+	document.getElementById('set_manually_menu').style.display = 'none';
+	document.getElementById('add_waypoint_menu').style.display = 'block';
+}
 
+function closeMenu() {
+	/* Reset selections */
+	document.getElementById('manual_action').selectedIndex = null;
+	document.getElementById('add_waypoint').selectedIndex = null;
+
+	/* Disable all blocks */
+	document.getElementById('from_map_menu').style.display = 'none';
+	document.getElementById('set_manually_menu').style.display = 'none';
+	document.getElementById('add_waypoint_menu').style.display = 'none';
+	document.getElementById('menu').style.display = 'none';
+	document.getElementById('overlay-container').style.display = 'none';
 }
 
 /**
@@ -426,7 +541,7 @@ function switchView() {
 				if (response.video.toLowerCase() === "enabled")
 					disableMapEnableCamera();
 				else
-					enableMapDisableCamera();
+					enableMapDisableCamera(true);
 			}
 		}
 	};

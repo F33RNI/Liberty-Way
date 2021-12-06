@@ -46,8 +46,6 @@
 		<div class="aug-container-glow" aria-hidden="true" style="filter: none; z-index: -1">
 			<div class="timeline-aug-container" data-augmented-ui="bl-clip tr-clip br-clip-x both" style="--aug-border-all: 2px; backdrop-filter: blur(2px);"></div>
 		</div>
-		
-
 		<div class="tickmarks">
 			<p style="width: 0;">Takeoff</p>
 			<p style="width: 0;"></p>
@@ -91,12 +89,18 @@
 	---------------- -->
 	<div class="bottom-absolute-container" id="from_map_menu" style="display: none">
 		<div class="aug-container-glow" aria-hidden="true" style="z-index: -1">
-			<div class="center-aug-container" data-augmented-ui="tl-2-clip-y tr-clip bl-clip br-clip-y border">
+			<div class="center-aug-container" data-augmented-ui="tr-clip bl-clip border">
 			</div>
 		</div>
 		<div class="aug-container-glow" aria-hidden="true" style="filter: none; z-index: -1">
-			<div class="center-aug-container" data-augmented-ui="tl-2-clip-y tr-clip bl-clip br-clip-y both"
+			<div class="center-aug-container" data-augmented-ui="tr-clip bl-clip both"
 				 style="--aug-border-all: 2px; backdrop-filter: blur(4px);"></div>
+		</div>
+		<div class="telemetry-data-container">
+			<div><a class="labels-text">Lat:</a></div>
+			<div><a class="labels-text" id="waypoint_map_lat">-</a></div>
+			<div><a class="labels-text">Lon:</a></div>
+			<div><a class="labels-text" id="waypoint_map_lon">-</a></div>
 		</div>
 		<div style="margin: 0.4em">
 			<div class="button blue" onclick="applyFromMap()" data-augmented-ui="br-clip both">
@@ -120,11 +124,7 @@
 			<div class="center-aug-container" data-augmented-ui="tl-2-clip-y tr-clip bl-clip br-clip-y both"
 				 style="--aug-border-all: 2px; backdrop-filter: blur(4px);"></div>
 		</div>
-		<p class="labels-text" style="text-align:center;">
-			<a>WAYPOINT</a>
-			<a id="manual_id">-</a>
-		</p>
-		<p class="labels-text" style="text-align:center;">SET MANUALLY</p>
+		<p class="labels-text" style="text-align:center;" id="edit_waypoint_text">ADD WAYPOINT</p>
 		<div style="margin: 1em">
 			<div class="split-container">
 				<div>
@@ -172,7 +172,7 @@
 			<div class="center-aug-container" data-augmented-ui="tl-2-clip-y tr-clip bl-clip br-clip-y both"
 				 style="--aug-border-all: 2px; backdrop-filter: blur(4px);"></div>
 		</div>
-		<p class="labels-text" style="text-align:center;">ADD WAYPOINT</p>
+		<p class="labels-text" style="text-align:center;" id="add_waypoint_text">ADD WAYPOINT</p>
 		<div style="margin: 1em">
 			<div>
 				<div class="select-container" data-augmented-ui="br-clip both" style="width: 100%">
@@ -185,19 +185,6 @@
 						<option value="map">Set from map</option>
 					</select>
 				</div>
-			</div>
-			<br>
-			<div class="telemetry-data-container">
-				<div><a class="labels-text">Waypoint ID:</a></div>
-				<div><a class="labels-text" id="add_waypoint_num">-</a></div>
-			</div>
-			<div class="telemetry-data-container">
-				<div><a class="labels-text">Latitude:</a></div>
-				<div><a class="labels-text" id="add_waypoint_lat">-</a></div>
-			</div>
-			<div class="telemetry-data-container">
-				<div><a class="labels-text">Longitude:</a></div>
-				<div><a class="labels-text" id="add_waypoint_lon">-</a></div>
 			</div>
 		</div>
 		<div class="button red" onclick="closeWaypoint()" data-augmented-ui="br-clip both">
@@ -221,11 +208,11 @@
 		<p class="labels-text" style="text-align:center;">MENU</p>
 		<div style="margin: 1em">
 
-			<div class="button blue" onclick="menu()" data-augmented-ui="br-clip both">
-				<p>LAND HERE</p>
+			<div class="button red" onclick="menu()" data-augmented-ui="br-clip both">
+				<p>LAND NOW</p>
 			</div>
 			<div class="button blue" onclick="menu()" data-augmented-ui="br-clip both">
-				<p>FLY TO HOME</p>
+				<p>TAKEOFF</p>
 			</div>
 			<br>
 			<br>
@@ -237,13 +224,13 @@
 					<div class="button blue small" onclick="createWaypoint()" data-augmented-ui="br-clip both">
 						<a>ADD WAYPOINT</a>
 					</div>
-					<div class="button blue small" onclick="createWaypoint()" data-augmented-ui="br-clip both">
+					<div class="button blue small" onclick="menu()" data-augmented-ui="br-clip both">
 						<a>REFRESH LIST</a>
 					</div>
 				</div>
 			</div>
 		</div>
-		<div class="button red" onclick="closeWaypoint()" data-augmented-ui="br-clip both">
+		<div class="button red" onclick="closeMenu()" data-augmented-ui="br-clip both">
 			<p>CLOSE</p>
 		</div>
 	</div>

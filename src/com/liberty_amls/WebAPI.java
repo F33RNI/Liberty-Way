@@ -207,7 +207,22 @@ public class WebAPI {
                                 apiResponse.add("status", new JsonPrimitive("ok"));
                                 response.setStatus(200);
                             } else
-                                returnError(response, apiResponse, "The waypoints array is full!", 500);
+                                returnError(response, apiResponse, "Unable to add waypoint!", 500);
+                        } else {
+                            // The controller is not running
+                            returnError(response, apiResponse, "The controller is not running!", 418);
+                        }
+                        break;
+
+                    case ("delete_waypoint"):
+                        // Delete waypoint by index
+                        if (controllerRunning) {
+                            if (waypointsContainer.deleteWaypoint(request.get("index").getAsInt(),
+                                    positionHandler.isLibertyWayEnabled())) {
+                                apiResponse.add("status", new JsonPrimitive("ok"));
+                                response.setStatus(200);
+                            } else
+                                returnError(response, apiResponse, "Unable to remove waypoint!", 500);
                         } else {
                             // The controller is not running
                             returnError(response, apiResponse, "The controller is not running!", 418);
