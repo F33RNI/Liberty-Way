@@ -40,10 +40,10 @@
 	<body>
 	
 	<div class="timeline-container">
-		<div class="aug-container-glow" aria-hidden="true">
+		<div class="aug-container-glow" aria-hidden="true" style="z-index: -1">
 			<div class="timeline-aug-container" data-augmented-ui="bl-clip tr-clip br-clip-x border"></div>
 		</div>
-		<div class="aug-container-glow" aria-hidden="true" style="filter: none;">
+		<div class="aug-container-glow" aria-hidden="true" style="filter: none; z-index: -1">
 			<div class="timeline-aug-container" data-augmented-ui="bl-clip tr-clip br-clip-x both" style="--aug-border-all: 2px; backdrop-filter: blur(2px);"></div>
 		</div>
 		
@@ -83,12 +83,176 @@
 		</div>
 		
 	</div>
+
+	<div class="overlay-container" id="overlay-container" style="display: none"></div>
+
+	<!-- --------------
+	  Add from map menu
+	---------------- -->
+	<div class="bottom-absolute-container" id="from_map_menu" style="display: none">
+		<div class="aug-container-glow" aria-hidden="true" style="z-index: -1">
+			<div class="center-aug-container" data-augmented-ui="tl-2-clip-y tr-clip bl-clip br-clip-y border">
+			</div>
+		</div>
+		<div class="aug-container-glow" aria-hidden="true" style="filter: none; z-index: -1">
+			<div class="center-aug-container" data-augmented-ui="tl-2-clip-y tr-clip bl-clip br-clip-y both"
+				 style="--aug-border-all: 2px; backdrop-filter: blur(4px);"></div>
+		</div>
+		<div style="margin: 0.4em">
+			<div class="button blue" onclick="applyFromMap()" data-augmented-ui="br-clip both">
+				<p>APPLY</p>
+			</div>
+			<div class="button red" onclick="closeFromMap()" data-augmented-ui="br-clip both">
+				<p>CLOSE</p>
+			</div>
+		</div>
+	</div>
+
+	<!-- --------------
+	  Set manually menu
+	---------------- -->
+	<div class="center-container" id="set_manually_menu" style="display: none">
+		<div class="aug-container-glow" aria-hidden="true" style="z-index: -1">
+			<div class="center-aug-container" data-augmented-ui="tl-2-clip-y tr-clip bl-clip br-clip-y border">
+			</div>
+		</div>
+		<div class="aug-container-glow" aria-hidden="true" style="filter: none; z-index: -1">
+			<div class="center-aug-container" data-augmented-ui="tl-2-clip-y tr-clip bl-clip br-clip-y both"
+				 style="--aug-border-all: 2px; backdrop-filter: blur(4px);"></div>
+		</div>
+		<p class="labels-text" style="text-align:center;">
+			<a>WAYPOINT</a>
+			<a id="manual_id">-</a>
+		</p>
+		<p class="labels-text" style="text-align:center;">SET MANUALLY</p>
+		<div style="margin: 1em">
+			<div class="split-container">
+				<div>
+					<label class="labels-text" for="manual_lat">Latitude: </label>
+				</div>
+				<div class="input-container" data-augmented-ui="br-clip both">
+					<input type="text" id="manual_lat" placeholder="40.689247"/>
+				</div>
+			</div>
+			<div class="split-container">
+				<div>
+					<label class="labels-text" for="manual_lon">Longitude: </label>
+				</div>
+				<div class="input-container" data-augmented-ui="br-clip both">
+					<input type="text" id="manual_lon" placeholder="-74.044502"/>
+				</div>
+			</div>
+			<br>
+			<div class="select-container" data-augmented-ui="br-clip both" style="width: 100%">
+				<select id="manual_action" name="link_baudrate">
+					<option value="fly">Just fly</option>
+					<option value="descent">Descent</option>
+					<option value="parcel">Descent and drop a parcel</option>
+					<option value="land">Land here</option>
+				</select>
+			</div>
+		</div>
+		<div class="button blue" onclick="applyManual()" data-augmented-ui="br-clip both">
+			<p>APPLY</p>
+		</div>
+		<div class="button red" onclick="closeManual()" data-augmented-ui="br-clip both">
+			<p>CLOSE</p>
+		</div>
+	</div>
+
+	<!-- --------------
+	  Add waypoint menu
+	---------------- -->
+	<div class="center-container" id="add_waypoint_menu" style="display: none">
+		<div class="aug-container-glow" aria-hidden="true" style="z-index: -1">
+			<div class="center-aug-container" data-augmented-ui="tl-2-clip-y tr-clip bl-clip br-clip-y border">
+			</div>
+		</div>
+		<div class="aug-container-glow" aria-hidden="true" style="filter: none; z-index: -1">
+			<div class="center-aug-container" data-augmented-ui="tl-2-clip-y tr-clip bl-clip br-clip-y both"
+				 style="--aug-border-all: 2px; backdrop-filter: blur(4px);"></div>
+		</div>
+		<p class="labels-text" style="text-align:center;">ADD WAYPOINT</p>
+		<div style="margin: 1em">
+			<div>
+				<div class="select-container" data-augmented-ui="br-clip both" style="width: 100%">
+					<select id="add_waypoint" name="link_baudrate"
+							onchange="addWaypoint(this.options[this.selectedIndex].value)">
+						<option value="skip">Skip</option>
+						<option value="platform">Platform</option>
+						<option value="drone">Current drone's position</option>
+						<option value="manual">Set manually</option>
+						<option value="map">Set from map</option>
+					</select>
+				</div>
+			</div>
+			<br>
+			<div class="telemetry-data-container">
+				<div><a class="labels-text">Waypoint ID:</a></div>
+				<div><a class="labels-text" id="add_waypoint_num">-</a></div>
+			</div>
+			<div class="telemetry-data-container">
+				<div><a class="labels-text">Latitude:</a></div>
+				<div><a class="labels-text" id="add_waypoint_lat">-</a></div>
+			</div>
+			<div class="telemetry-data-container">
+				<div><a class="labels-text">Longitude:</a></div>
+				<div><a class="labels-text" id="add_waypoint_lon">-</a></div>
+			</div>
+		</div>
+		<div class="button red" onclick="closeWaypoint()" data-augmented-ui="br-clip both">
+			<p>CLOSE</p>
+		</div>
+	</div>
+
+	<!-- --------------
+	  Menu
+	---------------- -->
+	<div class="center-container" id="menu" style="display: none">
+		<div class="aug-container-glow" aria-hidden="true" style="z-index: -1">
+			<div class="center-aug-container" data-augmented-ui="tl-2-clip-y tr-clip bl-clip br-clip-y border">
+			</div>
+		</div>
+		<div class="aug-container-glow" aria-hidden="true" style="filter: none; z-index: -1">
+			<div class="center-aug-container" data-augmented-ui="tl-2-clip-y tr-clip bl-clip br-clip-y both"
+				 style="--aug-border-all: 2px; backdrop-filter: blur(4px);"></div>
+		</div>
+
+		<p class="labels-text" style="text-align:center;">MENU</p>
+		<div style="margin: 1em">
+
+			<div class="button blue" onclick="menu()" data-augmented-ui="br-clip both">
+				<p>LAND HERE</p>
+			</div>
+			<div class="button blue" onclick="menu()" data-augmented-ui="br-clip both">
+				<p>FLY TO HOME</p>
+			</div>
+			<br>
+			<br>
+			<p class="labels-text" style="text-align:center;">WAYPOINTS</p>
+
+			<div class="scroll-container" id="scroll-container">
+				<!-- Waypoints will be here -->
+				<div style="alignment: center" id="scroll-buttons">
+					<div class="button blue small" onclick="createWaypoint()" data-augmented-ui="br-clip both">
+						<a>ADD WAYPOINT</a>
+					</div>
+					<div class="button blue small" onclick="createWaypoint()" data-augmented-ui="br-clip both">
+						<a>REFRESH LIST</a>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="button red" onclick="closeWaypoint()" data-augmented-ui="br-clip both">
+			<p>CLOSE</p>
+		</div>
+	</div>
 	
 	<div class="telemetry-container">
-		<div class="aug-container-glow" aria-hidden="true">
+		<div class="aug-container-glow" aria-hidden="true" style="z-index: -1">
 			<div class="telemetry-aug-container" data-augmented-ui="tr-clip bl-clip br-clip-y border"></div>
 		</div>
-		<div class="aug-container-glow" aria-hidden="true" style="filter: none;">
+		<div class="aug-container-glow" aria-hidden="true" style="filter: none; z-index: -1">
 			<div class="telemetry-aug-container" data-augmented-ui="tr-clip bl-clip br-clip-y both" style="--aug-border-all: 2px; backdrop-filter: blur(2px);"></div>
 		</div>
 
@@ -170,8 +334,8 @@
 			<br>
 		</div>
 		
-		<div class="button blue" onclick="execute()" data-augmented-ui="br-clip both">
-			<p>EXECUTE</p>
+		<div class="button blue" onclick="menu()" data-augmented-ui="br-clip both">
+			<p>MENU</p>
 		</div>
 		<br>
 		<div class="button blue" onclick="switchView()" data-augmented-ui="br-clip both">
@@ -184,8 +348,6 @@
 	</div>
 
 	<div id="map-container"></div>
-	<div id="stream-container">
-		
-	</div>
+	<div id="stream-container"></div>
 	</body>
 </html>

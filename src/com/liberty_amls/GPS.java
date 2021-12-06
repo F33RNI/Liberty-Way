@@ -53,6 +53,23 @@ public class GPS {
     }
 
     /**
+     * Initializes class from existing double coordinates
+     * @param lat value between -90.000000 and 90.000000
+     * @param lon value between -180.000000 and 180.000000
+     */
+    GPS(double lat, double lon) {
+        this.latInt = 0;
+        this.lonInt = 0;
+        this.latDouble = 0.0;
+        this.lonDouble = 0.0;
+        this.satellitesNum = 0;
+        this.groundSpeed = 0.0;
+        this.groundHeading = 0.0;
+        this.initialized = false;
+        setFromDouble(lat, lon);
+    }
+
+    /**
      * Stores new GPS coordinates from Integer type
      * @param lat value between -90000000 and 90000000
      * @param lon value between -180000000 and 180000000

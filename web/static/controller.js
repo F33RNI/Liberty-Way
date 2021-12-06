@@ -32,6 +32,13 @@ const mapboxStyle = 'mapbox://styles/-fern-/cks58glcmc69x18rzqxtvfdzh';
 const telemetryUpdateTime = 500;
 const initialZoomLevel = 18;
 
+const WAYPOINT_SKIP = 0;
+const WAYPOINT_PLATFORM = 1;
+const WAYPOINT_FLY = 2;
+const WAYPOINT_DESCENT = 3;
+const WAYPOINT_PARCEL = 4;
+const WAYPOINT_LAND = 5;
+
 const telemetryXMLHttp = new XMLHttpRequest();
 
 let telemetryPackets = 0;
@@ -255,20 +262,156 @@ function telemetryRefresh(connected) {
 	}
 }
 
+
 /**
- * Starts Liberty-Way sequence
+ * Opens waypoints menu
  */
-function execute() {
-	const xmlHTTP = new XMLHttpRequest();
+function menu() {
+	/*const xmlHTTP = new XMLHttpRequest();
 	xmlHTTP.onreadystatechange = function () {
 		if (this.readyState === 4 && this.status === 200 && JSON.parse(this.responseText).status.toLowerCase() === "ok")
 			document.getElementById("timeline-progress").style.width = "100%";
-	};
+	};*/
 
 	/* Send execute API request */
+	/*xmlHTTP.open("POST", "/api", true);
+	xmlHTTP.setRequestHeader("Content-Type", "application/json");
+	xmlHTTP.send(JSON.stringify({"action": "execute"}));*/
+
+	const xmlHTTP = new XMLHttpRequest();
+	xmlHTTP.onreadystatechange = function () {
+		if (this.readyState === 4 && this.status === 200) {
+			const response = JSON.parse(this.responseText);
+			if (response.status.toLowerCase() === "ok") {
+				const scrollContainer = document.getElementById("scroll-container");
+				const scrollElements = document.getElementsByClassName("scroll-element");
+				while(scrollElements[0]) {
+					scrollElements[0].parentNode.removeChild(scrollElements[0]);
+				}
+
+				const waypoints = response.waypoints;
+				if (waypoints.length > 0) {
+					let waypointElement;
+					for (let i = 0; i < waypoints.length; i++) {
+						waypointElement = document.createElement("div");
+						waypointElement.className = "scroll-element";
+
+						let labelsText = document.createElement("p");
+						labelsText.className = "labels-text";
+						if (waypoints[i].api > WAYPOINT_SKIP) {
+							labelsText.innerHTML = "<a>" + (i + 1) + ": " + waypoints[i].lat + ", " + waypoints[i].lon;
+							switch (waypoints[i].api) {
+								case WAYPOINT_PLATFORM:
+									labelsText.innerHTML += " PLATFORM</a>";
+									break;
+								case WAYPOINT_FLY:
+									labelsText.innerHTML += " JUST FLY</a>";
+									break;
+								case WAYPOINT_DESCENT:
+									labelsText.innerHTML += " DESCENT</a>";
+									break;
+								case WAYPOINT_PARCEL:
+									labelsText.innerHTML += " PARCEL</a>";
+									break;
+								case WAYPOINT_LAND:
+									labelsText.innerHTML += " LAND HERE</a>";
+									break;
+								default:
+									labelsText.innerHTML += "</a>";
+									break;
+							}
+						}
+						else
+							labelsText.innerHTML = "<a>" + (i + 1) + ": SKIP</a>";
+
+						let deleteButton = document.createElement("div");
+						deleteButton.className = "button red small";
+						deleteButton.setAttribute("data-augmented-ui","br-clip both");
+						deleteButton.style.width = "4em";
+						deleteButton.style.marginLeft = "1em";
+						deleteButton.addEventListener("click",
+							function() { deleteWaypoint(i); }, false);
+
+						deleteButton.innerHTML = "<a>DELETE</a>";
+
+						waypointElement.appendChild(labelsText);
+						waypointElement.appendChild(deleteButton);
+
+
+
+						scrollContainer.appendChild(waypointElement);
+					}
+					waypointElement.after(document.getElementById("scroll-buttons"));
+					//document.getElementById("scroll-buttons").after(waypointElement);
+				}
+			}
+		}
+	};
+
+	/* Send get_waypoints API request */
 	xmlHTTP.open("POST", "/api", true);
 	xmlHTTP.setRequestHeader("Content-Type", "application/json");
-	xmlHTTP.send(JSON.stringify({"action": "execute"}));
+	xmlHTTP.send(JSON.stringify({"action": "get_waypoints"}));
+
+	/* Enable menu and overlay blocks */
+	document.getElementById('menu').style.display = 'block';
+	document.getElementById('overlay-container').style.display = 'block';
+}
+
+
+function createWaypoint() {
+	document.getElementById('menu').style.display = 'none';
+	document.getElementById('add_waypoint_menu').style.display = 'block';
+}
+
+function deleteWaypoint(id) {
+	alert(id);
+}
+
+function addWaypoint(option) {
+	if (option === 'manual') {
+		document.getElementById('add_waypoint_menu').style.display = 'none';
+		document.getElementById('set_manually_menu').style.display = 'block';
+	}
+	else if (option === 'map') {
+		document.getElementById('add_waypoint_menu').style.display = 'none';
+		enableMapDisableCamera();
+		document.getElementById('map-container').style.zIndex = '70';
+		document.getElementById('from_map_menu').style.display = 'block';
+
+		const waypointPin = new mapboxgl.Marker({
+			draggable: true,
+			color: '#99daff'
+		})
+			.setLngLat([0, 0])
+			.addTo(map);
+		function onDragEnd() {
+			const lngLat = waypointPin.getLngLat();
+		}
+
+		waypointPin.on('dragend', onDragEnd);
+
+	}
+}
+
+function closeWaypoint() {
+
+}
+
+function applyFromMap() {
+
+}
+
+function closeFromMap() {
+
+}
+
+function applyManual() {
+
+}
+
+function closeManual() {
+
 }
 
 /**

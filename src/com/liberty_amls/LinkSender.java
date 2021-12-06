@@ -79,8 +79,8 @@ public class LinkSender {
         linkBuffer[6] = (byte) ((ddcZ >> 8) & 0xFF);
         linkBuffer[7] = (byte) (ddcZ & 0xFF);
 
-        // Direct control mode (P = 1, CCC = 001, XXXX = 0000)
-        linkBuffer[8] = (byte) 0b10010000;
+        // Direct control mode (P = 0, CCC = 001, XXXX = 0000)
+        linkBuffer[8] = (byte) 0b00010000;
 
         // Transmit direct control data
         pushLinkData();
@@ -98,8 +98,8 @@ public class LinkSender {
         int lonInt = gps.getLonInt();
 
         // Trim variables
-        command = command & 0b111;
-        waypointIndex = waypointIndex & 0b1111;
+        command = ((command & 0b00000111) << 4) & 0b01110000;
+        waypointIndex = waypointIndex & 0b00001111;
 
         // Lat
         linkBuffer[0] = (byte) ((latInt >> 24) & 0xFF);
@@ -113,8 +113,8 @@ public class LinkSender {
         linkBuffer[6] = (byte) ((lonInt >> 8) & 0xFF);
         linkBuffer[7] = (byte) (lonInt & 0xFF);
 
-        // Waypoint fill mode (P = 0, CCC = 011, XXXX = 0000)
-        linkBuffer[8] = (byte) 0b00110000;
+        // Waypoint fill mode (P = 1, CCC = command, XXXX = waypointIndex)
+        linkBuffer[8] = (byte) ((0b10000000 | command | waypointIndex) & 0xFF);
 
         // Transmit GPS coordinates
         pushLinkData();
@@ -161,15 +161,15 @@ public class LinkSender {
      */
     private void pushCommand(int commandBits, int bodyBits) {
         // Trim variables
-        commandBits = commandBits & 0b111;
-        bodyBits = bodyBits & 0b1111;
+        commandBits = ((commandBits & 0b00000111) << 4) & 0b01110000;
+        bodyBits = bodyBits & 0b00001111;
 
         // Reset body bytes
         for (int i = 0; i <= 7; i++)
             linkBuffer[i] = 0;
 
-        // Parse command
-        linkBuffer[8] = (byte) (((commandBits << 4) | 0b10000000 | bodyBits) & 0xFF);
+        // Parse command (P = 0, CCC = commandBits, XXXX = bodyBits)
+        linkBuffer[8] = (byte) ((commandBits | bodyBits) & 0xFF);
 
         // Transmit data
         pushLinkData();

@@ -66,6 +66,7 @@ public class WebAPI {
     private TelemetryContainer telemetryContainer;
     private PlatformContainer platformContainer;
     private PositionContainer positionContainer;
+    private WaypointsContainer waypointsContainer;
 
     /**
      * This class provides a web API. The ability to send and receive data using POST JSON requests
@@ -180,6 +181,33 @@ public class WebAPI {
                             positionHandler.setLibertyWayEnabled(true);
                             apiResponse.add("status", new JsonPrimitive("ok"));
                             response.setStatus(200);
+                        } else {
+                            // The controller is not running
+                            returnError(response, apiResponse, "The controller is not running!", 418);
+                        }
+                        break;
+
+                    case ("get_waypoints"):
+                        // Get list of waypoints
+                        if (controllerRunning) {
+                            apiResponse.add("waypoints", waypointsContainer.getWaypointsAsJSON());
+                            apiResponse.add("status", new JsonPrimitive("ok"));
+                            response.setStatus(200);
+                        } else {
+                            // The controller is not running
+                            returnError(response, apiResponse, "The controller is not running!", 418);
+                        }
+                        break;
+
+                    case ("add_waypoint"):
+                        // Add new waypoint
+                        if (controllerRunning) {
+                            logger.info("Adding new waypoint");
+                            if (waypointsContainer.addNewWaypoint(request)) {
+                                apiResponse.add("status", new JsonPrimitive("ok"));
+                                response.setStatus(200);
+                            } else
+                                returnError(response, apiResponse, "The waypoints array is full!", 500);
                         } else {
                             // The controller is not running
                             returnError(response, apiResponse, "The controller is not running!", 418);
@@ -328,6 +356,9 @@ public class WebAPI {
             return;
         }
 
+        // Initialize WaypointsContainer class
+        waypointsContainer = new WaypointsContainer();
+
         // Open serial and UDP ports
         serialHandlerLink.openPort();
         serialHandlerPlatform.openPort();
@@ -388,6 +419,20 @@ public class WebAPI {
         controllerRunning = true;
 
         logger.info("Controller startup is complete. Please visit '/' page");
+
+
+        /*GPS gps = new GPS();
+        gps.setFromInt(123, 456);
+        //while (true) {
+        try {
+            Thread.sleep(5000);
+            linkSender.sendGPSWaypoint(gps, 1, 0);
+            Thread.sleep(100);
+            linkSender.sendTakeoff();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        //}*/
     }
 
     /**

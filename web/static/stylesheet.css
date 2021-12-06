@@ -248,6 +248,52 @@ select:focus {
 	outline: none;
 }
 
+::-webkit-scrollbar {
+	width: 1em;
+}
+
+::-webkit-scrollbar-track {
+	background: var(--color-button-blue-background);
+}
+
+::-webkit-scrollbar-thumb {
+	background: var(--color-button-blue-background-hover);
+}
+
+.overlay-container {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	backdrop-filter: blur(6px);
+	z-index: 20;
+}
+
+.scroll-container {
+	overflow-y: scroll;
+	z-index:1;
+	height: 10em;
+	margin: 0.2em 0.5em 0.5em;
+	border: none;/*1px solid var(--color-button-blue-border);*/
+	padding: 0.5em;
+}
+
+.scroll-element {
+	margin-left: 1em;
+	margin-right: 1em;
+	text-align: left;
+	display: flex;
+	flex-direction: row;
+	flex-wrap: nowrap;
+	justify-content: space-between;
+	align-items: center;
+}
+
+.scroll-element > div {
+	width: 10em;
+}
+
 .background-video-stream {
 	object-fit: contain;
 	width: 100vw;
@@ -326,7 +372,21 @@ select:focus {
 	-ms-transform: translateX(-50%) translateY(-50%);
 	-webkit-transform: translate(-50%,-50%);
 	transform: translate(-50%,-50%);
+	z-index: 50;
+	min-width: 12em;
+	min-height: 8em;
+}
+
+.bottom-absolute-container {
+	-ms-transform: translateX(-50%);
+	-webkit-transform: translate(-50%, 0);
+	transform: translate(-50%, 0);
+	padding: 1em;
+	position: absolute;
+	left: 50%;
+	bottom: 1em;
 	z-index: 100;
+	min-width: 12em;
 }
 
 .center-aug-container {
@@ -353,15 +413,31 @@ select:focus {
 .setup-data-container {
 	margin-left: 1em;
 	margin-right: 1em;
-	text-align:left;
+	text-align: left;
 	display: flex;
 	flex-direction: row;
 	flex-wrap: nowrap;
 	justify-content: space-between;
+	align-items: center;
 }
 
 .setup-data-container > div {
 	width: 10em;
+}
+
+.split-container {
+	margin-left: 1em;
+	margin-right: 1em;
+	text-align: left;
+	display: flex;
+	flex-direction: row;
+	flex-wrap: nowrap;
+	justify-content: space-between;
+	align-items: center;
+}
+
+.split-container > div {
+	min-width: 5em;
 }
 
 .watermark {
@@ -407,6 +483,17 @@ select:focus {
 	color: var(--color-button-blue-text);
 }
 
+.button.small {
+	--aug-br: 0.5em;
+	padding-left: 0.5em;
+	width: 7em;
+	text-align: justify;
+	padding-top: 0.7em;
+	height: 0.7em;
+	font-size: 100%;
+	vertical-align: bottom;
+}
+
 .button.red:hover{
 	--aug-inlay-bg:  var(--color-button-red-background-hover);
 }
@@ -445,7 +532,7 @@ select:focus {
 	padding: 1em;
 	vertical-align: top;
 	float: left; 
-	z-index: 100;
+	z-index: 10;
 	position: absolute;
 	top: 1em;
 	left: 1em;
@@ -471,7 +558,7 @@ select:focus {
 	margin-left: auto; 
 	margin-right: auto;
 	padding: 0.8em 2.2em 1.4em 2.3em;
-	z-index: 99;
+	z-index: 9;
 }
 .timeline-aug-container {
 	--aug-inlay-bg: var(--color-containers-background);
@@ -536,6 +623,7 @@ select:focus {
 	left: 0; 
 	right: 0; 
 	z-index: 0;
+	overflow: hidden;
 }
 
 #stream-container {
