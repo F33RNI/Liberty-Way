@@ -178,7 +178,7 @@
 				<div class="select-container" data-augmented-ui="br-clip both" style="width: 100%">
 					<select id="add_waypoint" name="link_baudrate"
 							onchange="addWaypoint(this.options[this.selectedIndex].value)">
-						<option value="skip">Skip</option>
+						<option value="skip">Please select</option>
 						<option value="platform">Platform</option>
 						<option value="drone">Current drone's position</option>
 						<option value="manual">Set manually</option>
@@ -186,6 +186,12 @@
 					</select>
 				</div>
 			</div>
+		</div>
+		<p class="labels-text" style="text-align:center;" id="add_waypoint_note"></p>
+		<br>
+		<div class="button blue" id="apply-platform" onclick="applyPlatform()"
+			 data-augmented-ui="br-clip both" style="display: none">
+			<p>APPLY</p>
 		</div>
 		<div class="button red" onclick="closeWaypoint()" data-augmented-ui="br-clip both">
 			<p>CLOSE</p>
