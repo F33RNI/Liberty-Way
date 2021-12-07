@@ -50,15 +50,6 @@ static byte MAC[] = { 0x70, 0x69, 0x69, 0x2D, 0x30, 0x31 };
 // Static IP
 static byte STATIC_IP[] = { 192, 168, 9, 185 };
 
-// Gateway IP
-static byte GATEWAY_IP[] = { 192, 168, 9, 1 };
-
-// Gateway IP
-static byte DNS_IP[] = { 8, 8, 8, 8 };
-
-// Gateway IP
-static byte MASK[] = { 255, 255, 255, 0 };
-
 #else
 // Communication serial port
 #define COMMUNICATION_SERIAL	Serial
@@ -88,8 +79,8 @@ const uint8_t PACKET_SUFFIX_2 PROGMEM = 0xEF;
 #define LUX_CALC_EXPONENT -1.350 //-1.405
 #endif
 
-// Request LUX value every 25 * 4ms = 100ms
-const uint8_t LUX_REQUST_CYCLES PROGMEM = 25;
+// Request LUX value every 100ms
+const uint8_t LUX_REQUST_TIME PROGMEM = 100;
 
 
 /******************************/
@@ -128,26 +119,13 @@ const uint8_t STATUS_STRIP_PIN PROGMEM = 8;
 // Baud rate of GPS mixer serial port
 const uint32_t GPS_BAUD_RATE = 115200;
 
-// If no data in 750 * 4ms = 3000ms the gps will be considered lost
-const uint16_t GPS_LOST_CYCLES PROGMEM = 750;
+// If no data in 3000ms the gps will be considered lost
+const uint64_t GPS_LOST_TIME PROGMEM = 3000;
 
 // Unique pair of suffix
 const uint8_t GPS_SUFFIX_1 PROGMEM = 0xEE;
 const uint8_t GPS_SUFFIX_2 PROGMEM = 0xEF;
 #endif
-
-
-/***********************************/
-/*            Barometer            */
-/***********************************/
-// Comment to disable barometer module
-#define BAROMETER
-
-// This value will be added to the pressure. Make it equal to the pressure from the drone
-#ifdef BAROMETER
-const float PRESSURE_CORRECTION = 48;
-#endif
-
 
 
 /*************************************/
@@ -157,8 +135,8 @@ const float PRESSURE_CORRECTION = 48;
 #define WS_LEDS
 
 #ifdef WS_LEDS
-// Change state every 63 * LOOP_PERIOD for error signal
-const uint16_t LEDS_ERROR_CYCLES PROGMEM = 63;
+// Change state every 250ms for error signal
+const uint16_t LEDS_ERROR_TIME PROGMEM = 250;
 
 // LED colors
 #define COLOR_CALIBRATION		63, 0, 255
@@ -167,11 +145,11 @@ const uint16_t LEDS_ERROR_CYCLES PROGMEM = 63;
 #define COLOR_GPS				0, 127, 255
 
 #define COLOR_IDLE				127, 0, 127
+#define COLOR_WAYP				63, 63, 63
 #define COLOR_STAB				0, 255, 0
 #define COLOR_LAND				0, 255, 255
 #define COLOR_PREV				255, 127, 0
 #define COLOR_LOST				255, 0, 0
-#define COLOR_WAYP				63, 63, 63
 #define COLOR_DONE				127, 127, 127
 #endif
 

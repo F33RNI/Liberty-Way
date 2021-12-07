@@ -66,10 +66,7 @@ public class SettingsHandler {
                 exitWithError("Invalid landing (motors turn off) height");
 
             // Landing allowed
-            settingsContainer.landingAllowed = jsonSettings.get("landing_allowed").getAsBoolean();
-
-            // Disable on-board Liberty Way sequence (only optical stabilization)
-            settingsContainer.onlyOpticalStabilization = jsonSettings.get("only_optical_stabilization").getAsBoolean();
+            settingsContainer.opticalLandingAllowed = jsonSettings.get("optical_landing_allowed").getAsBoolean();
 
             // The maximum height at which the marker is accepted for optical stabilization
             settingsContainer.maxMarkerHeight = jsonSettings.get("max_marker_height").getAsInt();
@@ -256,11 +253,6 @@ public class SettingsHandler {
                     || settingsContainer.pressureTermAbovePlatform > 200)
                 exitWithError("Invalid pressure term");
 
-            // How many cycles will the IDLE command be sent (instead of the waypoint command)
-            settingsContainer.sendIdleCyclesNum = jsonSettings.get("send_idle_cycles_num").getAsShort();
-            if (settingsContainer.sendIdleCyclesNum < 0)
-                exitWithError("Invalid IDLE cycles number");
-
             // Is telemetry necessary for liberty-way sequence?
             settingsContainer.isTelemetryNecessary = jsonSettings.get("is_telemetry_necessary").getAsBoolean();
 
@@ -268,9 +260,6 @@ public class SettingsHandler {
             settingsContainer.maxPlatformSpeed = jsonSettings.get("max_platform_speed").getAsInt();
             if (settingsContainer.maxPlatformSpeed < 0)
                 exitWithError("Wrong maximum platform speed");
-
-            // Whether to send the IDLE command when the system is in WAIT mode (0)
-            settingsContainer.sendIDLEInWAITMode = jsonSettings.get("send_idle_in_wait_mode").getAsBoolean();
 
             // Is GPS Prediction allowed
             settingsContainer.isGPSPredictionAllowed = jsonSettings.get("is_gps_prediction_allowed").getAsBoolean();

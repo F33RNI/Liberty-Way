@@ -38,8 +38,12 @@ public class PlatformHandler implements Runnable {
     private final PositionContainer positionContainer;
     private final SerialHandler serialHandler;
     private final UDPHandler udpHandler;
-    private final byte[] platformRxBuffer = new byte[22];
+    private final WaypointsContainer waypointsContainer;
+    private final GPSPredictor gpsPredictor;
+
+    private final byte[] platformRxBuffer = new byte[18];
     private final byte[] platformTxBuffer = new byte[6];
+
     private byte platformRxBytePrevious = 0;
     private int platformRxBufferPosition = 0;
     private long platformLastPacketTime = 0, loopTimer = 0;
@@ -52,12 +56,16 @@ public class PlatformHandler implements Runnable {
                     PositionContainer positionContainer,
                     SerialHandler serialHandler,
                     UDPHandler udpHandler,
-                    SettingsContainer settingsContainer) {
+                    SettingsContainer settingsContainer,
+                    WaypointsContainer waypointsContainer) {
         this.platformContainer = platformContainer;
         this.positionContainer = positionContainer;
         this.serialHandler = serialHandler;
         this.udpHandler = udpHandler;
         this.settingsContainer = settingsContainer;
+        this.waypointsContainer = waypointsContainer;
+        this.gpsPredictor = new GPSPredictor();
+
         this.platformTxBuffer[4] = settingsContainer.platformDataSuffix1;
         this.platformTxBuffer[5] = settingsContainer.platformDataSuffix2;
     }
@@ -130,10 +138,10 @@ public class PlatformHandler implements Runnable {
             byte checkByte = 0;
 
             // Calculate check sum
-            for (int i = 0; i <= 18; i++)
+            for (int i = 0; i <= 14; i++)
                 checkByte ^= platformRxBuffer[i];
 
-            if (checkByte == platformRxBuffer[19]) {
+            if (checkByte == platformRxBuffer[15]) {
                 // Parse data if the checksums are equal
 
                 // Error status
@@ -160,17 +168,14 @@ public class PlatformHandler implements Runnable {
                 platformContainer.gps.setGroundSpeed((((int) platformRxBuffer[13] & 0xFF)
                         | ((int) platformRxBuffer[12] & 0xFF) << 8) / 10.0);
 
-                // Pressure
-                platformContainer.pressure = ((int) platformRxBuffer[17] & 0xFF)
-                        | ((int) platformRxBuffer[16] & 0xFF) << 8
-                        | ((int) platformRxBuffer[15] & 0xFF) << 16
-                        | ((int) platformRxBuffer[14] & 0xFF) << 24;
-
                 // Illumination from LUX meter
-                platformContainer.illumination = Math.pow(((int) platformRxBuffer[18] & 0xFF), 2.105);
+                platformContainer.illumination = Math.pow(((int) platformRxBuffer[14] & 0xFF), 2.105);
 
                 // Increment packets counter
                 platformContainer.packetsNumber++;
+
+                // Handle new GPS coordinates
+                handleGPS();
 
                 // Reset timer and lost flag
                 if (platformContainer.platformLost)
@@ -186,9 +191,28 @@ public class PlatformHandler implements Runnable {
             platformRxBufferPosition++;
 
             // Reset buffer on overflow
-            if (platformRxBufferPosition > 21)
+            if (platformRxBufferPosition > 17)
                 platformRxBufferPosition = 0;
         }
+    }
+
+    /**
+     * Writes the new platform coordinates to an array of waypoints
+     */
+    private void handleGPS() {
+        // Check if GPS prediction is enabled
+        if (settingsContainer.isGPSPredictionAllowed) {
+            // Feed new GPS coordinates
+            gpsPredictor.setGPSCurrent(platformContainer.gps);
+
+            // Replace platform waypoint with predicted coordinates
+            waypointsContainer.setPlatformPosition(gpsPredictor.getGPSPredicted());
+
+            // Store current position for next cycle
+            gpsPredictor.setGPSLast(platformContainer.gps);
+        } else
+            // Update platform waypoint
+            waypointsContainer.setPlatformPosition(platformContainer.gps);
     }
 
     /**

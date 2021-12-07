@@ -96,13 +96,10 @@ void lux_meter_setup(void) {
 /// Reads illumination from the BH1750 sensor or from the LDR
 /// </summary>
 void lux_meter(void) {
-	// Increment counter every cycle
-	lux_cycle_counter++;
-
-	// Last cycle. Request LUX data
-	if (lux_cycle_counter >= LUX_REQUST_CYCLES) {
-		// Restart counter
-		lux_cycle_counter = 0;
+	// Request LUX data by timer
+	if (millis() - lux_cycle_timer >= LUX_REQUST_TIME) {
+		// Restart timer
+		lux_cycle_timer = millis();
 
 #ifdef LUX_METER
 		// Read data from BH1750

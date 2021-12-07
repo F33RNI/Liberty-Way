@@ -36,7 +36,6 @@ public class PlatformContainer {
     public int packetsNumber;
     public double illumination;
     public double cameraExposure;
-    public int pressure;
     public boolean backlight;
     public int gripsCommand;
 
@@ -50,7 +49,6 @@ public class PlatformContainer {
         platformLost = true;
         packetsNumber = 0;
         illumination = 0.0;
-        pressure = 0;
         cameraExposure = 0;
         backlight = false;
         gripsCommand = 0;

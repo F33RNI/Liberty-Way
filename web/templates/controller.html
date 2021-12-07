@@ -83,6 +83,58 @@
 	</div>
 
 	<div class="overlay-container" id="overlay-container" style="display: none"></div>
+	<div class="overlay-container-dialog" id="overlay-container-dialog" style="display: none"></div>
+
+	<!-- --------------
+	  Alert dialog
+	---------------- -->
+	<div class="confirmation-dialog" id="alert_dialog" style="display: none">
+		<div class="aug-container-glow" aria-hidden="true" style="z-index: -1">
+			<div class="center-aug-container" data-augmented-ui="tr-clip bl-clip border">
+			</div>
+		</div>
+		<div class="aug-container-glow" aria-hidden="true" style="filter: none; z-index: -1">
+			<div class="center-aug-container" data-augmented-ui="tr-clip bl-clip both"
+				 style="--aug-border-all: 2px; backdrop-filter: blur(4px);"></div>
+		</div>
+		<p class="labels-text" style="text-align:center;" id="alert_title">ALERT</p>
+		<br>
+		<p class="labels-text" style="text-align:center;" id="alert_text">Alert text</p>
+		<br>
+		<div style="margin: 0.4em">
+			<div class="button blue" onclick="alertFinish()" data-augmented-ui="br-clip both">
+				<p>OK</p>
+			</div>
+		</div>
+	</div>
+
+
+	<!-- --------------
+	  Confirmation dialog
+	---------------- -->
+	<div class="confirmation-dialog" id="confirmation_dialog" style="display: none">
+		<div class="aug-container-glow" aria-hidden="true" style="z-index: -1">
+			<div class="center-aug-container" data-augmented-ui="tr-clip bl-clip border">
+			</div>
+		</div>
+		<div class="aug-container-glow" aria-hidden="true" style="filter: none; z-index: -1">
+			<div class="center-aug-container" data-augmented-ui="tr-clip bl-clip both"
+				 style="--aug-border-all: 2px; backdrop-filter: blur(4px);"></div>
+		</div>
+		<p class="labels-text" style="text-align:center;" id="dialog_title">CONFIRMATION REQUIRED</p>
+		<br>
+		<p class="labels-text" style="text-align:center;" id="dialog_text">Are you sure?</p>
+		<br>
+		<div style="margin: 0.4em">
+			<div class="button red" id="dialog_confirm" onclick="dialogConfirm()" data-augmented-ui="br-clip both">
+				<p>CONFIRM</p>
+			</div>
+			<div class="button blue" id="dialog_cancel" onclick="dialogCancel()" data-augmented-ui="br-clip both">
+				<p>CANCEL</p>
+			</div>
+		</div>
+	</div>
+
 
 	<!-- --------------
 	  Add from map menu
@@ -203,22 +255,29 @@
 	---------------- -->
 	<div class="center-container" id="menu" style="display: none">
 		<div class="aug-container-glow" aria-hidden="true" style="z-index: -1">
-			<div class="center-aug-container" data-augmented-ui="tl-2-clip-y tr-clip bl-clip br-clip-y border">
+			<div class="center-aug-container" data-augmented-ui="tl-2-clip-y tr-2-clip-x bl-2-clip-x br-clip-y border">
 			</div>
 		</div>
 		<div class="aug-container-glow" aria-hidden="true" style="filter: none; z-index: -1">
-			<div class="center-aug-container" data-augmented-ui="tl-2-clip-y tr-clip bl-clip br-clip-y both"
+			<div class="center-aug-container" data-augmented-ui="tl-2-clip-y tr-2-clip-x bl-2-clip-x br-clip-y both"
 				 style="--aug-border-all: 2px; backdrop-filter: blur(4px);"></div>
 		</div>
 
 		<p class="labels-text" style="text-align:center;">MENU</p>
 		<div style="margin: 1em">
 
-			<div class="button red" onclick="menu()" data-augmented-ui="br-clip both">
+			<div class="button red" onclick="landNow()" data-augmented-ui="br-clip both">
 				<p>LAND NOW</p>
 			</div>
-			<div class="button blue" onclick="menu()" data-augmented-ui="br-clip both">
+			<div class="button blue" onclick="takeOff()" data-augmented-ui="br-clip both">
 				<p>TAKEOFF</p>
+			</div>
+			<br>
+			<div class="button red" onclick="fts()" data-augmented-ui="br-clip both">
+				<p>FTS</p>
+			</div>
+			<div class="button red" onclick="shutDown()" data-augmented-ui="br-clip both">
+				<p>SHUT DOWN</p>
 			</div>
 			<br>
 			<br>
@@ -302,6 +361,10 @@
 				<div><a class="labels-text">Speed</a></div>
 				<div><a class="labels-text" id="drone_speed">0 km/h</a></div>
 			</div>
+			<div class="telemetry-data-container">
+				<div><a class="labels-text">Waypoint ID:</a></div>
+				<div><a class="labels-text" id="waypoint_index">-</a></div>
+			</div>
 			<br>
 			<p class= "labels-text" style="text-align:center;">PLATFORM TELEMETRY</p>
 			<div class="telemetry-data-container">
@@ -335,9 +398,6 @@
 			<p>SWITCH VIEW</p>
 		</div>
 		<br>
-		<div class="button red" onclick="abort()" data-augmented-ui="br-clip both">
-			<p>SHUT DOWN</p>
-		</div>
 	</div>
 
 	<div id="map-container"></div>

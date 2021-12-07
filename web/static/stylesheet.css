@@ -145,6 +145,11 @@ body {
 	padding: 0;
 }
 
+.mapboxgl-popup-content {
+	color: black;
+	min-width: 8em;
+}
+
 h1 { 
 	font-family: 'Blender Pro Thin';
 }
@@ -270,6 +275,16 @@ select:focus {
 	z-index: 20;
 }
 
+.overlay-container-dialog {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	backdrop-filter: blur(6px);
+	z-index: 150;
+}
+
 .scroll-container {
 	overflow-y: scroll;
 	z-index:1;
@@ -387,6 +402,18 @@ select:focus {
 	bottom: 1em;
 	z-index: 100;
 	min-width: 12em;
+}
+
+.confirmation-dialog {
+	padding: 1em;
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	-ms-transform: translateX(-50%) translateY(-50%);
+	-webkit-transform: translate(-50%,-50%);
+	transform: translate(-50%,-50%);
+	z-index: 200;
+	width: 20em;
 }
 
 .center-aug-container {

@@ -49,10 +49,6 @@ void gps_setup(void) {
 /// Reads GPS data from the serial port
 /// </summary>
 void gps_read(void) {
-	// Signal lost watchdog counter
-	if (gps_lost_counter < UINT16_MAX)
-		gps_lost_counter++;
-
 	while (GPS_SERIAL.available()) {
 		// Read current byte
 		gps_buffer[gps_buffer_position] = GPS_SERIAL.read();
@@ -72,7 +68,7 @@ void gps_read(void) {
 			if (gps_check_byte == gps_buffer[8]) {
 				// If the check sums are equal
 				// Reset watchdog
-				gps_lost_counter = 0;
+				gps_lost_timer = millis();
 
 				// GPS position
 				l_lat_gps = (int32_t)gps_buffer[3] | (int32_t)gps_buffer[2] << 8 | (int32_t)gps_buffer[1] << 16 | (int32_t)gps_buffer[0] << 24;
@@ -98,8 +94,6 @@ void gps_read(void) {
 				//ground_speed = (uint16_t)gps_buffer[16] | (uint16_t)gps_buffer[15] << 8;
 				ground_speed = 0;
 			}
-			else
-				gps_lost_counter = UINT16_MAX;
 		}
 		else {
 			// Store data bytes
@@ -113,7 +107,7 @@ void gps_read(void) {
 	}
 
 	// When there is no GPS information available
-	if (gps_lost_counter > GPS_LOST_CYCLES) {
+	if (millis() - gps_lost_timer > GPS_LOST_TIME || millis() <= GPS_LOST_TIME) {
 		// Reset some variables
 		l_lat_gps = 0;
 		l_lon_gps = 0;

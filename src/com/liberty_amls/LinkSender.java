@@ -87,12 +87,12 @@ public class LinkSender {
     }
 
     /**
-     * Sends gps waypoint (P = 0) (PCCCXXXX)
+     * Sends waypoint by index (P = 0) (PCCCXXXX)
      * @param gps GPS position
      * @param command first 3 bits of command (after P bit) - CCC
      * @param waypointIndex index of waypoint (0 - 15) - XXXX
      */
-    public void sendGPSWaypoint(GPS gps, int command, int waypointIndex) {
+    public void sendWaypoint(GPS gps, int command, int waypointIndex) {
         // Get integer values
         int latInt = gps.getLatInt();
         int lonInt = gps.getLonInt();
@@ -141,7 +141,7 @@ public class LinkSender {
      * Link command = 0b10100000
      */
     public void sendLand() {
-        pushCommand(0b010, 0);
+        pushCommand(0b100, 0);
     }
 
 

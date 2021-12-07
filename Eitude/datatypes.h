@@ -40,17 +40,18 @@
 // Common variables
 uint8_t error;
 uint16_t count_var;
-uint64_t loop_timer;
 
 // Communication
 uint8_t check_byte, temp_byte;
 uint8_t rx_buffer[6];
 uint8_t rx_buffer_position;
 uint8_t rx_byte_previous;
-char tx_buffer[22];
+char tx_buffer[18];
 boolean tx_flag;
 #ifdef UDP_PORT
 byte Ethernet::buffer[500];
+uint8_t destination_ip[IP_LEN];
+uint16_t source_port, destination_port;
 #endif
 
 // Data from Liberty-Way
@@ -68,14 +69,14 @@ float ldr_resistance;
 #endif
 float converted_lux;
 uint8_t lux_sqrt_data;
-uint8_t lux_cycle_counter;
+uint64_t lux_cycle_timer;
 
 // GPS
 #ifdef GPS
 uint8_t gps_buffer[11];
 uint8_t gps_buffer_position, gps_byte_previous;
 uint8_t gps_check_byte, gps_temp_byte;
-uint16_t gps_lost_counter = UINT16_MAX;
+uint64_t gps_lost_timer;
 int32_t l_lat_gps, l_lon_gps;
 uint8_t number_used_sats;
 uint8_t hdop;
@@ -84,21 +85,8 @@ uint16_t ground_heading;
 uint16_t ground_speed;
 #endif
 
-// Barometer
-#ifdef BAROMETER
-uint16_t C[7];
-uint8_t barometer_counter, temperature_counter, average_temperature_mem_location;
-int64_t OFF, OFF_C2, SENS, SENS_C1, P;
-uint32_t raw_pressure, raw_temperature, temp, raw_temperature_rotating_memory[5], raw_average_temperature_total;
-float actual_pressure, actual_pressure_slow, actual_pressure_fast, actual_pressure_diff;
-int32_t pressure_rotating_mem[20], pressure_total_avarage;
-uint8_t pressure_rotating_mem_location;
-float pressure_rotating_mem_actual;
-int32_t dT, dT_C5;
-#endif
-
 // WS2812
-uint16_t leds_error_loop_counter;
+uint64_t leds_error_loop_timer;
 uint8_t leds_tick_counter;
 uint8_t leds_error_counter;
 

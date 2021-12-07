@@ -168,10 +168,10 @@ public class BlackboxHandler implements Runnable {
             bufferedWriter.write("time,x,y,z,yaw,setpointX,setpointY,setpointZ,setpointYaw," +
                     "ddcX,ddcY,ddcZ,ddcRoll,ddcPitch,ddcYaw,frameX,frameY,exposure,status," +
                     "platformLost,platformErrorStatus,platformSatellitesNum,platformLat,platformLon," +
-                    "platformPressure,platformSpeed,platformHeading,platformIllumination,backlight,gripsCommand," +
+                    "platformSpeed,platformHeading,platformIllumination,backlight,gripsCommand," +
                     "telemetryLost,droneErrorStatus,droneFlightMode,droneBatteryVoltage,droneSatellitesNum," +
                     "droneLat,droneLon,droneAltitude,droneSpeed,droneAngleRoll,droneAnglePitch,droneAngleYaw," +
-                    "droneTemperature,droneIllumination,droneLinkWaypointStep");
+                    "droneTemperature,droneIllumination,droneLinkWaypointStep,waypointIndex");
             bufferedWriter.write("\n");
             bufferedWriter.flush();
         } catch (IOException e) {
@@ -232,8 +232,6 @@ public class BlackboxHandler implements Runnable {
             bufferedWriter.write(",");
             bufferedWriter.write(String.valueOf(platformContainer.gps.getLonDouble()));
             bufferedWriter.write(",");
-            bufferedWriter.write(String.valueOf(platformContainer.pressure));
-            bufferedWriter.write(",");
             bufferedWriter.write(decimalFormat.format(platformContainer.gps.getGroundSpeed()));
             bufferedWriter.write(",");
             bufferedWriter.write(String.valueOf((int)platformContainer.gps.getGroundHeading()));
@@ -273,6 +271,8 @@ public class BlackboxHandler implements Runnable {
             bufferedWriter.write(decimalFormat.format(telemetryContainer.illumination));
             bufferedWriter.write(",");
             bufferedWriter.write(String.valueOf(telemetryContainer.linkWaypointStep));
+            bufferedWriter.write(",");
+            bufferedWriter.write(String.valueOf(telemetryContainer.waypointIndex));
             bufferedWriter.write("\n");
             bufferedWriter.flush();
         } catch (Exception e) {

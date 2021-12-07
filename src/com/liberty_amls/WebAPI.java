@@ -178,7 +178,42 @@ public class WebAPI {
                         // Execute main sequence
                         if (controllerRunning) {
                             logger.info("Starting Liberty-Way sequence");
-                            positionHandler.setLibertyWayEnabled(true);
+                            if (positionHandler.setLibertyWayEnabled(true)) {
+                                apiResponse.add("status", new JsonPrimitive("ok"));
+                                response.setStatus(200);
+                            } else {
+                                returnError(response, apiResponse,
+                                        positionHandler.getPreFlightErrorMessage(), 500);
+                            }
+                        } else {
+                            // The controller is not running
+                            returnError(response, apiResponse, "The controller is not running!", 418);
+                        }
+                        break;
+
+                    case ("land"):
+                        // Auto-landing sequence
+                        if (controllerRunning) {
+                            logger.warn("Starting auto-landing sequence");
+                            if (telemetryContainer.takeoffDetected) {
+                                linkSender.sendLand();
+                                apiResponse.add("status", new JsonPrimitive("ok"));
+                                response.setStatus(200);
+                            } else {
+                                returnError(response, apiResponse,
+                                        "Unable to land. The drone is not in flight!", 500);
+                            }
+                        } else {
+                            // The controller is not running
+                            returnError(response, apiResponse, "The controller is not running!", 418);
+                        }
+                        break;
+
+                    case ("fts"):
+                        // Auto-landing sequence
+                        if (controllerRunning) {
+                            logger.warn("FLIGHT TERMINATION SYSTEM REQUEST!");
+                            linkSender.sendFTS();
                             apiResponse.add("status", new JsonPrimitive("ok"));
                             response.setStatus(200);
                         } else {
@@ -218,7 +253,7 @@ public class WebAPI {
                         // Delete waypoint by index
                         if (controllerRunning) {
                             if (waypointsContainer.deleteWaypoint(request.get("index").getAsInt(),
-                                    positionHandler.isLibertyWayEnabled())) {
+                                    telemetryContainer.takeoffDetected)) {
                                 apiResponse.add("status", new JsonPrimitive("ok"));
                                 response.setStatus(200);
                             } else
@@ -295,6 +330,9 @@ public class WebAPI {
         logger.info("Loading OpenCV Native Library");
         System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
 
+        // Initialize WaypointsContainer class
+        waypointsContainer = new WaypointsContainer();
+
         // Create SerialHandler class for serial communication with Liberty-Link
         serialHandlerLink = new SerialHandler(setupData.get("link_port").getAsString(),
                 setupData.get("link_port").getAsString().length() > 0 ?
@@ -329,7 +367,7 @@ public class WebAPI {
 
         // Create PlatformHandler class for integrating with platform
         platformHandler = new PlatformHandler(platformContainer, positionContainer,
-                serialHandlerPlatform, udpHandlerPlatform, settingsContainer);
+                serialHandlerPlatform, udpHandlerPlatform, settingsContainer, waypointsContainer);
 
         // Create TelemetryHandler class for read the telemetry data
         telemetryHandler = new TelemetryHandler(telemetryContainer, serialHandlerLink,
@@ -350,7 +388,7 @@ public class WebAPI {
 
         // Create PositionHandler class for to handle the current position
         positionHandler = new PositionHandler(linkSender, positionContainer, platformContainer,
-                telemetryContainer, blackboxHandler, settingsContainer);
+                telemetryContainer, blackboxHandler, settingsContainer, waypointsContainer);
 
         // Set coefficients for MiniPID in PositionHandler class
         positionHandler.loadPIDFromFile();
@@ -370,9 +408,6 @@ public class WebAPI {
             logger.error("Can't open camera!");
             return;
         }
-
-        // Initialize WaypointsContainer class
-        waypointsContainer = new WaypointsContainer();
 
         // Open serial and UDP ports
         serialHandlerLink.openPort();
@@ -434,20 +469,6 @@ public class WebAPI {
         controllerRunning = true;
 
         logger.info("Controller startup is complete. Please visit '/' page");
-
-
-        /*GPS gps = new GPS();
-        gps.setFromInt(123, 456);
-        //while (true) {
-        try {
-            Thread.sleep(5000);
-            linkSender.sendGPSWaypoint(gps, 1, 0);
-            Thread.sleep(100);
-            linkSender.sendTakeoff();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        //}*/
     }
 
     /**
@@ -471,7 +492,7 @@ public class WebAPI {
         aborted = true;
         try {
             // Send flight termination command
-            linkSender.sendFTS();
+            //linkSender.sendFTS();
 
             // Stop all the handler
             blackboxHandler.stop();
@@ -532,14 +553,18 @@ public class WebAPI {
                 new JsonPrimitive(String.valueOf(telemetryContainer.gps.getLonDouble())));
         telemetry.add("drone_speed",
                 new JsonPrimitive(decimalFormat.format(telemetryContainer.gps.getGroundSpeed())));
+        telemetry.add("takeoff_detected",
+                new JsonPrimitive(telemetryContainer.takeoffDetected));
+        telemetry.add("link_waypoint_step",
+                new JsonPrimitive(telemetryContainer.linkWaypointStep));
+        telemetry.add("waypoint_index",
+                new JsonPrimitive(telemetryContainer.waypointIndex));
 
         // Platform telemetry data
         telemetry.add("platform_lost",
                 new JsonPrimitive(platformContainer.platformLost));
         telemetry.add("platform_packets",
                 new JsonPrimitive(decimalFormat.format(platformContainer.packetsNumber)));
-        telemetry.add("platform_pressure",
-                new JsonPrimitive(decimalFormatInt.format(platformContainer.pressure)));
         telemetry.add("platform_satellites",
                 new JsonPrimitive(String.valueOf(platformContainer.gps.getSatellitesNum())));
         telemetry.add("platform_lat",

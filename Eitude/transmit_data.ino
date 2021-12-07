@@ -81,29 +81,17 @@ void transmit_data(void) {
 	tx_buffer[13] = 0;
 #endif
 
-	// Send bytes of the pressure variable
-#ifdef BAROMETER
-	tx_buffer[14] = (int32_t)actual_pressure >> 24;
-	tx_buffer[15] = (int32_t)actual_pressure >> 16;
-	tx_buffer[16] = (int32_t)actual_pressure >> 8;
-	tx_buffer[17] = (int32_t)actual_pressure;
-#else
-	tx_buffer[14] = 0;
-	tx_buffer[15] = 0;
-	tx_buffer[16] = 0;
-	tx_buffer[17] = 0;
-#endif
-
 	// Send illumination variable as a byte
-	tx_buffer[18] = lux_sqrt_data;
+	tx_buffer[14] = lux_sqrt_data;
 
 	// Calculate and send the check-byte
-	tx_buffer[19] = 0;
-	for (count_var = 0; count_var <= 18; count_var++)
-		tx_buffer[19] ^= tx_buffer[count_var];
+	tx_buffer[15] = 0;
+	for (count_var = 0; count_var <= 14; count_var++)
+		tx_buffer[15] ^= tx_buffer[count_var];
 
 	// Push data to the serial or UDP port
 #ifdef UDP_PORT
+	//ether.sendUdp(tx_buffer, sizeof tx_buffer, UDP_PORT, destination_ip, UDP_PORT);
 	ether.makeUdpReply(tx_buffer, sizeof tx_buffer, UDP_PORT);
 #else
 	COMMUNICATION_SERIAL.write(tx_buffer, sizeof tx_buffer);

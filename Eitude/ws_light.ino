@@ -57,35 +57,31 @@ void ws_light(void) {
 		// First LED - Liberty-Way status
 		switch (system_status)
 		{
-		case 0:
+		case STATUS_IDLE:
 			// IDLE
 			ws_leds.setPixelColor(0, COLOR_IDLE);
 			break;
-		case 1:
-			// MKWT
-			ws_leds.setPixelColor(0, COLOR_IDLE);
-			break;
-		case 2:
+		case STATUS_WAYP:
 			// WAYP
 			ws_leds.setPixelColor(0, COLOR_WAYP);
 			break;
-		case 3:
+		case STATUS_STAB:
 			// STAB
 			ws_leds.setPixelColor(0, COLOR_STAB);
 			break;
-		case 4:
+		case STATUS_LAND:
 			// LAND
 			ws_leds.setPixelColor(0, COLOR_LAND);
 			break;
-		case 5:
+		case STATUS_PREV:
 			// PREV
 			ws_leds.setPixelColor(0, COLOR_PREV);
 			break;
-		case 6:
+		case STATUS_LOST:
 			// LOST
 			ws_leds.setPixelColor(0, COLOR_LOST);
 			break;
-		case 7:
+		case STATUS_DONE:
 			// DONE
 			ws_leds.setPixelColor(0, COLOR_DONE);
 			break;
@@ -103,7 +99,7 @@ void ws_light(void) {
 
 		// Third LED - GPS state
 #ifdef GPS
-		if (gps_lost_counter < GPS_LOST_CYCLES)
+		if (millis() - gps_lost_timer < GPS_LOST_TIME && millis() > GPS_LOST_TIME)
 			ws_leds.setPixelColor(2, COLOR_GPS);
 		else
 			ws_leds.setPixelColor(2, 0);
@@ -142,12 +138,9 @@ void leds_calibration_signal(void) {
 /// Blinks with COLOR_ERROR as many times as the error is
 /// </summary>
 void leds_error_signal(void) {
-	// Increment loop counter
-	leds_error_loop_counter++;
-
-	if (leds_error_loop_counter >= LEDS_ERROR_CYCLES) {
-		// Reset loop counter
-		leds_error_loop_counter = 0;
+	if (millis() - leds_error_loop_timer >= LEDS_ERROR_TIME) {
+		// Reset loop timer
+		leds_error_loop_timer = millis();
 
 		// Reset leds_error_counter after +3 cycles (for delay)
 		if (error > 0 && leds_error_counter > error + 3)

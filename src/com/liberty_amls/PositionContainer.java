@@ -35,14 +35,20 @@ public class PositionContainer {
     public double x, y, z, yaw;
     public double setpointX, setpointY, setpointAbsX, setpointAbsY, setpointZ, setpointYaw;
     public double entryZ;
-    // Camera frame coordinates
     public Point frameSetpoint;
     public Point frameCurrent;
     public int ddcX, ddcY, ddcZ, ddcRoll, ddcPitch, ddcYaw;
-    // 0 - WAIT, 1 - MKWT, 2 - WAYP, 3 - STAB, 4 - LAND, 5 - PREV, 6 - LOST, 7 - DONE
     public int status;
     public int distance;
     public boolean isFrameNormal;
+
+    public final static int STATUS_IDLE = 0;
+    public final static int STATUS_WAYP = 1;
+    public final static int STATUS_STAB = 2;
+    public final static int STATUS_LAND = 3;
+    public final static int STATUS_PREV = 4;
+    public final static int STATUS_LOST = 5;
+    public final static int STATUS_DONE = 6;
 
     /**
      * This class stores current position, corrections and state of the drone
@@ -90,22 +96,20 @@ public class PositionContainer {
      */
     public String getStatusString() {
         switch (status) {
-            case 1:
-                return "MKWT";
-            case 2:
+            case STATUS_WAYP:
                 return "WAYP";
-            case 3:
+            case STATUS_STAB:
                 return "STAB";
-            case 4:
+            case STATUS_LAND:
                 return "LAND";
-            case 5:
+            case STATUS_PREV:
                 return "PREV";
-            case 6:
+            case STATUS_LOST:
                 return "LOST";
-            case 7:
+            case STATUS_DONE:
                 return "DONE";
             default:
-                return "WAIT";
+                return "IDLE";
         }
     }
 }

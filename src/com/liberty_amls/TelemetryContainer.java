@@ -39,7 +39,7 @@ public class TelemetryContainer {
     public int startStatus;
     public int altitude, takeoffThrottle;
     public boolean takeoffDetected, headingLock;
-    public int linkWaypointStep;
+    public int linkWaypointStep, waypointIndex;
     public double illumination;
 
     /**
@@ -61,6 +61,7 @@ public class TelemetryContainer {
         takeoffDetected = false;
         headingLock = false;
         linkWaypointStep = 0;
+        waypointIndex = 0;
         illumination = 0.0;
     }
 }

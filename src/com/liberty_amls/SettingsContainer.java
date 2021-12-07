@@ -35,8 +35,7 @@ public class SettingsContainer {
     public float markerSize;
     public double maxExposure;
     public double motorsTurnOffHeight;
-    public boolean landingAllowed;
-    public boolean onlyOpticalStabilization;
+    public boolean opticalLandingAllowed;
     public int maxMarkerHeight;
     public String pidFile;
     public String cameraMatrixFile;
@@ -83,10 +82,8 @@ public class SettingsContainer {
     public short pushOSDAfterFrames;
     public double planetRadius;
     public int pressureTermAbovePlatform;
-    public short sendIdleCyclesNum;
     public boolean isTelemetryNecessary;
     public int maxPlatformSpeed;
-    public boolean sendIDLEInWAITMode;
     public boolean isGPSPredictionAllowed;
     public int stopPredictionOnDistance;
     public boolean logFPS;

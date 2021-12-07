@@ -53,8 +53,8 @@ Adafruit_NeoPixel ws_leds = Adafruit_NeoPixel(3, STATUS_STRIP_PIN, NEO_GRB + NEO
 void setup()
 {
 	// Store packet ending in tx_buffer
-	tx_buffer[20] = PACKET_SUFFIX_1;
-	tx_buffer[21] = PACKET_SUFFIX_2;
+	tx_buffer[16] = PACKET_SUFFIX_1;
+	tx_buffer[17] = PACKET_SUFFIX_2;
 
 	// Hardware setup
 	// Power pins for LDR module
@@ -89,14 +89,14 @@ void setup()
 			leds_error_signal();
 
 			// Simulate main loop
-			delayMicroseconds(LOOP_PERIOD);
+			delay(4);
 		}
 	}
 
 	// Set DHCP address
 	//ether.dhcpSetup();
 	// Set static address
-	ether.staticSetup(STATIC_IP, GATEWAY_IP, DNS_IP, MASK);
+	ether.staticSetup(STATIC_IP);
 
 	if (ether.myip[0] != STATIC_IP[0] || ether.myip[1] != STATIC_IP[1]
 		|| ether.myip[2] != STATIC_IP[2] || ether.myip[3] != STATIC_IP[3]) {
@@ -107,7 +107,7 @@ void setup()
 			leds_error_signal();
 
 			// Simulate main loop
-			delayMicroseconds(LOOP_PERIOD);
+			delay(4);
 		}
 	}
 
@@ -116,11 +116,6 @@ void setup()
 #else
 	// Serial port setup
 	COMMUNICATION_SERIAL.begin(COMMUNICATION_BAUDRATE);
-#endif
-
-	// Setup barometer
-#ifdef BAROMETER
-	barometer_setup();
 #endif
 
 	// Setup LUX meter
@@ -137,9 +132,6 @@ void setup()
 #ifndef UDP_PORT
 	COMMUNICATION_SERIAL.flush();
 #endif
-
-	// Store loop time
-	loop_timer = micros();
 }
 
 void loop()
@@ -156,11 +148,6 @@ void loop()
 	gps_read();
 #endif
 
-	// Read and parse data from barometer
-#ifdef BAROMETER
-	barometer_handler();
-#endif
-
 	// Read illumination
 	lux_meter();
 
@@ -170,28 +157,7 @@ void loop()
 	// Light up WS2812 LEDs
 	ws_light();
 
-#ifndef UDP_PORT
-	// Send tx_buffer with detecting timeout
+	// Send tx_buffer
 	if (tx_flag)
 		transmit_data();
-#endif
-
-	// Check loop time
-	if (micros() - loop_timer > MAX_ALLOWED_LOOP_PERIOD)
-		error = 5;
-
-#ifdef UDP_PORT
-	// Send tx_buffer without detecting timeout
-	if (tx_flag)
-		transmit_data();
-#ifdef GPS
-	// New connection -> flush GPS on timeout
-	//if (micros() - loop_timer > MAX_ALLOWED_LOOP_PERIOD)
-		//gps_buffer_position = 0;
-#endif
-#endif
-
-	// Wait minimum loop time
-	while (micros() - loop_timer < LOOP_PERIOD);
-	loop_timer = micros();
 }

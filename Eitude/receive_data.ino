@@ -39,6 +39,13 @@
 /// Callback that receives packet from UDP
 /// </summary>
 void udp_receive_data(uint16_t dest_port, uint8_t src_ip[IP_LEN], uint16_t src_port, const char* data, uint16_t len) {
+	// Store IP
+	for (count_var = 0; count_var < IP_LEN; count_var++)
+		destination_ip[count_var] = src_ip[count_var];
+
+	// Store port
+	source_port = dest_port;
+
 	// Parse each single byte
 	for (count_var = 0; count_var < len; count_var++)
 		parse_byte(data[count_var]);

@@ -37,9 +37,6 @@
 #ifndef CONSTANTS_H
 #define CONSTANTS_H
 
-// Max variables values
-#define UINT16_MAX	65535
-
 // LCD constants
 const char* empty_line = "                ";
 
@@ -47,19 +44,16 @@ const char* empty_line = "                ";
 #ifdef LUX_METER
 const uint8_t LUX_METER_ADDRESS PROGMEM = 0x23;
 #endif
-#ifdef BAROMETER
-const uint8_t BAROMETER_ADDRESS PROGMEM = 0x77;
+
+// System status
+#ifdef WS_LEDS
+#define STATUS_IDLE				0
+#define STATUS_WAYP				1
+#define STATUS_STAB				2
+#define STATUS_LAND				3
+#define STATUS_PREV				4
+#define STATUS_LOST				5
+#define STATUS_DONE				6
 #endif
-
-// Loop frequency is 200 Hz. Changing it may cause injury
-const uint32_t LOOP_PERIOD = 4000;
-const uint32_t MAX_ALLOWED_LOOP_PERIOD = 4500;
-
-
-// GPS UBLOX predefined messages for setup
-const uint8_t GPS_DISABLE_GPGSV[11] = { 0xB5, 0x62, 0x06, 0x01, 0x03, 0x00, 0xF0, 0x03, 0x00, 0xFD, 0x15 };
-const uint8_t GPS_SET_TO_5HZ[14]  = { 0xB5, 0x62, 0x06, 0x08, 0x06, 0x00, 0xC8, 0x00, 0x01, 0x00, 0x01, 0x00, 0xDE, 0x6A };
-const uint8_t GPS_SET_TO_57KBPS[28] = { 0xB5, 0x62, 0x06, 0x00, 0x14, 0x00, 0x01, 0x00, 0x00, 0x00, 0xD0, 0x08, 0x00, 0x00,
-0x00, 0xE1, 0x00, 0x00, 0x07, 0x00, 0x07, 0x00, 0x00, 0x00, 0x00, 0x00, 0xE2, 0xE1 };
 
 #endif
