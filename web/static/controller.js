@@ -73,7 +73,7 @@ window.onload = onLoad;
  * Initializes the map, telemetry reception and determines the view (camera / map) when the page is loaded.
  */
 function onLoad() {
-	/* Initialize the map */
+	// Initialize the map
 	try {
 		mapboxgl.accessToken = mapboxToken;
 		map = new mapboxgl.Map({
@@ -155,7 +155,7 @@ function onLoad() {
 
 	checkVideoOrMap();
 
-	/* Cyclically sends request and receives telemetry */
+	// Cyclically sends request and receives telemetry
 	telemetryXMLHttp.onreadystatechange = function () {
 		if (this.readyState === 4) {
 			if (this.status === 200) {
@@ -210,7 +210,7 @@ function checkVideoOrMap() {
 		}
 	};
 
-	/* Send check_stream API request */
+	// Send check_stream API request
 	xmlHTTP.open("POST", "/api", true);
 	xmlHTTP.setRequestHeader("Content-Type", "application/json");
 	xmlHTTP.send(JSON.stringify({"action": "check_stream"}));
@@ -220,10 +220,10 @@ function checkVideoOrMap() {
  * Switches view to the camera
  */
 function disableMapEnableCamera() {
-	/* Hide map container */
+	// Hide map container
 	document.getElementById("map-container").style.visibility = "hidden";
 
-	/* Create background image */
+	// Create background image
 	if (backgroundStreamImg == null) {
 		backgroundStreamImg = document.createElement("div");
 		backgroundStreamImg.innerHTML = "<img class=\"background-video-stream-blurred\" src=\"/video_feed\" " +
@@ -238,10 +238,10 @@ function disableMapEnableCamera() {
  * Switches view to the map
  */
 function enableMapDisableCamera(removeStream) {
-	/* Show map container */
+	// Show map container
 	document.getElementById("map-container").style.visibility = "visible";
 
-	/* Delete image stream */
+	// Delete image stream
 	if (removeStream && backgroundStreamImg != null) {
 		backgroundStreamImg.remove();
 		backgroundStreamImg = null;
@@ -264,19 +264,19 @@ function requestTelemetry() {
 function printTelemetry() {
 	telemetryPackets++;
 
-	/* Number of receiver packets */
+	// Number of receiver packets
 	document.getElementById("telemetry-packets").innerHTML = telemetryPackets.toString();
 
-	/* Timeline progress */
+	// Timeline progress
 	document.getElementById("timeline-progress").style.width = telemetry.progress + "%";
 
-	/* System status */
+	// System status
 	document.getElementById("status").innerHTML = telemetry.status;
 
-	/* Distance between drone and platform */
+	// Distance between drone and platform
 	document.getElementById("distance").innerHTML = telemetry.distance + " m";
 
-	/* Drone telemetry */
+	// Drone telemetry
 	document.getElementById("drone_packets").innerHTML = telemetry.drone_packets;
 	document.getElementById("drone_voltage").innerHTML = telemetry.drone_voltage + " V";
 	document.getElementById("drone_altitude").innerHTML = telemetry.drone_altitude + " m";
@@ -286,14 +286,14 @@ function printTelemetry() {
 	document.getElementById("drone_speed").innerHTML = telemetry.drone_speed + " km/h";
 	document.getElementById("waypoint_index").innerHTML = (telemetry.waypoint_index + 1).toString() + " | " + telemetry.link_waypoint_step;
 
-	/* Platform telemetry */
+	// Platform telemetry
 	document.getElementById("platform_packets").innerHTML = telemetry.platform_packets;
 	document.getElementById("platform_satellites").innerHTML = telemetry.platform_satellites;
 	document.getElementById("platform_lat").innerHTML = telemetry.platform_lat;
 	document.getElementById("platform_lon").innerHTML = telemetry.platform_lon;
 	document.getElementById("platform_speed").innerHTML = telemetry.platform_speed + " km/h";
 
-	/* Put GPS markers on the map */
+	// Put GPS markers on the map
 	putTelemetryOnMap(telemetry);
 }
 
@@ -303,7 +303,7 @@ function printTelemetry() {
  */
 function putTelemetryOnMap(telemetry) {
 	if (map !== null) {
-		/* Drone marker */
+		// Drone marker
 		if (!telemetry.drone_telemetry_lost && telemetry.drone_satellites > 1) {
 			dronePin.setLngLat([telemetry.drone_lon, telemetry.drone_lat]);
 			if (!isDronePinSet) {
@@ -318,7 +318,7 @@ function putTelemetryOnMap(telemetry) {
 			isDronePinSet = false;
 		}
 
-		/* Platform marker */
+		// Platform marker
 		if (!telemetry.platform_lost && telemetry.platform_satellites > 1) {
 			homePin.setLngLat([telemetry.platform_lon, telemetry.platform_lat]);
 			if (!isHomePinSet) {
@@ -360,8 +360,6 @@ function waypointsUpdate(updateMenu) {
 
 				const waypoints = response.waypoints;
 
-
-
 				if (updateMenu) {
 					const scrollContainer = document.getElementById("scroll-container");
 					const scrollElements = document.getElementsByClassName("scroll-element");
@@ -369,7 +367,7 @@ function waypointsUpdate(updateMenu) {
 						scrollElements[0].parentNode.removeChild(scrollElements[0]);
 					}
 
-					/* Set ID of new waypoint */
+					// Set ID of new waypoint
 					document.getElementById("add_waypoint_text").innerText = "ADD WAYPOINT "
 						+ (waypoints.length + 1);
 					document.getElementById("edit_waypoint_text").innerText = "ADD WAYPOINT "
@@ -429,7 +427,7 @@ function waypointsUpdate(updateMenu) {
 							scrollContainer.appendChild(waypointElement);
 						}
 						waypointElement.after(document.getElementById("scroll-buttons"));
-						//document.getElementById("scroll-buttons").after(waypointElement);
+						// document.getElementById("scroll-buttons").after(waypointElement);
 					}
 				}
 
@@ -471,7 +469,7 @@ function waypointsUpdate(updateMenu) {
 		}
 	};
 
-	/* Send get_waypoints API request */
+	// Send get_waypoints API request
 	xmlHTTP.open("POST", "/api", true);
 	xmlHTTP.setRequestHeader("Content-Type", "application/json");
 	xmlHTTP.send(JSON.stringify({"action": "get_waypoints"}));
@@ -484,16 +482,16 @@ function waypointsUpdate(updateMenu) {
 function menu() {
 	waypointsUpdate(true);
 
-	/* Reset selections */
+	// Reset selections
 	document.getElementById("manual_action").selectedIndex = null;
 	document.getElementById("add_waypoint").selectedIndex = null;
 
-	/* Disable other blocks */
+	// Disable other blocks
 	document.getElementById("from_map_menu").style.display = "none";
 	document.getElementById("set_manually_menu").style.display = "none";
 	document.getElementById("add_waypoint_menu").style.display = "none";
 
-	/* Enable menu and overlay blocks */
+	// Enable menu and overlay blocks
 	document.getElementById("menu").style.display = "block";
 	document.getElementById("overlay-container").style.display = "block";
 }
@@ -507,14 +505,14 @@ function createWaypoint() {
 
 function deleteWaypoint(id) {
 	if (confirmationInProgress) {
-		/* Refresh menu on result */
+		// Refresh menu on result
 		const xmlHTTP = new XMLHttpRequest();
 		xmlHTTP.onreadystatechange = function () {
 			if (this.readyState === 4)
 				menu();
 		};
 
-		/* Send delete_waypoint API request */
+		// Send delete_waypoint API request
 		xmlHTTP.open("POST", "/api", true);
 		xmlHTTP.setRequestHeader("Content-Type", "application/json");
 		xmlHTTP.send(JSON.stringify({"action": "delete_waypoint", "index": id}));
@@ -579,14 +577,14 @@ function addWaypoint(option) {
 }
 
 function applyPlatform() {
-	/* Refresh menu on result */
+	// Refresh menu on result
 	const xmlHTTP = new XMLHttpRequest();
 	xmlHTTP.onreadystatechange = function () {
 		if (this.readyState === 4)
 			menu();
 	};
 
-	/* Send add_waypoint API request */
+	// Send add_waypoint API request
 	xmlHTTP.open("POST", "/api", true);
 	xmlHTTP.setRequestHeader("Content-Type", "application/json");
 	xmlHTTP.send(JSON.stringify({"action": "add_waypoint", "api" : WAYPOINT_PLATFORM,
@@ -595,14 +593,14 @@ function applyPlatform() {
 }
 
 function applyManual() {
-	/* Refresh menu on result */
+	// Refresh menu on result
 	const xmlHTTP = new XMLHttpRequest();
 	xmlHTTP.onreadystatechange = function () {
 		if (this.readyState === 4)
 			menu();
 	};
 
-	/* Convert selected action to API's integer value */
+	// Convert selected action to API's integer value
 	let manualAction = document.getElementById("manual_action").value;
 	let manualAPI;
 	switch (manualAction) {
@@ -623,7 +621,7 @@ function applyManual() {
 			break;
 	}
 
-	/* Send add_waypoint API request */
+	// Send add_waypoint API request
 	xmlHTTP.open("POST", "/api", true);
 	xmlHTTP.setRequestHeader("Content-Type", "application/json");
 	xmlHTTP.send(JSON.stringify({"action": "add_waypoint", "api" : manualAPI,
@@ -674,11 +672,11 @@ function closeManual() {
 }
 
 function closeMenu() {
-	/* Reset selections */
+	// Reset selections
 	document.getElementById("manual_action").selectedIndex = null;
 	document.getElementById("add_waypoint").selectedIndex = null;
 
-	/* Disable all blocks */
+	// Disable all blocks
 	document.getElementById("from_map_menu").style.display = "none";
 	document.getElementById("set_manually_menu").style.display = "none";
 	document.getElementById("add_waypoint_menu").style.display = "none";
@@ -731,7 +729,7 @@ function simpleMenuRequest(request) {
 		}
 	};
 
-	/* Send execute API request */
+	// Send execute API request
 	xmlHTTP.open("POST", "/api", true);
 	xmlHTTP.setRequestHeader("Content-Type", "application/json");
 	xmlHTTP.send(JSON.stringify({"action": request}));
@@ -804,7 +802,7 @@ function switchView() {
 		}
 	};
 
-	/* Send toggle_stream API request */
+	// Send toggle_stream API request
 	xmlHTTP.open("POST", "/api", true);
 	xmlHTTP.setRequestHeader("Content-Type", "application/json");
 	xmlHTTP.send(JSON.stringify({"action": "toggle_stream"}));
@@ -823,7 +821,7 @@ function shutDown() {
 				window.location.href = "/";
 		};
 
-		/* Send abort API request */
+		// Send abort API request
 		xmlHTTP.open("POST", "/api", true);
 		xmlHTTP.setRequestHeader("Content-Type", "application/json");
 		xmlHTTP.send(JSON.stringify({ "action": "abort" }));
