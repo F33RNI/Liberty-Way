@@ -218,49 +218,24 @@ For more details please refer to [Eitude](https://github.com/XxOinvizioNxX/Liber
   
 #### Build the frame
 
-First off all we have to assemble the drone's frame from 3d printed and easily accessible materials bought from any construction store. Parts and .stl docs for 3d printing are listed down below:
+If you have a pre-prepared drone, then skip this step.
 
-❗ List of parts
+First off all we have to assemble the drone's frame from 3d printed and easily accessible materials bought from any construction store. Everything that you can find will suffice.
+Then you need to assemble the frame with step by step instruction:
 
-Now let's assemble the frame with step by step instruction:
+❗ Instruction
 
-❗ Instruction.pdf
+#### Obtain Liberty-X controller
 
-#### Assembly Liberty-X controller
-
-To build the controller, you have to buy and gather all the electrical parts from the list down below:
-
-❗ List of parts
-
-And then connect them as such:
+You can perform this step in 2 separate ways: you can purchase the copy of the original one or to build it yourself from the electronic parts that you find suitable just as such:
 
 ❗ Principal electrical schema
 
 #### Add Sonarus system
 
-For the Sonarus system you will need these components:
+For the Sonarus system you would need to connect two ultrasonic rangefinders that you like via I2C bus to the controller as follows:
 
-❗ List of parts
-
-Which are connected likewise:
-
-❗ Picture of connection, I guess
-
-#### Add GPS Mixer system
-
-For the implementation of GPS Mixer you need these components to be installed on the drone's side:
-
-❗ List of parts for the drone
-
-And these to be installed onto the platform:
-
-❗ List of parts for the platform
-
-The drone's part is laid out like this:
-
-❗ Drone connection schematic
-
-In order to attach GPS Mixer to Eitude you have to make Eitude itself first!
+❗ Picture of connection or electronic schematic
 
 #### Build Eitude platform
 
@@ -268,17 +243,23 @@ So for the platform you need to gather lightweight materials with similar parame
 
 ❗ List of platform contents
 
-Then you will need to prepare these electronic parts:
-
-❗ List of platform electronics
-
-And lay them out as such:
+Then you would need to prepare the controller if it from the parts that you have:
 
 ❗ Platform electronics schematic
 
-After Eitude will have been set as 'ready to go' then you yourself are ready to attach GPS Mixer to it just like this:
+#### Add GPS Mixer system
 
-❗ GPS Mixer to patform connection schematic
+For the implementation of GPS Mixer you would need to connect three any suitable GPS-modules to the drone's controller as such:
+
+❗ Drone connection schematic
+
+And three more to the platform's controller:
+
+❗ GPS Mixer to platform connection schematic
+
+#### Launch Liberty-Way
+
+❗ Dunno what to write here really
 
 ## Conclusion
 
