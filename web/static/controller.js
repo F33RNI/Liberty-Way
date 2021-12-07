@@ -427,7 +427,6 @@ function waypointsUpdate(updateMenu) {
 							scrollContainer.appendChild(waypointElement);
 						}
 						waypointElement.after(document.getElementById("scroll-buttons"));
-						// document.getElementById("scroll-buttons").after(waypointElement);
 					}
 				}
 
