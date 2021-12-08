@@ -30,21 +30,11 @@
 const xmlHTTP = new XMLHttpRequest();
 let startBtnPressed = false;
 
-window.onload = checkSerialPorts;
+window.onload = preSelectPorts;
 
-function checkSerialPorts() {
-	/* Select link and platform udp checkboxes if more then 0 ports available */
-	if (document.getElementById("link_ports").length > 0) {
-		document.getElementById("link_port_enabled").checked = true;
-		document.getElementById("platform_udp_enabled").checked = true;
-	}
-
-	/* Select UDP checkboxes if 0 ports available */
-	if (document.getElementById("link_ports").length === 0 &&
-		document.getElementById("platform_ports").length === 0) {
-		document.getElementById("link_udp_enabled").checked = true;
-		document.getElementById("platform_udp_enabled").checked = true;
-	}
+function preSelectPorts() {
+	document.getElementById("link_udp_enabled").checked = true;
+	document.getElementById("platform_udp_enabled").checked = true;
 }
 
 function checkboxSelectorPlatformCOM() {
@@ -132,7 +122,7 @@ function startController() {
 	}
 }
 
-function abort() {
+function shutDown() {
 	xmlHTTP.onreadystatechange = function () {
 		if (this.readyState === 4) {
 			if (this.status === 200) {

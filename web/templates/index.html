@@ -81,7 +81,9 @@
 
 				<br>
 
-				<!-- Liberty-Link ports -->
+				<!-- --------------
+				  Liberty-Link seial port
+				---------------- -->
 				<div class="setup-data-container">
 					<div>
 						<input type="checkbox" id="link_port_enabled" onclick="checkboxSelectorLinkCOM();"/>
@@ -111,7 +113,11 @@
 						</div>
 					</div>
 				</div>
-				
+
+
+				<!-- --------------
+				  Liberty-Link UDP Rx port
+				---------------- -->
 				<div class="setup-data-container">
 					<div>
 						<input type="checkbox" id="link_udp_enabled" onclick="checkboxSelectorLinkUDP();">
@@ -125,6 +131,9 @@
 					</div>
 				</div>
 
+				<!-- --------------
+				  Liberty-Link UDP Tx port
+				---------------- -->
 				<div class="setup-data-container">
 					<div>
 						<label class="labels-text" for="link_udp_tx" style="padding-left: 1.5em">
@@ -141,7 +150,9 @@
 
 				<br>
 
-				<!-- Platform ports -->
+				<!-- --------------
+				  Platform serial ports
+				---------------- -->
 				<div class="setup-data-container">
 					<div>
 						<input type="checkbox" id="platform_port_enabled" onclick="checkboxSelectorPlatformCOM();"/>
@@ -172,6 +183,10 @@
 					</div>
 				</div>
 
+
+				<!-- --------------
+				  Platform UDP Rx port
+				---------------- -->
 				<div class="setup-data-container">
 					<div>
 						<input type="checkbox" id="platform_udp_enabled" onclick="checkboxSelectorPlatformUDP();">
@@ -185,6 +200,10 @@
 					</div>
 				</div>
 
+
+				<!-- --------------
+				  Platform UDP Tx port
+				---------------- -->
 				<div class="setup-data-container">
 					<div>
 						<label class="labels-text" for="platform_udp_tx" style="padding-left: 1.5em">
@@ -201,7 +220,9 @@
 
 				<br>
 
-				<!-- Camera ID -->
+				<!-- --------------
+				  Camera ID
+				---------------- -->
 				<div class="setup-data-container">
 					<div>
 						<label class="labels-text" for="camera_id">Camera ID: </label>
@@ -212,15 +233,19 @@
 						</div>
 					</div>
 				</div>
+
 				<br>
 			</div>
-			
+
+			<!-- --------------
+			  Start and shut down buttons
+			---------------- -->
 			<div class="button blue" id="btn-start" onclick="startController()" data-augmented-ui="br-clip both">
 				<p>START</p>
 			</div>
 			
-			<div class="button red" onclick="abort()" data-augmented-ui="br-clip both">
-				<p>ABORT</p>
+			<div class="button red" onclick="shutDown()" data-augmented-ui="br-clip both">
+				<p>SHUT DOWN</p>
 			</div>
 		</div>
 	</body>

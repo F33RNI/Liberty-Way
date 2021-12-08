@@ -271,7 +271,7 @@ select:focus {
 	left: 0;
 	width: 100%;
 	height: 100%;
-	backdrop-filter: blur(6px);
+	backdrop-filter: blur(10px);
 	z-index: 20;
 }
 
@@ -281,7 +281,7 @@ select:focus {
 	left: 0;
 	width: 100%;
 	height: 100%;
-	backdrop-filter: blur(6px);
+	backdrop-filter: blur(10px);
 	z-index: 150;
 }
 
@@ -290,7 +290,7 @@ select:focus {
 	z-index:1;
 	height: 10em;
 	margin: 0.2em 0.5em 0.5em;
-	border: none;/*1px solid var(--color-button-blue-border);*/
+	border: none;
 	padding: 0.5em;
 }
 
@@ -586,13 +586,16 @@ select:focus {
 	margin-right: auto;
 	padding: 0.8em 2.2em 1.4em 2.3em;
 	z-index: 9;
+	overflow: hidden;
 }
+
 .timeline-aug-container {
 	--aug-inlay-bg: var(--color-containers-background);
-	--aug-tr: 1.5em;
+	--aug-tr: 1em;
 	--aug-bl: 2em;
 	--aug-br: 1em;
-	--aug-br-inset1: 5%;
+	--aug-tr-extend1: calc(100% - 25em);
+	--aug-br-inset1: 4em;
 	--aug-border-all: 1px;
 	--aug-border-bg: var(--color-containers-border);
 	--aug-inlay-all: 0;

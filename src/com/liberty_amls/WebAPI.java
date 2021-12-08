@@ -523,9 +523,6 @@ public class WebAPI {
     private JsonObject fillTelemetry() {
         JsonObject telemetry = new JsonObject();
 
-        // Timeline
-        telemetry.add("progress", new JsonPrimitive(decimalFormat.format(calculateProgress())));
-
         // Current system status
         telemetry.add("status",
                 new JsonPrimitive(positionContainer.getStatusString()));
@@ -557,8 +554,12 @@ public class WebAPI {
                 new JsonPrimitive(telemetryContainer.takeoffDetected));
         telemetry.add("link_waypoint_step",
                 new JsonPrimitive(telemetryContainer.linkWaypointStep));
+        telemetry.add("auto_landing_step",
+                new JsonPrimitive(telemetryContainer.autoLandingStep));
         telemetry.add("waypoint_index",
                 new JsonPrimitive(telemetryContainer.waypointIndex));
+        telemetry.add("sonarus_distance_cm",
+                new JsonPrimitive(telemetryContainer.sonarusDistanceCm));
 
         // Platform telemetry data
         telemetry.add("platform_lost",
@@ -575,67 +576,5 @@ public class WebAPI {
                 new JsonPrimitive(decimalFormat.format(platformContainer.gps.getGroundSpeed())));
 
         return telemetry;
-    }
-
-    /**
-     * Calculates progress for timeline
-     * @return total progress 0-100%
-     */
-    private double calculateProgress() {
-        progressTick = !progressTick;
-        if (positionContainer.status == 1 || positionContainer.status == 2) {
-            // MKWT or WAYP modes
-            if (!telemetryContainer.telemetryLost) {
-                if (telemetryContainer.linkWaypointStep == 1) {
-                    // Waiting for taking off
-                    if (progressTick)
-                        return (100.0 / 6.0) * 1;
-                    else
-                        return (100.0 / 6.0) * 0.5;
-                } else if (telemetryContainer.linkWaypointStep == 2) {
-                    // Ascending
-                    if (progressTick)
-                        return (100.0 / 6.0) * 2;
-                    else
-                        return (100.0 / 6.0) * 1;
-                } else if (telemetryContainer.linkWaypointStep >= 3 && telemetryContainer.linkWaypointStep <= 5) {
-                    // GPS Flight
-                    if (progressTick)
-                        return (100.0 / 6.0) * 3;
-                    else
-                        return (100.0 / 6.0) * 2;
-                } else if (telemetryContainer.linkWaypointStep == 6) {
-                    // GPS and altitude hold
-                    if (progressTick)
-                        return (100.0 / 6.0) * 4;
-                    else
-                        return (100.0 / 6.0) * 3;
-                } else
-                    return 0;
-            } else if (progressTick)
-                return (100.0 / 6.0) * 4;
-            else
-                return 0;
-        } else if (positionContainer.status == 3 || positionContainer.status == 5) {
-            // Optical stabilization (STAB or PREV modes)
-            if (progressTick)
-                return (100.0 / 6.0) * 5;
-            else
-                return (100.0 / 6.0) * 4;
-        } else if (positionContainer.status == 4) {
-            // Landing (LAND mode)
-            if (positionContainer.z <= positionContainer.entryZ
-                    && positionContainer.z >= settingsContainer.motorsTurnOffHeight) {
-                return (100.0 / 6.0) * ((positionContainer.z - settingsContainer.motorsTurnOffHeight)
-                        * (5.0 - 6.0) / (positionContainer.entryZ - settingsContainer.motorsTurnOffHeight) + 6.0);
-            }
-            else {
-                return (100.0 / 6.0) * 5;
-            }
-        } else if (positionContainer.status == 7) {
-            // Landed (DONE mode)
-            return 100.0;
-        }
-        return 0;
     }
 }

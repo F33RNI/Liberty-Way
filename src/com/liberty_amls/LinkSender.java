@@ -37,6 +37,13 @@ public class LinkSender {
     private final UDPHandler udpHandler;
     private final byte[] linkBuffer;
 
+    public static final int CMD_BITS_IDLE = 0b000;
+    public static final int CMD_BITS_DDC = 0b001;
+    public static final int CMD_BITS_AUTO_TAKEOFF = 0b010;
+    public static final int CMD_BITS_AUTO_LAND = 0b100;
+    public static final int CMD_BITS_DDC_LAND = 0b110;
+    public static final int CMD_BITS_FTS = 0b111;
+
     /**
      * This class forms a Liberty-Link protocol packet
      * and sends it to the drone in two possible ways: via a serial or UDP port
@@ -54,17 +61,17 @@ public class LinkSender {
 
     /**
      * Sends IDLE command to the drone (requests telemetry)
-     * Link command = 0b10000000
+     * Link command: P = 0, CCC = CMD_BITS_IDLE, XXXX = 0000
      */
     public void sendIDLE() {
-        pushCommand(0, 0);
+        pushCommand(CMD_BITS_IDLE, 0);
     }
 
     /**
      * Sends direct corrections (from positionContainer) to the drone (optical stabilization & landing)
-     * Link command = 0b10010000
+     * Link command = P = 0, CCC = command, XXXX = 0000
      */
-    public void sendDDC(int ddcRoll, int ddcPitch, int ddcZ, int ddcYaw) {
+    public void sendDDC(int ddcRoll, int ddcPitch, int ddcZ, int ddcYaw, int command) {
         // Form the DDC data package
         // Roll
         linkBuffer[0] = (byte) ((ddcRoll >> 8) & 0xFF);
@@ -79,15 +86,18 @@ public class LinkSender {
         linkBuffer[6] = (byte) ((ddcZ >> 8) & 0xFF);
         linkBuffer[7] = (byte) (ddcZ & 0xFF);
 
-        // Direct control mode (P = 0, CCC = 001, XXXX = 0000)
-        linkBuffer[8] = (byte) 0b00010000;
+        // Trim command
+        command = ((command & 0b00000111) << 4) & 0b01110000;
+
+        // Direct control mode (P = 0, CCC = command, XXXX = 0000)
+        linkBuffer[8] = (byte) command;
 
         // Transmit direct control data
         pushLinkData();
     }
 
     /**
-     * Sends waypoint by index (P = 0) (PCCCXXXX)
+     * Sends waypoint by index (P = 1) (PCCCXXXX)
      * @param gps GPS position
      * @param command first 3 bits of command (after P bit) - CCC
      * @param waypointIndex index of waypoint (0 - 15) - XXXX
@@ -122,40 +132,40 @@ public class LinkSender {
 
     /**
      * Sends a command to turn off the motors.
-     * Link command = 0b11100000
+     * Link command: P = 0, CCC = CMD_BITS_DDC_LAND, XXXX = 0000
      */
     public void sendMotorsOFF() {
-        pushCommand(0b110, 0);
+        pushCommand(CMD_BITS_DDC_LAND, 0);
     }
 
     /**
      * Sends a command to start auto-takeoff sequence
-     * Link command = 0b10100000
+     * Link command: P = 0, CCC = CMD_BITS_AUTO_TAKEOFF, XXXX = 0000
      */
     public void sendTakeoff() {
-        pushCommand(0b010, 0);
+        pushCommand(CMD_BITS_AUTO_TAKEOFF, 0);
     }
 
     /**
      * Sends a command to start auto-landing sequence
-     * Link command = 0b10100000
+     * Link command: P = 0, CCC = CMD_BITS_AUTO_LAND, XXXX = 0000
      */
     public void sendLand() {
-        pushCommand(0b100, 0);
+        pushCommand(CMD_BITS_AUTO_LAND, 0);
     }
 
 
     /**
      * Sends a command to execute flight termination system
-     * Link command = 0b11111111
+     * Link command: P = 0, CCC = CMD_BITS_FTS, XXXX = 1111
      */
     public void sendFTS() {
         logger.error("Sending FTS command!");
-        pushCommand(0b111, 0b1111);
+        pushCommand(CMD_BITS_FTS, 0b1111);
     }
 
     /**
-     * Pushes command (P = 1) (PCCCXXXX)
+     * Pushes command (P = 0) (PCCCXXXX)
      * @param commandBits first 3 bits of command (after P bit) - CCC
      * @param bodyBits last 4 bits of command (aka data bits) - XXXX
      */

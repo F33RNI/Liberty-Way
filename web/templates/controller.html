@@ -38,52 +38,42 @@
 		<script type="text/javascript" src="controller.js"></script>
 	</head>
 	<body>
-	
+
+	<!-- --------------
+	  Timeline container
+	---------------- -->
 	<div class="timeline-container">
 		<div class="aug-container-glow" aria-hidden="true" style="z-index: -1">
-			<div class="timeline-aug-container" data-augmented-ui="bl-clip tr-clip br-clip-x border"></div>
+			<div class="timeline-aug-container" data-augmented-ui="bl-clip tr-2-clip-x br-clip-x border"></div>
 		</div>
 		<div class="aug-container-glow" aria-hidden="true" style="filter: none; z-index: -1">
-			<div class="timeline-aug-container" data-augmented-ui="bl-clip tr-clip br-clip-x both" style="--aug-border-all: 2px; backdrop-filter: blur(2px);"></div>
+			<div class="timeline-aug-container" data-augmented-ui="bl-clip tr-2-clip-x br-clip-x both" style="--aug-border-all: 2px; backdrop-filter: blur(2px);"></div>
 		</div>
-		<div class="tickmarks">
-			<p style="width: 0;">Takeoff</p>
-			<p style="width: 0;"></p>
-			<p style="width: 0;">GPS&nbsp;flight</p>
-			<p style="width: 0;"></p>
-			<p style="width: 0;">Optical&nbsp;stabilization</p>
-			<p style="width: 0;"></p>
+		<p class="labels-text" id="timeline_waypoint_text">RETRIEVING DATA ...</p>
+		<br>
+		<div class="tickmarks" id="tickmarks_top">
 			<p style="width: 0;"></p>
 		</div>
-		<div class="tickmarks">
-			<p></p>
-			<p style="width: 0;"></p>
-			<p></p>
-			<p style="width: 0;"></p>
-			<p></p>
-			<p style="width: 0;"></p>
+		<div class="tickmarks" id="tickmarks_top_marks">
 			<p style="width: 0;"></p>
 		</div>
-		
 			
 		<div class="progress">
 		  <div class="progress-bar" id="timeline-progress" style="width: 0;"></div>
 		</div>
 
-		<div class="tickmarks">
-			<p style="line-height: 2.5em; width: 0;"></p>
-			<p style="line-height: 2.5em;">Increase&nbsp;the&nbsp;altitude</p>
-			<p style="line-height: 2.5em; width: 0;"></p>
-			<p style="line-height: 2.5em;">GPS&nbsp;and&nbsp;altitude&nbsp;hold</p>
-			<p style="line-height: 2.5em; width: 0;"></p>
-			<p style="line-height: 2.5em;">Optical&nbsp;landing</p>
+		<div class="tickmarks" id="tickmarks_bottom">
 			<p style="line-height: 2.5em; width: 0;"></p>
 		</div>
-		
 	</div>
 
+
+	<!-- --------------
+	  Blurred overlays
+	---------------- -->
 	<div class="overlay-container" id="overlay-container" style="display: none"></div>
 	<div class="overlay-container-dialog" id="overlay-container-dialog" style="display: none"></div>
+
 
 	<!-- --------------
 	  Alert dialog
@@ -164,6 +154,7 @@
 		</div>
 	</div>
 
+
 	<!-- --------------
 	  Set manually menu
 	---------------- -->
@@ -212,6 +203,7 @@
 		</div>
 	</div>
 
+
 	<!-- --------------
 	  Add waypoint menu
 	---------------- -->
@@ -245,10 +237,11 @@
 			 data-augmented-ui="br-clip both" style="display: none">
 			<p>APPLY</p>
 		</div>
-		<div class="button red" onclick="closeWaypoint()" data-augmented-ui="br-clip both">
+		<div class="button red" onclick="menu()" data-augmented-ui="br-clip both">
 			<p>CLOSE</p>
 		</div>
 	</div>
+
 
 	<!-- --------------
 	  Menu
@@ -299,7 +292,11 @@
 			<p>CLOSE</p>
 		</div>
 	</div>
-	
+
+
+	<!-- --------------
+	  Telemetry container
+	---------------- -->
 	<div class="telemetry-container">
 		<div class="aug-container-glow" aria-hidden="true" style="z-index: -1">
 			<div class="telemetry-aug-container" data-augmented-ui="tr-clip bl-clip br-clip-y border"></div>
@@ -361,10 +358,6 @@
 				<div><a class="labels-text">Speed</a></div>
 				<div><a class="labels-text" id="drone_speed">0 km/h</a></div>
 			</div>
-			<div class="telemetry-data-container">
-				<div><a class="labels-text">Waypoint ID:</a></div>
-				<div><a class="labels-text" id="waypoint_index">-</a></div>
-			</div>
 			<br>
 			<p class= "labels-text" style="text-align:center;">PLATFORM TELEMETRY</p>
 			<div class="telemetry-data-container">
@@ -400,7 +393,12 @@
 		<br>
 	</div>
 
+
+	<!-- --------------
+	  Map and camera background
+	---------------- -->
 	<div id="map-container"></div>
 	<div id="stream-container"></div>
+
 	</body>
 </html>

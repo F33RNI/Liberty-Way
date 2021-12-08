@@ -40,6 +40,8 @@ public class TelemetryContainer {
     public int altitude, takeoffThrottle;
     public boolean takeoffDetected, headingLock;
     public int linkWaypointStep, waypointIndex;
+    public int autoLandingStep;
+    public int sonarusDistanceCm;
     public double illumination;
 
     /**
@@ -62,6 +64,8 @@ public class TelemetryContainer {
         headingLock = false;
         linkWaypointStep = 0;
         waypointIndex = 0;
+        autoLandingStep = 0;
+        sonarusDistanceCm = 0;
         illumination = 0.0;
     }
 }

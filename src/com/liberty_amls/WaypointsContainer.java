@@ -43,21 +43,21 @@ public class WaypointsContainer {
 
     public final static int WAYPOINTS_NUM = 16;
 
-    public final static int WAYPOINT_SKIP = 0;
-    public final static int WAYPOINT_PLATFORM = 1;
-    public final static int WAYPOINT_FLY = 2;
-    public final static int WAYPOINT_DESCENT = 3;
-    public final static int WAYPOINT_PARCEL = 4;
-    public final static int WAYPOINT_LAND = 5;
+    public static final int WAYPOINT_SKIP = 0;
+    public static final int WAYPOINT_PLATFORM = 1;
+    public static final int WAYPOINT_FLY = 2;
+    public static final int WAYPOINT_DESCENT = 3;
+    public static final int WAYPOINT_PARCEL = 4;
+    public static final int WAYPOINT_LAND = 5;
 
-    public final static int CMD_BITS_SKIP = 0b000;
-    public final static int CMD_BITS_DDC_NO_GPS_NO_DSC = 0b001;
-    public final static int CMD_BITS_DDC_NO_DSC = 0b010;
-    public final static int CMD_BITS_DDC = 0b011;
-    public final static int CMD_BITS_FLY = 0b100;
-    public final static int CMD_BITS_DESCEND = 0b101;
-    public final static int CMD_BITS_PARCEL = 0b110;
-    public final static int CMD_BITS_LAND = 0b110;
+    public static final int WAYP_CMD_BITS_SKIP = 0b000;
+    public static final int WAYP_CMD_BITS_DDC_NO_GPS_NO_DSC = 0b001;
+    public static final int WAYP_CMD_BITS_DDC_NO_DSC = 0b010;
+    public static final int WAYP_CMD_BITS_DDC = 0b011;
+    public static final int WAYP_CMD_BITS_FLY = 0b100;
+    public static final int WAYP_CMD_BITS_DESCEND = 0b101;
+    public static final int WAYP_CMD_BITS_PARCEL = 0b110;
+    public static final int WAYP_CMD_BITS_LAND = 0b111;
 
     private final ArrayList<Integer> waypointsAPI;
     private final ArrayList<GPS> waypointsGPS;
@@ -115,22 +115,22 @@ public class WaypointsContainer {
                         waypointsGPS.add(new GPS(latitude, longitude));
                         switch (api) {
                             case WAYPOINT_PLATFORM:
-                                waypointsCommand.add(CMD_BITS_DDC);
+                                waypointsCommand.add(WAYP_CMD_BITS_DDC);
                                 break;
                             case WAYPOINT_FLY:
-                                waypointsCommand.add(CMD_BITS_FLY);
+                                waypointsCommand.add(WAYP_CMD_BITS_FLY);
                                 break;
                             case WAYPOINT_DESCENT:
-                                waypointsCommand.add(CMD_BITS_DESCEND);
+                                waypointsCommand.add(WAYP_CMD_BITS_DESCEND);
                                 break;
                             case WAYPOINT_PARCEL:
-                                waypointsCommand.add(CMD_BITS_PARCEL);
+                                waypointsCommand.add(WAYP_CMD_BITS_PARCEL);
                                 break;
                             case WAYPOINT_LAND:
-                                waypointsCommand.add(CMD_BITS_LAND);
+                                waypointsCommand.add(WAYP_CMD_BITS_LAND);
                                 break;
                             default:
-                                waypointsCommand.add(CMD_BITS_SKIP);
+                                waypointsCommand.add(WAYP_CMD_BITS_SKIP);
                                 break;
                         }
                         logger.info("Added new waypoint. Full list: " + getWaypointsAsJSON().toString());
@@ -147,7 +147,7 @@ public class WaypointsContainer {
             if (index >= WAYPOINT_SKIP && index < waypointsAPI.size()) {
                 if (droneInFlight) {
                     waypointsAPI.set(index, WAYPOINT_SKIP);
-                    waypointsCommand.set(index, CMD_BITS_SKIP);
+                    waypointsCommand.set(index, WAYP_CMD_BITS_SKIP);
                     logger.info("Skipped waypoint with ID: " + index +
                             " Full list: " + getWaypointsAsJSON().toString());
                 } else {

@@ -37,7 +37,7 @@ public class TelemetryHandler implements Runnable {
     private final TelemetryContainer telemetryContainer;
     private final SerialHandler serialHandler;
     private final UDPHandler udpHandler;
-    private final byte[] telemetryBuffer = new byte[33];
+    private final byte[] telemetryBuffer = new byte[34];
     private byte telemetryBytePrevious = 0;
     private int telemetryBufferPosition = 0;
     private long telemetryLastPacketTime = 0;
@@ -90,10 +90,10 @@ public class TelemetryHandler implements Runnable {
             byte telemetryCheckByte = 0;
 
             // Calculate check sum
-            for (int i = 0; i <= 29; i++)
+            for (int i = 0; i <= 30; i++)
                 telemetryCheckByte ^= telemetryBuffer[i];
 
-            if (telemetryCheckByte == telemetryBuffer[30]) {
+            if (telemetryCheckByte == telemetryBuffer[31]) {
                 // Parse data if the checksums are equal
 
                 // Error status
@@ -156,13 +156,25 @@ public class TelemetryHandler implements Runnable {
                         | ((int) telemetryBuffer[25] & 0xFF) << 8) / 10.0);
 
                 // Liberty Way sequence step
-                telemetryContainer.linkWaypointStep = ((int) telemetryBuffer[27] & 0xFF);
+                if ((int) (telemetryBuffer[27] & 0xFF) < 128) {
+                    telemetryContainer.linkWaypointStep = ((int) telemetryBuffer[27] & 0xFF);
+                    telemetryContainer.autoLandingStep = 0;
+                }
+
+                // Auto-landing step
+                else {
+                    telemetryContainer.linkWaypointStep = 0;
+                    telemetryContainer.autoLandingStep = ((int) telemetryBuffer[27] & 0xFF) - 128;
+                }
 
                 // Liberty Way waypoint index
                 telemetryContainer.waypointIndex = ((int) telemetryBuffer[28] & 0xFF);
 
+                // Sonarus distance to ground
+                telemetryContainer.sonarusDistanceCm = ((int) telemetryBuffer[29] & 0xFF) * 2;
+
                 // Illumination from LUX meter
-                telemetryContainer.illumination = ((int) telemetryBuffer[29] & 0xFF) - 1.0;
+                telemetryContainer.illumination = ((int) telemetryBuffer[30] & 0xFF) - 1.0;
                 if (telemetryContainer.illumination >= 0.0)
                     telemetryContainer.illumination = Math.pow(telemetryContainer.illumination, 2.105);
                 else
@@ -184,7 +196,7 @@ public class TelemetryHandler implements Runnable {
             telemetryBufferPosition++;
 
             // Reset buffer on overflow
-            if (telemetryBufferPosition > 32)
+            if (telemetryBufferPosition > 33)
                 telemetryBufferPosition = 0;
         }
     }
