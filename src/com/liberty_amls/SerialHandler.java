@@ -30,9 +30,12 @@
 package com.liberty_amls;
 
 import com.fazecast.jSerialComm.SerialPort;
+import com.fazecast.jSerialComm.SerialPortDataListener;
+import com.fazecast.jSerialComm.SerialPortEvent;
 import org.apache.log4j.Logger;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.LinkedBlockingQueue;
 
 public class SerialHandler {
     private final Logger logger = Logger.getLogger(this.getClass().getSimpleName());
@@ -43,6 +46,7 @@ public class SerialHandler {
     private boolean portOpened, portLost = false;
     private long portLostTimer = 0;
     private byte[] dataBuffer;
+    private final LinkedBlockingQueue<Byte> receiveBuffer = new LinkedBlockingQueue<>(1024);
 
     /**
      * Discovers available Serial ports
@@ -99,8 +103,34 @@ public class SerialHandler {
                     logger.info("Port " + portName + " opened successfully.");
                 }
 
-                // Wait some time to complete action
-                Thread.sleep(500);
+                // Connect listener interface
+                serialPort.addDataListener(new SerialPortDataListener() {
+                    @Override
+                    public int getListeningEvents() {
+                        return SerialPort.LISTENING_EVENT_DATA_RECEIVED;
+                    }
+
+                    @Override
+                    public void serialEvent(SerialPortEvent serialPortEvent) {
+                        if (serialPortEvent.getEventType() == SerialPort.LISTENING_EVENT_DATA_RECEIVED) {
+                            // Get received bytes
+                            byte[] receivedData = serialPortEvent.getReceivedData();
+
+                            // Fill receiveBuffer
+                            for (byte receivedByte : receivedData) {
+                                try {
+                                    if (receiveBuffer.remainingCapacity() > 0)
+                                        receiveBuffer.put(receivedByte);
+                                } catch (InterruptedException e) {
+                                    logger.error("Error reading data from serial port", e);
+                                    portLost = true;
+                                    portOpened = false;
+                                    portLostTimer = System.currentTimeMillis();
+                                }
+                            }
+                        }
+                    }
+                });
             } catch (Exception e) {
                 logger.error("Error opening port " + portName + "!", e);
                 // Exit because Serial Port is a vital node when turned on
@@ -131,6 +161,15 @@ public class SerialHandler {
         if (!portLost) {
             try {
                 if (portOpened && dataBuffer != null && dataBuffer.length > 0) {
+                    // Check if serial port is still opened
+                    if (!serialPort.isOpen()) {
+                        logger.error("Error pushing data over serial! Port closed!");
+                        portLost = true;
+                        portOpened = false;
+                        portLostTimer = System.currentTimeMillis();
+                        return;
+                    }
+
                     // Write bytes to the port
                     serialPort.writeBytes(dataBuffer, dataBuffer.length);
                     // Flush port for safe
@@ -150,30 +189,16 @@ public class SerialHandler {
     }
 
     /**
-     * Reads all available bytes from serial port
-     * @return bytes array from serial port
+     * Blocks until at least 1 byte of data is received into the buffer
+     * @return byte from serial port
      */
-    public byte[] readData() {
-        if (!portLost) {
-            if (portOpened) {
-                try {
-                    int bytesAvailable = serialPort.bytesAvailable();
-                    byte[] buffer = new byte[bytesAvailable];
-                    serialPort.readBytes(buffer, bytesAvailable);
-                    return buffer;
-                } catch (Exception e) {
-                    logger.error("Error reading data from " + portName + " port!", e);
-                    portLost = true;
-                    portOpened = false;
-                    portLostTimer = System.currentTimeMillis();
-                }
-            }
-        } else if (System.currentTimeMillis() - portLostTimer >= reconnectTime) {
-            // Try to reopen serial port
-            reopenPort();
-            portLostTimer = System.currentTimeMillis();
+    public byte takeSingleByte() {
+        try {
+            return receiveBuffer.take();
+        } catch (Exception e) {
+            logger.error("Error taking byte from buffer!", e);
         }
-        return new byte[0];
+        return 0;
     }
 
     /**

@@ -32,6 +32,7 @@ package com.liberty_amls;
 public class TelemetryContainer {
     public final GPS gps;
     public boolean telemetryLost;
+    public long telemetryLastPacketTime;
     public int packetsNumber;
     public int errorStatus, flightMode;
     public double batteryVoltage, temperature;
@@ -50,6 +51,7 @@ public class TelemetryContainer {
     TelemetryContainer() {
         gps = new GPS();
         telemetryLost = true;
+        telemetryLastPacketTime = 0;
         errorStatus = 0;
         flightMode = 1;
         batteryVoltage = 0.0;

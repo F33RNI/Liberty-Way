@@ -31,6 +31,12 @@ package com.liberty_amls;
 
 import org.apache.log4j.Logger;
 
+import java.util.Timer;
+import java.util.TimerTask;
+
+/**
+ * This class communicates with the platform via the serial port
+ */
 public class PlatformHandler implements Runnable {
     private final Logger logger = Logger.getLogger(this.getClass().getSimpleName());
     private final SettingsContainer settingsContainer;
@@ -46,12 +52,8 @@ public class PlatformHandler implements Runnable {
 
     private byte platformRxBytePrevious = 0;
     private int platformRxBufferPosition = 0;
-    private long platformLastPacketTime = 0, loopTimer = 0;
     private volatile boolean handleRunning;
 
-    /**
-     * This class communicates with the platform via the serial port
-     */
     PlatformHandler(PlatformContainer platformContainer,
                     PositionContainer positionContainer,
                     SerialHandler serialHandler,
@@ -77,49 +79,55 @@ public class PlatformHandler implements Runnable {
     public void run() {
         // Set loop flag and start main loop
         logger.info("Starting main loop");
+
+        // Initialize timer
+        Timer platformTimer = new Timer("Platform timer");
+
+        // Create task for requesting data
+        TimerTask platformTask = new TimerTask() {
+            @Override
+            public void run() {
+                try {
+                    // Check platform lost status
+                    if (!platformContainer.platformLost &&
+                            System.currentTimeMillis() - platformContainer.platformLastPacketTime
+                                    >= settingsContainer.platformLostTime) {
+                        logger.warn("Platform communication lost!");
+                        platformContainer.platformLost = true;
+                    }
+
+                    // Send request to the platform
+                    sendRequest();
+                } catch (Exception e) {
+                    logger.error("Error sending data to the platform!", e);
+                }
+            }
+        };
+
+        // Start timer
+        platformTimer.scheduleAtFixedRate(platformTask, settingsContainer.platformLoopTimer,
+                settingsContainer.platformLoopTimer);
+
+        // Start main loop
         handleRunning = true;
         while (handleRunning) {
             try {
-                platformLoop();
-            } catch (InterruptedException e) {
-                logger.error("Error while communicating with the platform!", e);
+                // Read and parse data from serial or UDP port
+                if (udpHandler.isUdpPortOpened()) {
+                    readAndParse(udpHandler.takeSingleByte());
+                } else {
+                    readAndParse(serialHandler.takeSingleByte());
+                }
+            } catch (Exception e) {
+                logger.error("Error reading data from the platform!", e);
             }
         }
-    }
 
-    /**
-     * Main platform loop
-     */
-    private void platformLoop() throws InterruptedException {
-        // Check lost status
-        if (!platformContainer.platformLost &&
-                System.currentTimeMillis() - platformLastPacketTime >= settingsContainer.platformLostTime) {
-            logger.warn("Platform communication lost!");
-            platformContainer.platformLost = true;
-        }
-
-        // Send data and request new data
-        if (System.currentTimeMillis() - loopTimer >= settingsContainer.platformLoopTimer ||
-                platformContainer.platformLost) {
-            // Send request
-            sendRequest();
-
-            // Reset timer
-            loopTimer = System.currentTimeMillis();
-
-            // Wait one cycle in case of platform lost
-            if (platformContainer.platformLost)
-                Thread.sleep(settingsContainer.platformLoopTimer);
-        }
-
-        // Read and parse data from serial or UDP port
-        byte[] tempBuffer = serialHandler.readData();
-        if (tempBuffer != null && tempBuffer.length > 0) {
-            for (byte tempByte : tempBuffer)
-                readAndParse(tempByte);
-        } else if (udpHandler.isUdpPortOpened() && udpHandler.getBufferSize() > 0) {
-            readAndParse(udpHandler.takeSingleByte());
-        }
+        // Close timer if main loop finished
+        try {
+            platformTimer.cancel();
+            platformTask.cancel();
+        } catch (Exception ignored) { }
     }
 
     /**
@@ -181,7 +189,7 @@ public class PlatformHandler implements Runnable {
                 if (platformContainer.platformLost)
                     logger.warn("Platform communication restored");
                 platformContainer.platformLost = false;
-                platformLastPacketTime = System.currentTimeMillis();
+                platformContainer.platformLastPacketTime = System.currentTimeMillis();
             } else
                 logger.warn("Wrong platform checksum!");
 

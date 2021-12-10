@@ -96,36 +96,66 @@ void lux_meter_setup(void) {
 /// Reads illumination from the BH1750 sensor or from the LDR
 /// </summary>
 void lux_meter(void) {
+#ifdef LUX_METER
 	// Request LUX data by timer
 	if (millis() - lux_cycle_timer >= LUX_REQUST_TIME) {
 		// Restart timer
 		lux_cycle_timer = millis();
 
-#ifdef LUX_METER
 		// Read data from BH1750
 		Wire.requestFrom(LUX_METER_ADDRESS, (uint8_t)2);
 		lux_raw_data = Wire.read();
 		lux_raw_data = (lux_raw_data * (uint16_t)256) + Wire.read();
-		converted_lux = (float)lux_raw_data / 0.54;
-#else
-		// Read data from LDR sensor
-		// Convert the raw digital data back to the voltage that was measured on the analog pin
-		resistor_voltage = (float)analogRead(LDR_PIN) / 1023.0 * ADC_REF_VOLTAGE;
 
-		// Voltage across the LDR is the 5V supply minus the second resistor voltage
-		ldr_voltage = ADC_REF_VOLTAGE - resistor_voltage;
-
-		// Resistance that the LDR would have for that voltage
-		ldr_resistance = ldr_voltage / resistor_voltage * REF_RESISTANCE;
-
-		// Change the code below to the proper conversion from ldrResistance to LUX
-		converted_lux = LUX_CALC_SCALAR * pow(ldr_resistance, LUX_CALC_EXPONENT);
-
-#endif
 		// Convert to sinle byte (just find sqrt)
-		converted_lux = pow(converted_lux, 0.475);
+		converted_lux = pow((float)lux_raw_data / 0.54f, 0.475);
 		if (converted_lux > 255.0)
 			converted_lux = 255.0;
 		lux_sqrt_data = converted_lux;
 	}
+#else
+	// Read data from LDR sensor
+	// Convert the raw digital data back to the voltage that was measured on the analog pin
+	resistor_divider_voltage = (float)analogRead(LDR_OUT_PIN) / 1023.f * ADC_REF_VOLTAGE;
+
+
+	// The LDR module is a resistor voltage divider.
+	// The upper resistor is known and connected to VCC, the lower resistor is LDR and connected to ground.
+	// 
+	// ADC_REF_VOLTAGE
+	// |
+	// Rupper (REF_RESISTANCE)
+	// |
+	// -- resistor_divider_voltage
+	// |
+	// Rlower (LDR)
+	// |
+	// GND
+	//
+	// So, the formula for resistor voltage divider is:
+	// Uupper = ADC_REF_VOLTAGE * (REF_RESISTANCE / (REF_RESISTANCE + Rlower))
+	//
+	// Where Uupper is (ADC_REF_VOLTAGE - resistor_divider_voltage)
+	// So, the final formula is
+	//
+	// Rlower = ((ADC_REF_VOLTAGE * REF_RESISTANCE) / (ADC_REF_VOLTAGE - resistor_divider_voltage)) - REF_RESISTANCE
+
+	// Resistance of the LDR
+	ldr_resistance = ((ADC_REF_VOLTAGE * REF_RESISTANCE) / (ADC_REF_VOLTAGE - resistor_divider_voltage)) - REF_RESISTANCE;
+
+	// Convert resistance to LUX
+	unfiltered_lux = 12500000.f * pow(ldr_resistance, -1.4059);
+
+	// Filter it
+	if (millis() < 3000)
+		filtered_lux = unfiltered_lux;
+	else
+		filtered_lux = filtered_lux * 0.95f + unfiltered_lux * 0.05f;
+
+	// Convert to sinle byte (just find sqrt)
+	converted_lux = pow(filtered_lux, 0.475);
+	if (converted_lux > 255)
+		converted_lux = 255;
+	lux_sqrt_data = converted_lux;
+#endif	
 }

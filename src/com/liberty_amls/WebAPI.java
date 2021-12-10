@@ -43,6 +43,7 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.text.DecimalFormat;
+import java.util.TimerTask;
 
 public class WebAPI {
     private final Logger logger = Logger.getLogger(this.getClass().getSimpleName());
@@ -52,7 +53,6 @@ public class WebAPI {
     private final String hostName;
     private final int videoPort;
     private boolean aborted = false, controllerRunning = false;
-    private boolean progressTick = false;
 
     private BlackboxHandler blackboxHandler;
     private OpenCVHandler openCVHandler;
@@ -67,6 +67,7 @@ public class WebAPI {
     private PlatformContainer platformContainer;
     private PositionContainer positionContainer;
     private WaypointsContainer waypointsContainer;
+    private DroneCameraHandler droneCameraHandler;
 
     /**
      * This class provides a web API. The ability to send and receive data using POST JSON requests
@@ -324,7 +325,8 @@ public class WebAPI {
                 setupData.get("link_udp_tx").getAsString());
         logger.info("Platform UDP: " + setupData.get("platform_udp").getAsString() + ", " +
                 setupData.get("platform_udp_tx").getAsString());
-        logger.info("Camera ID: " + setupData.get("camera_id").getAsString());
+        logger.info("Platform camera ID: " + setupData.get("platform_camera_id").getAsString());
+        logger.info("Drone camera ID: " + setupData.get("drone_camera_id").getAsString());
 
         // Load native library (from java-library-path)
         logger.info("Loading OpenCV Native Library");
@@ -373,11 +375,12 @@ public class WebAPI {
         telemetryHandler = new TelemetryHandler(telemetryContainer, serialHandlerLink,
                 udpHandlerLink, settingsContainer);
 
+        // Create DroneCameraHandler class object
+        droneCameraHandler = new DroneCameraHandler(setupData.get("drone_camera_id").getAsString());
+
         // Create OSDHandler and VideoStream classes
-        osdHandler = new OSDHandler(new VideoStream(InetAddress.getByName(hostName), videoPort,
-                settingsContainer.frameWidth,
-                settingsContainer.frameHeight),
-                positionContainer, platformContainer);
+        osdHandler = new OSDHandler(new VideoStream(InetAddress.getByName(hostName), videoPort),
+                positionContainer, platformContainer, droneCameraHandler);
 
         // Create BlackboxHandler class for logging all events and position
         blackboxHandler = new BlackboxHandler(positionContainer,
@@ -394,7 +397,7 @@ public class WebAPI {
         positionHandler.loadPIDFromFile();
 
         // Create OpenCVHandler class for find marker and estimate its position
-        openCVHandler = new OpenCVHandler(Integer.parseInt(setupData.get("camera_id").getAsString()),
+        openCVHandler = new OpenCVHandler(Integer.parseInt(setupData.get("platform_camera_id").getAsString()),
                 videoCapture,
                 positionHandler,
                 positionContainer,
@@ -408,6 +411,9 @@ public class WebAPI {
             logger.error("Can't open camera!");
             return;
         }
+
+        // Log main thread ID
+        logger.info("Web API thread ID: " + Thread.currentThread().getId());
 
         // Open serial and UDP ports
         serialHandlerLink.openPort();
@@ -433,6 +439,7 @@ public class WebAPI {
         if (serialHandlerPlatform.isPortOpened() || udpHandlerPlatform.isUdpPortOpened()) {
             Thread platformThread = new Thread(platformHandler);
             platformThread.start();
+            logger.info("Platform thread ID: " + platformThread.getId());
         } else
             logger.warn("No communication with the platform!");
 
@@ -441,6 +448,7 @@ public class WebAPI {
             Thread telemetryThread = new Thread(telemetryHandler);
             telemetryThread.setPriority(Thread.NORM_PRIORITY);
             telemetryThread.start();
+            logger.info("Telemetry thread ID: " + telemetryThread.getId());
         } else
             logger.warn("No Liberty-Link port! Telemetry data cannot be read!");
 
@@ -448,19 +456,28 @@ public class WebAPI {
         Thread blackboxThread = new Thread(blackboxHandler);
         blackboxThread.setPriority(Thread.NORM_PRIORITY);
         blackboxThread.start();
+        logger.info("Blackbox thread ID: " + blackboxThread.getId());
 
         // Create and start a new thread with the highest priority for opencv handler
         Thread openCVThread = new Thread(openCVHandler);
         openCVThread.setPriority(Thread.MAX_PRIORITY);
         openCVThread.start();
+        logger.info("OpenCV thread ID: " + openCVThread.getId());
 
         // Wait for the first frame from OpenCVHandler
         while (openCVHandler.isFrameEmpty()) ;
+
+        // Create and start a new thread with the lowest priority for the drone camera
+        Thread droneCameraThread = new Thread(droneCameraHandler);
+        droneCameraThread.setPriority(Thread.MIN_PRIORITY);
+        droneCameraThread.start();
+        logger.info("Drone camera thread ID: " + droneCameraThread.getId());
 
         // Create and start a new thread with the lowest priority for the video stream
         Thread osdThread = new Thread(osdHandler);
         osdThread.setPriority(Thread.MIN_PRIORITY);
         osdThread.start();
+        logger.info("OSD thread ID: " + osdThread.getId());
 
         // Enable video stream
         if (settingsContainer.videoStreamEnabledByDefault)
@@ -491,14 +508,12 @@ public class WebAPI {
         // Redirect to the home page with aborted flag provided
         aborted = true;
         try {
-            // Send flight termination command
-            //linkSender.sendFTS();
-
             // Stop all the handler
             blackboxHandler.stop();
             telemetryHandler.stop();
             platformHandler.stop();
             osdHandler.stop();
+            droneCameraHandler.stop();
 
             // Disable liberty-way sequence
             positionHandler.setLibertyWayEnabled(false);
@@ -511,9 +526,18 @@ public class WebAPI {
             udpHandlerPlatform.closeUDP();
             serialHandlerLink.closePort();
             serialHandlerPlatform.closePort();
+
+            // Wake up all threads
+            notifyAll();
         } catch (Exception ignored) { }
+
         // Call system shutdown
-        new Timer(1000, e -> System.exit(0)).start();
+        new java.util.Timer().scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                System.exit(0);
+            }
+        }, 2000, 500);
     }
 
     /**

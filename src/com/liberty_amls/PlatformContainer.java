@@ -33,6 +33,7 @@ public class PlatformContainer {
     public final GPS gps;
     public int errorStatus;
     public boolean platformLost;
+    public long platformLastPacketTime;
     public int packetsNumber;
     public double illumination;
     public double cameraExposure;
@@ -47,6 +48,7 @@ public class PlatformContainer {
         gps = new GPS();
         errorStatus = 0;
         platformLost = true;
+        platformLastPacketTime = 0;
         packetsNumber = 0;
         illumination = 0.0;
         cameraExposure = 0;

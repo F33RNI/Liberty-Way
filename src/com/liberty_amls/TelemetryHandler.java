@@ -31,6 +31,9 @@ package com.liberty_amls;
 
 import org.apache.log4j.Logger;
 
+import java.util.Timer;
+import java.util.TimerTask;
+
 public class TelemetryHandler implements Runnable {
     private final Logger logger = Logger.getLogger(this.getClass().getSimpleName());
     private final SettingsContainer settingsContainer;
@@ -40,7 +43,6 @@ public class TelemetryHandler implements Runnable {
     private final byte[] telemetryBuffer = new byte[34];
     private byte telemetryBytePrevious = 0;
     private int telemetryBufferPosition = 0;
-    private long telemetryLastPacketTime = 0;
     private volatile boolean handleRunning;
 
     TelemetryHandler(TelemetryContainer telemetryContainer, SerialHandler serialHandler,
@@ -55,26 +57,41 @@ public class TelemetryHandler implements Runnable {
     public void run() {
         // Set loop flag
         logger.info("Starting main loop");
+
+        // Initialize timer
+        Timer telemetryLostCheckTimer = new Timer("Telemetry lost checking timer");
+
+        // Create task for checking lost status
+        TimerTask telemetryLostCheck = new TimerTask() {
+            @Override
+            public void run() {
+                // Check platform lost status
+                if (!telemetryContainer.telemetryLost &&
+                        System.currentTimeMillis() - telemetryContainer.telemetryLastPacketTime
+                                >= settingsContainer.telemetryLostTime) {
+                    logger.warn("Drone telemetry lost!");
+                    telemetryContainer.telemetryLost = true;
+                }
+            }
+        };
+
+        // Start timer
+        telemetryLostCheckTimer.scheduleAtFixedRate(telemetryLostCheck, settingsContainer.telemetryLostTime,
+                settingsContainer.telemetryLostTime);
+
+        // Start main loop
         handleRunning = true;
-        while (handleRunning)
-            telemetryLoop();
-    }
-
-    private void telemetryLoop() {
-        // Check lost status
-        if (!telemetryContainer.telemetryLost &&
-                System.currentTimeMillis() - telemetryLastPacketTime >= settingsContainer.telemetryLostTime) {
-            logger.warn("Drone telemetry lost!");
-            telemetryContainer.telemetryLost = true;
-        }
-
-        // Read and parse data from Liberty-Link or UDP port
-        byte[] tempBuffer = serialHandler.readData();
-        if (tempBuffer != null && tempBuffer.length > 0) {
-            for (byte tempByte : tempBuffer)
-                readAndParse(tempByte);
-        } else if (udpHandler.isUdpPortOpened() && udpHandler.getBufferSize() > 0) {
-            readAndParse(udpHandler.takeSingleByte());
+        while (handleRunning) {
+            try {
+                // Read and parse data from UDP or serial port
+                if (udpHandler.isUdpPortOpened()) {
+                    readAndParse(udpHandler.takeSingleByte());
+                } else {
+                    readAndParse(serialHandler.takeSingleByte());
+                }
+            } catch (Exception e) {
+                logger.error("Error reading telemetry from the drone!", e);
+            }
         }
     }
 
@@ -187,7 +204,7 @@ public class TelemetryHandler implements Runnable {
                 if (telemetryContainer.telemetryLost)
                     logger.warn("Drone telemetry restored");
                 telemetryContainer.telemetryLost = false;
-                telemetryLastPacketTime = System.currentTimeMillis();
+                telemetryContainer.telemetryLastPacketTime = System.currentTimeMillis();
             } else
                 logger.warn("Wrong telemetry checksum!");
         } else {

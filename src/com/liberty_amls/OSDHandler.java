@@ -38,18 +38,22 @@ import java.text.DecimalFormat;
 import java.util.Vector;
 
 public class OSDHandler implements Runnable {
+
     private final Logger logger = Logger.getLogger(this.getClass().getSimpleName());
+
     private final DecimalFormat decimalFormatMono = new DecimalFormat("#");
     private final DecimalFormat decimalFormatSimple = new DecimalFormat("#.#");
+
     private final VideoStream videoStream;
     private final PositionContainer positionContainer;
     private final PlatformContainer platformContainer;
+    private final DroneCameraHandler droneCameraHandler;
+
     private boolean streamEnabled = false;
     private boolean streamEnabledLast = false;
-    private boolean newFrameFlag = false;
     private String fps = "0";
-    private Mat sourceFrame, watermark;
-    private volatile boolean handlerRunning = true;
+    private Mat sourceFrame, watermark, watermarkResized, matWithWatermark, matWithOSD, matSmall;
+    private volatile boolean handlerRunning;
 
     /**
      * Analogue of Arduino's map function with in_min = 1500
@@ -65,182 +69,170 @@ public class OSDHandler implements Runnable {
      */
     public OSDHandler(VideoStream videoStream,
                       PositionContainer positionContainer,
-                      PlatformContainer platformContainer) {
+                      PlatformContainer platformContainer,
+                      DroneCameraHandler droneCameraHandler) {
         this.videoStream = videoStream;
         this.positionContainer = positionContainer;
         this.platformContainer = platformContainer;
+        this.droneCameraHandler = droneCameraHandler;
     }
 
     /**
      * Draws OSD and pushes frame to the videoStream
      */
-    public void proceedFrame() {
+    private void proceedFrame() {
         try {
-            if (streamEnabled && !streamEnabledLast) {
-                // If new streamEnabled flag (true) is provided
-                videoStream.start();
-            } else if (!streamEnabled && streamEnabledLast) {
-                // If new streamEnabled flag (false) is provided
-                videoStream.stop();
-            }
-            streamEnabledLast = streamEnabled;
-            if (newFrameFlag && streamEnabled && sourceFrame != null && !sourceFrame.empty()) {
-                // Reset flag
-                newFrameFlag = false;
+            // Copy frame setpoint
+            Point setpoint = positionContainer.frameSetpoint;
 
-                // Draw OSD if stream enabled and newPositionFlag provided
-                Point setpoint = positionContainer.frameSetpoint;
+            // Copy platform camera frame
+            sourceFrame.copyTo(matWithOSD);
 
-                // Add watermark
-                Mat destFrame = addWatermark(sourceFrame, watermark);
+            // Draw OSD only in optical stabilization mode
+            if (positionContainer.status == PositionContainer.STATUS_STAB
+                    || positionContainer.status == PositionContainer.STATUS_LAND
+                    || positionContainer.status == PositionContainer.STATUS_PREV
+                    || positionContainer.status == PositionContainer.STATUS_LOST) {
 
                 // Main big circle
-                Imgproc.circle(destFrame, setpoint, 200, new Scalar(200, 200, 200), 2);
+                Imgproc.circle(matWithOSD, setpoint, 200, new Scalar(200, 200, 200), 2);
 
                 // Center of the marker
-                Imgproc.circle(destFrame, positionContainer.frameCurrent,
+                Imgproc.circle(matWithOSD, positionContainer.frameCurrent,
                         20, new Scalar(200, 200, 200), 1);
-                Imgproc.circle(destFrame, positionContainer.frameCurrent,
+                Imgproc.circle(matWithOSD, positionContainer.frameCurrent,
                         6, new Scalar(0, 0, 0), -1);
-                Imgproc.circle(destFrame, positionContainer.frameCurrent,
+                Imgproc.circle(matWithOSD, positionContainer.frameCurrent,
                         5, new Scalar(255, 255, 255), -1);
 
                 // Left white on black labels
-                Imgproc.putText(destFrame, "X", new Point(setpoint.x - 220, setpoint.y - 8),
+                Imgproc.putText(matWithOSD, "X", new Point(setpoint.x - 220, setpoint.y - 8),
                         Imgproc.FONT_HERSHEY_PLAIN, 1, new Scalar(0, 0, 0), 2);
-                Imgproc.putText(destFrame, "Y", new Point(setpoint.x - 220, setpoint.y + 16),
+                Imgproc.putText(matWithOSD, "Y", new Point(setpoint.x - 220, setpoint.y + 16),
                         Imgproc.FONT_HERSHEY_PLAIN, 1, new Scalar(0, 0, 0), 2);
-                Imgproc.putText(destFrame, "X", new Point(setpoint.x - 220, setpoint.y - 8),
+                Imgproc.putText(matWithOSD, "X", new Point(setpoint.x - 220, setpoint.y - 8),
                         Imgproc.FONT_HERSHEY_PLAIN, 1, new Scalar(255, 255, 255), 1);
-                Imgproc.putText(destFrame, "Y", new Point(setpoint.x - 220, setpoint.y + 16),
+                Imgproc.putText(matWithOSD, "Y", new Point(setpoint.x - 220, setpoint.y + 16),
                         Imgproc.FONT_HERSHEY_PLAIN, 1, new Scalar(255, 255, 255), 1);
 
                 // Bottom white on black labels
-                Imgproc.putText(destFrame, "YAW", new Point(setpoint.x - 12, setpoint.y + 220),
+                Imgproc.putText(matWithOSD, "YAW", new Point(setpoint.x - 12, setpoint.y + 220),
                         Imgproc.FONT_HERSHEY_PLAIN, 1, new Scalar(0, 0, 0), 2);
-                Imgproc.putText(destFrame, "YAW", new Point(setpoint.x - 12, setpoint.y + 220),
+                Imgproc.putText(matWithOSD, "YAW", new Point(setpoint.x - 12, setpoint.y + 220),
                         Imgproc.FONT_HERSHEY_PLAIN, 1, new Scalar(255, 255, 255), 1);
 
                 // Right white on black labels
-                Imgproc.putText(destFrame, "A", new Point(setpoint.x + 212, setpoint.y - 12),
+                Imgproc.putText(matWithOSD, "A", new Point(setpoint.x + 212, setpoint.y - 12),
                         Imgproc.FONT_HERSHEY_PLAIN, 1, new Scalar(0, 0, 0), 2);
-                Imgproc.putText(destFrame, "L", new Point(setpoint.x + 212, setpoint.y + 4),
+                Imgproc.putText(matWithOSD, "L", new Point(setpoint.x + 212, setpoint.y + 4),
                         Imgproc.FONT_HERSHEY_PLAIN, 1, new Scalar(0, 0, 0), 2);
-                Imgproc.putText(destFrame, "T", new Point(setpoint.x + 212, setpoint.y + 20),
+                Imgproc.putText(matWithOSD, "T", new Point(setpoint.x + 212, setpoint.y + 20),
                         Imgproc.FONT_HERSHEY_PLAIN, 1, new Scalar(0, 0, 0), 2);
-                Imgproc.putText(destFrame, "A", new Point(setpoint.x + 212, setpoint.y - 12),
+                Imgproc.putText(matWithOSD, "A", new Point(setpoint.x + 212, setpoint.y - 12),
                         Imgproc.FONT_HERSHEY_PLAIN, 1, new Scalar(255, 255, 255), 1);
-                Imgproc.putText(destFrame, "L", new Point(setpoint.x + 212, setpoint.y + 4),
+                Imgproc.putText(matWithOSD, "L", new Point(setpoint.x + 212, setpoint.y + 4),
                         Imgproc.FONT_HERSHEY_PLAIN, 1, new Scalar(255, 255, 255), 1);
-                Imgproc.putText(destFrame, "T", new Point(setpoint.x + 212, setpoint.y + 20),
+                Imgproc.putText(matWithOSD, "T", new Point(setpoint.x + 212, setpoint.y + 20),
                         Imgproc.FONT_HERSHEY_PLAIN, 1, new Scalar(255, 255, 255), 1);
 
                 // Top white on black labels
-                Imgproc.putText(destFrame, "STATUS", new Point(setpoint.x - 30, setpoint.y - 204),
+                Imgproc.putText(matWithOSD, "STATUS", new Point(setpoint.x - 30, setpoint.y - 204),
                         Imgproc.FONT_HERSHEY_PLAIN, 1, new Scalar(0, 0, 0), 2);
-                Imgproc.putText(destFrame, "STATUS", new Point(setpoint.x - 30, setpoint.y - 204),
+                Imgproc.putText(matWithOSD, "STATUS", new Point(setpoint.x - 30, setpoint.y - 204),
                         Imgproc.FONT_HERSHEY_PLAIN, 1, new Scalar(255, 255, 255), 1);
 
                 // Left green data (current absolute coordinates)
-                Imgproc.putText(destFrame, decimalFormatMono.format(positionContainer.x) + " cm",
+                Imgproc.putText(matWithOSD, decimalFormatMono.format(positionContainer.x) + " cm",
                         new Point(setpoint.x - 190, setpoint.y - 8),
                         Imgproc.FONT_HERSHEY_PLAIN, 1, new Scalar(0, 255, 0), 2);
-                Imgproc.putText(destFrame, decimalFormatMono.format(positionContainer.y) + " cm",
+                Imgproc.putText(matWithOSD, decimalFormatMono.format(positionContainer.y) + " cm",
                         new Point(setpoint.x - 190, setpoint.y + 16),
                         Imgproc.FONT_HERSHEY_PLAIN, 1, new Scalar(0, 255, 0), 2);
 
                 // Bottom green data (current yaw angle)
-                Imgproc.putText(destFrame, decimalFormatMono.format(positionContainer.yaw) + " deg",
+                Imgproc.putText(matWithOSD, decimalFormatMono.format(positionContainer.yaw) + " deg",
                         new Point(setpoint.x -
                                 (decimalFormatMono.format(positionContainer.yaw) + " deg").length() * 5,
                                 setpoint.y + 190),
                         Imgproc.FONT_HERSHEY_PLAIN, 1, new Scalar(0, 255, 0), 2);
 
                 // Right green data (current absolute altitude)
-                Imgproc.putText(destFrame, decimalFormatMono.format(positionContainer.z) + " cm",
+                Imgproc.putText(matWithOSD, decimalFormatMono.format(positionContainer.z) + " cm",
                         new Point(setpoint.x + 190 -
                                 (decimalFormatMono.format(positionContainer.z) + " cm").length() * 10,
                                 setpoint.y + 2),
                         Imgproc.FONT_HERSHEY_PLAIN, 1, new Scalar(0, 255, 0), 2);
 
                 // Bottom left white on black labels
-                Imgproc.putText(destFrame, "FPS", new Point(setpoint.x - 120, setpoint.y + 110),
+                Imgproc.putText(matWithOSD, "FPS", new Point(setpoint.x - 120, setpoint.y + 110),
                         Imgproc.FONT_HERSHEY_PLAIN, 1, new Scalar(0, 0, 0), 2);
-                Imgproc.putText(destFrame, "FPS", new Point(setpoint.x - 120, setpoint.y + 110),
+                Imgproc.putText(matWithOSD, "FPS", new Point(setpoint.x - 120, setpoint.y + 110),
                         Imgproc.FONT_HERSHEY_PLAIN, 1, new Scalar(255, 255, 255), 1);
 
                 // Bottom right white on black labels
-                Imgproc.putText(destFrame, "EXP", new Point(setpoint.x + 90, setpoint.y + 110),
+                Imgproc.putText(matWithOSD, "EXP", new Point(setpoint.x + 90, setpoint.y + 110),
                         Imgproc.FONT_HERSHEY_PLAIN, 1, new Scalar(0, 0, 0), 2);
-                Imgproc.putText(destFrame, "EXP", new Point(setpoint.x + 90, setpoint.y + 110),
+                Imgproc.putText(matWithOSD, "EXP", new Point(setpoint.x + 90, setpoint.y + 110),
                         Imgproc.FONT_HERSHEY_PLAIN, 1, new Scalar(255, 255, 255), 1);
 
                 // Top green data (status)
                 Scalar statusColor;
 
                 switch (positionContainer.status) {
-                    case 1:
-                    case 2:
-                        // MKWT or WAYP
+                    case PositionContainer.STATUS_WAYP:
                         statusColor = new Scalar(255, 0, 255);
                         break;
-                    case 3:
-                        // STAB
+                    case PositionContainer.STATUS_STAB:
                         statusColor = new Scalar(0, 255, 0);
                         break;
-                    case 4:
-                        // LAND
+                    case PositionContainer.STATUS_LAND:
                         statusColor = new Scalar(0, 255, 127);
                         break;
-                    case 5:
-                        // PREV
+                    case PositionContainer.STATUS_PREV:
                         statusColor = new Scalar(0, 127, 255);
                         break;
-                    case 6:
-                        // LOST
+                    case PositionContainer.STATUS_LOST:
                         statusColor = new Scalar(0, 0, 255);
                         break;
-                    case 7:
-                        // DONE
+                    case PositionContainer.STATUS_DONE:
                         statusColor = new Scalar(255, 255, 0);
                         break;
                     default:
-                        // WAIT or any other
                         statusColor = new Scalar(255, 200, 0);
                         break;
                 }
 
-                Imgproc.putText(destFrame, positionContainer.getStatusString(),
+                Imgproc.putText(matWithOSD, positionContainer.getStatusString(),
                         new Point(setpoint.x - 20, setpoint.y - 174),
                         Imgproc.FONT_HERSHEY_PLAIN, 1, statusColor, 2);
 
 
                 // Bottom left green data (fps)
-                Imgproc.putText(destFrame, fps, new Point(setpoint.x - 120, setpoint.y + 130),
+                Imgproc.putText(matWithOSD, fps, new Point(setpoint.x - 120, setpoint.y + 130),
                         Imgproc.FONT_HERSHEY_PLAIN, 1, new Scalar(0, 255, 0), 2);
 
                 // Bottom right green data (camera exposure)
-                Imgproc.putText(destFrame, decimalFormatSimple.format(platformContainer.cameraExposure),
+                Imgproc.putText(matWithOSD, decimalFormatSimple.format(platformContainer.cameraExposure),
                         new Point(setpoint.x + 85, setpoint.y + 130),
                         Imgproc.FONT_HERSHEY_PLAIN, 1, new Scalar(0, 255, 0), 2);
 
                 // Yaw progress bars (Bottom)
                 if (positionContainer.ddcYaw > 1520)
-                    Imgproc.ellipse(destFrame, new Point(setpoint.x, setpoint.y), new Size(195, 195),
+                    Imgproc.ellipse(matWithOSD, new Point(setpoint.x, setpoint.y), new Size(195, 195),
                             90, -14, mapInt(positionContainer.ddcYaw,
                                     2000, -15, -45), new Scalar(255, 200, 0), 5);
                 else if (positionContainer.ddcYaw < 1480)
-                    Imgproc.ellipse(destFrame, new Point(setpoint.x, setpoint.y), new Size(195, 195),
+                    Imgproc.ellipse(matWithOSD, new Point(setpoint.x, setpoint.y), new Size(195, 195),
                             90, 14, mapInt(positionContainer.ddcYaw,
                                     1000, 15, 45), new Scalar(255, 200, 0), 5);
 
                 // Z progress bars (Right)
                 if (positionContainer.ddcZ > 1520)
-                    Imgproc.ellipse(destFrame, new Point(setpoint.x, setpoint.y), new Size(195, 195),
+                    Imgproc.ellipse(matWithOSD, new Point(setpoint.x, setpoint.y), new Size(195, 195),
                             0, -14, mapInt(positionContainer.ddcZ, 2000, -15, -45),
                             new Scalar(255, 200, 0), 5);
                 else if (positionContainer.ddcZ < 1480)
-                    Imgproc.ellipse(destFrame, new Point(setpoint.x, setpoint.y), new Size(195, 195),
+                    Imgproc.ellipse(matWithOSD, new Point(setpoint.x, setpoint.y), new Size(195, 195),
                             0, 14, mapInt(positionContainer.ddcZ, 1000, 15, 45),
                             new Scalar(255, 200, 0), 5);
 
@@ -251,14 +243,14 @@ public class OSDHandler implements Runnable {
                     if (stagedDirection > 1800)
                         stagedDirection = 1800;
                     for (int i = 0; i < mapInt(stagedDirection, 1800, 1, 11); i++) {
-                        Imgproc.line(destFrame, new Point(setpoint.x - 20 - i, setpoint.y - 45 - (16 * i)),
+                        Imgproc.line(matWithOSD, new Point(setpoint.x - 20 - i, setpoint.y - 45 - (16 * i)),
                                 new Point(setpoint.x, setpoint.y - 25 - (16 * i)),
                                 new Scalar(255, 200, 0), 2);
-                        Imgproc.line(destFrame, new Point(setpoint.x, setpoint.y - 25 - (16 * i)),
+                        Imgproc.line(matWithOSD, new Point(setpoint.x, setpoint.y - 25 - (16 * i)),
                                 new Point(setpoint.x + 20 + i, setpoint.y - 45 - (16 * i)),
                                 new Scalar(255, 200, 0), 2);
                     }
-                    Imgproc.ellipse(destFrame, positionContainer.frameCurrent, new Size(20, 20),
+                    Imgproc.ellipse(matWithOSD, positionContainer.frameCurrent, new Size(20, 20),
                             90, -45, 45, new Scalar(255, 200, 0), 2);
                 }
 
@@ -269,14 +261,14 @@ public class OSDHandler implements Runnable {
                     if (stagedDirection < 1200)
                         stagedDirection = 1200;
                     for (int i = 0; i < mapInt(stagedDirection, 1200, 1, 11); i++) {
-                        Imgproc.line(destFrame, new Point(setpoint.x + 45 + (16 * i), setpoint.y - 20 - i),
+                        Imgproc.line(matWithOSD, new Point(setpoint.x + 45 + (16 * i), setpoint.y - 20 - i),
                                 new Point(setpoint.x + 25 + (16 * i), setpoint.y),
                                 new Scalar(255, 200, 0), 2);
-                        Imgproc.line(destFrame, new Point(setpoint.x + 25 + (16 * i), setpoint.y),
+                        Imgproc.line(matWithOSD, new Point(setpoint.x + 25 + (16 * i), setpoint.y),
                                 new Point(setpoint.x + 45 + (16 * i), setpoint.y + 20 + i),
                                 new Scalar(255, 200, 0), 2);
                     }
-                    Imgproc.ellipse(destFrame, positionContainer.frameCurrent, new Size(20, 20),
+                    Imgproc.ellipse(matWithOSD, positionContainer.frameCurrent, new Size(20, 20),
                             180, -45, 45, new Scalar(255, 200, 0), 2);
                 }
 
@@ -287,14 +279,14 @@ public class OSDHandler implements Runnable {
                     if (stagedDirection < 1200)
                         stagedDirection = 1200;
                     for (int i = 0; i < mapInt(stagedDirection, 1200, 1, 11); i++) {
-                        Imgproc.line(destFrame, new Point(setpoint.x - 20 - i, setpoint.y + 45 + (16 * i)),
+                        Imgproc.line(matWithOSD, new Point(setpoint.x - 20 - i, setpoint.y + 45 + (16 * i)),
                                 new Point(setpoint.x, setpoint.y + 25 + (16 * i)),
                                 new Scalar(255, 200, 0), 2);
-                        Imgproc.line(destFrame, new Point(setpoint.x, setpoint.y + 25 + (16 * i)),
+                        Imgproc.line(matWithOSD, new Point(setpoint.x, setpoint.y + 25 + (16 * i)),
                                 new Point(setpoint.x + 20 + i, setpoint.y + 45 + (16 * i)),
                                 new Scalar(255, 200, 0), 2);
                     }
-                    Imgproc.ellipse(destFrame, positionContainer.frameCurrent, new Size(20, 20),
+                    Imgproc.ellipse(matWithOSD, positionContainer.frameCurrent, new Size(20, 20),
                             -90, -45, 45, new Scalar(255, 200, 0), 2);
                 }
 
@@ -305,25 +297,82 @@ public class OSDHandler implements Runnable {
                     if (stagedDirection > 1800)
                         stagedDirection = 1800;
                     for (int i = 0; i < mapInt(stagedDirection, 1800, 1, 11); i++) {
-                        Imgproc.line(destFrame, new Point(setpoint.x - 45 - (16 * i), setpoint.y - 20 - i),
+                        Imgproc.line(matWithOSD, new Point(setpoint.x - 45 - (16 * i), setpoint.y - 20 - i),
                                 new Point(setpoint.x - 25 - (16 * i), setpoint.y),
                                 new Scalar(255, 200, 0), 2);
-                        Imgproc.line(destFrame, new Point(setpoint.x - 25 - (16 * i), setpoint.y),
+                        Imgproc.line(matWithOSD, new Point(setpoint.x - 25 - (16 * i), setpoint.y),
                                 new Point(setpoint.x - 45 - (16 * i), setpoint.y + 20 + i),
                                 new Scalar(255, 200, 0), 2);
                     }
-                    Imgproc.ellipse(destFrame, positionContainer.frameCurrent, new Size(20, 20),
+                    Imgproc.ellipse(matWithOSD, positionContainer.frameCurrent, new Size(20, 20),
                             0, -45, 45, new Scalar(255, 200, 0), 2);
                 }
 
-                Imgproc.circle(destFrame, setpoint, 5, new Scalar(0, 255, 0), -1);
-                Imgproc.rectangle(destFrame, new Point(setpoint.x - 20, setpoint.y - 20),
+                Imgproc.circle(matWithOSD, setpoint, 5, new Scalar(0, 255, 0), -1);
+                Imgproc.rectangle(matWithOSD, new Point(setpoint.x - 20, setpoint.y - 20),
                         new Point(setpoint.x + 20, setpoint.y + 20), new Scalar(0, 255, 0), 1);
-
-                // Transfer frame with OSD to the VideoStream class
-                // Push current frame to the web page
-                videoStream.pushFrame(destFrame);
             }
+
+            // Result mat
+            Mat destFrame;
+
+            // Show only platform image if drone camera is not available
+            if (droneCameraHandler.getFrame() == null || droneCameraHandler.getFrame().empty()
+                    || droneCameraHandler.getFrame().width() < 10) {
+                // Resize watermark
+                double watermarkResizeK = matWithOSD.width() / 1280.0;
+                Imgproc.resize(watermark, watermarkResized,
+                        new Size(0, 0), watermarkResizeK, watermarkResizeK);
+
+                // Add watermark
+                destFrame = addWatermark(matWithOSD, watermarkResized);
+            }
+
+            // Both cameras are available
+            else {
+                // Show platform camera as main camera if current mode is optical stabilization
+                if (positionContainer.status == PositionContainer.STATUS_STAB
+                        || positionContainer.status == PositionContainer.STATUS_LAND
+                        || positionContainer.status == PositionContainer.STATUS_PREV
+                        || positionContainer.status == PositionContainer.STATUS_LOST) {
+
+                    // Main camera is platform camera
+                    destFrame = matWithOSD;
+
+                    // Small camera is drone camera
+                    double matSmallResizeK = (double)destFrame.height()
+                            / (double)droneCameraHandler.getFrame().height() / 3.;
+                    Imgproc.resize(droneCameraHandler.getFrame(), matSmall,
+                            new Size(0, 0), matSmallResizeK, matSmallResizeK);
+
+                }
+                else {
+                    // Main camera is drone camera
+                    destFrame = droneCameraHandler.getFrame();
+
+                    // Small camera is platform camera
+                    double matSmallResizeK = (double)destFrame.height()
+                            / (double)matWithOSD.height() / 3.;
+                    Imgproc.resize(matWithOSD, matSmall,
+                            new Size(0, 0), matSmallResizeK, matSmallResizeK);
+                }
+
+                // Add small image
+                //matSmall.copyTo(destFrame.rowRange(destFrame.rows() - matSmall.rows(),
+                //        destFrame.rows()).colRange(destFrame.cols() - matSmall.cols(), destFrame.cols()));
+                matSmall.copyTo(destFrame.rowRange(0, matSmall.rows()).colRange(0, matSmall.cols()));
+
+                // Add watermark
+                double watermarkResizeK = destFrame.width() / 1280.0;
+                Imgproc.resize(watermark, watermarkResized,
+                        new Size(0, 0), watermarkResizeK, watermarkResizeK);
+                destFrame = addWatermark(destFrame, watermarkResized);
+            }
+
+            // Transfer frame with OSD to the VideoStream class
+            // Push current frame to the web page
+            videoStream.pushFrame(destFrame);
+
         } catch (Exception e) {
             logger.error("Error processing frame!", e);
         }
@@ -336,7 +385,7 @@ public class OSDHandler implements Runnable {
      * @return image with watermark
      */
     private Mat addWatermark(Mat image, Mat watermark) {
-        Mat destFrame = image.clone();
+        image.copyTo(matWithWatermark);
         Mat logo = new Mat();
         Mat logo_alpha;
         Vector<Mat> rgba = new Vector<>();
@@ -344,10 +393,29 @@ public class OSDHandler implements Runnable {
         logo_alpha = rgba.get(3);
         rgba.remove(rgba.size() - 1);
         Core.merge(rgba, logo);
-        Rect roi = new Rect(destFrame.cols() - logo.cols(), 0, logo.cols(), logo.rows());
-        Mat imageROI = destFrame.submat(roi);
+        Rect roi = new Rect(matWithWatermark.cols() - logo.cols(), 0, logo.cols(), logo.rows());
+        Mat imageROI = matWithWatermark.submat(roi);
         logo.copyTo(imageROI, logo_alpha);
-        return destFrame;
+        return matWithWatermark;
+    }
+
+    private Mat resizeToFit(Mat matToResize, Mat destinationSizeMat) {
+        int resizeKWidth = destinationSizeMat.width() / matToResize.width();
+        int resizeKHeight = destinationSizeMat.height() / matToResize.height();
+        int resizeK = Math.min(resizeKWidth, resizeKHeight);
+
+        Mat resizedMat = new Mat();
+
+        Imgproc.resize(matToResize, resizedMat,
+                new Size(matToResize.width() * resizeK, matToResize.height() * resizeK));
+
+        Mat backgroundMat = new Mat(destinationSizeMat.rows(), destinationSizeMat.cols(),
+                destinationSizeMat.type(), Scalar.all(0));
+
+        resizedMat.copyTo(backgroundMat.rowRange(1, 6).colRange(3, 10));
+
+        return backgroundMat;
+
     }
 
     /**
@@ -358,10 +426,24 @@ public class OSDHandler implements Runnable {
     }
 
     /**
-     * If the newFrameFlag is provided, a new OSD frame will be calculated.
+     * Draws a new OSD frame and pushes frame to the VideoStream
      */
-    public void setNewFrameFlag(boolean newFrameFlag) {
-        this.newFrameFlag = newFrameFlag;
+    public void proceedNewFrame() {
+        // Start or stop the stream
+        if (streamEnabled && !streamEnabledLast) {
+            // If new streamEnabled flag (true) is provided
+            videoStream.start();
+        } else if (!streamEnabled && streamEnabledLast) {
+            // If new streamEnabled flag (false) is provided
+            videoStream.stop();
+        }
+        streamEnabledLast = streamEnabled;
+
+        // Continue only if the stream is on and the frame from the camera is not empty
+        if (streamEnabled && sourceFrame != null && !sourceFrame.empty())
+            synchronized (this) {
+                notify();
+            }
     }
 
     /**
@@ -369,6 +451,7 @@ public class OSDHandler implements Runnable {
      */
     public void enableStreamAndOSD() {
         this.streamEnabled = true;
+        System.gc();
     }
 
     /**
@@ -376,6 +459,7 @@ public class OSDHandler implements Runnable {
      */
     public void disableStreamAndOSD() {
         this.streamEnabled = false;
+        System.gc();
     }
 
     /**
@@ -397,9 +481,29 @@ public class OSDHandler implements Runnable {
      */
     @Override
     public void run() {
+        // Read watermark image
         watermark = FileWorkers.loadImageAsMat(new File("watermark.png"));
-        while (handlerRunning)
-            proceedFrame();
+
+        // Initialize variables
+        watermarkResized = new Mat();
+        matWithWatermark = new Mat();
+        matWithOSD = new Mat();
+        matSmall = new Mat();
+
+        // Start main loop
+        handlerRunning = true;
+        while (handlerRunning) {
+            // Continue only if the stream is on and the frame from the camera is not empty
+            if (streamEnabled && sourceFrame != null && !sourceFrame.empty())
+                proceedFrame();
+
+            // Pause current thread
+            synchronized(this) {
+                try {
+                    wait();
+                } catch (Exception ignored) { }
+            }
+        }
     }
 
     /**

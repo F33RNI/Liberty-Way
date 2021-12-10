@@ -58,12 +58,12 @@ void setup()
 
 	// Hardware setup
 	// Power pins for LDR module
-	pinMode(A2, OUTPUT);
-	pinMode(3, OUTPUT);
-	digitalWrite(3, 0);
-	digitalWrite(A2, 0);
-	pinMode(A3, OUTPUT);
-	digitalWrite(A3, 1);
+	pinMode(LDR_GND_PIN, OUTPUT);
+	digitalWrite(LDR_GND_PIN, 0);
+	pinMode(LDR_VCC_PIN, OUTPUT);
+	digitalWrite(LDR_VCC_PIN, 1);
+	
+	// Other pinds
 	pinMode(STATUS_STRIP_PIN, OUTPUT);
 	pinMode(LIGHTS_PIN, OUTPUT);
 

@@ -138,10 +138,6 @@ public class PositionHandler {
                             linkSender.sendTakeoff();
                     }
 
-                    // Log new data
-                    if (waypointSendIndex == 0)
-                        blackboxHandler.newEntryFlag();
-
                     // Reset optical PID controllers
                     resetPIDs();
 
@@ -211,7 +207,7 @@ public class PositionHandler {
                 }
 
                 // Log new data
-                blackboxHandler.newEntryFlag();
+                blackboxHandler.requestNewEntry();
                 break;
             case PositionContainer.STATUS_LAND:
                 // ---------------------------------------------
@@ -258,7 +254,7 @@ public class PositionHandler {
                 }
 
                 // Log new data
-                blackboxHandler.newEntryFlag();
+                blackboxHandler.requestNewEntry();
                 break;
             case PositionContainer.STATUS_PREV:
                 // ---------------------------------------------
@@ -283,7 +279,7 @@ public class PositionHandler {
                 }
 
                 // Log new data
-                blackboxHandler.newEntryFlag();
+                blackboxHandler.requestNewEntry();
                 break;
             case PositionContainer.STATUS_DONE:
                 // ---------------------------------------------
@@ -302,7 +298,7 @@ public class PositionHandler {
                 positionContainer.status = PositionContainer.STATUS_IDLE;
 
                 // Log new data
-                blackboxHandler.newEntryFlag();
+                blackboxHandler.requestNewEntry();
                 break;
             default:
                 // ---------------------------------------------
@@ -337,8 +333,17 @@ public class PositionHandler {
         }
 
         // Reset index
-        else
-            waypointSendIndex = 0;
+        else {
+            // Start from the current waypoint or from the 0 if no telemetry or the drone is not in flight
+            if (!telemetryContainer.telemetryLost && telemetryContainer.takeoffDetected)
+                waypointSendIndex = telemetryContainer.waypointIndex;
+            else
+                waypointSendIndex = 0;
+
+            // Log new data
+            if (positionContainer.status != PositionContainer.STATUS_IDLE)
+                blackboxHandler.requestNewEntry();
+        }
     }
 
     /**

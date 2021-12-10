@@ -97,14 +97,14 @@
 						</div>
 						<div class="select-container" data-augmented-ui="br-clip both">
 							<select id="link_baudrate" name="link_baudrate">
-								<option value="57600">57600</option>
 								<option value="9600">9600</option>
 								<option value="14400">14400</option>
 								<option value="19200">19200</option>
 								<option value="28800">28800</option>
 								<option value="33600">33600</option>
 								<option value="38400">38400</option>
-								<option value="115200">115200</option>
+								<option value="57600">57600</option>
+								<option value="115200" selected="selected">115200</option>
 								<option value="230400">230400</option>
 								<option value="460800">460800</option>
 								<option value="576000">576000</option>
@@ -166,14 +166,14 @@
 						</div>
 						<div class="select-container" data-augmented-ui="br-clip both">
 							<select id="platform_baudrate" name="platform_baudrate">
-								<option value="57600">57600</option>
 								<option value="9600">9600</option>
 								<option value="14400">14400</option>
 								<option value="19200">19200</option>
 								<option value="28800">28800</option>
 								<option value="33600">33600</option>
 								<option value="38400">38400</option>
-								<option value="115200">115200</option>
+								<option value="57600">57600</option>
+								<option value="115200" selected="selected">115200</option>
 								<option value="230400">230400</option>
 								<option value="460800">460800</option>
 								<option value="576000">576000</option>
@@ -221,17 +221,41 @@
 				<br>
 
 				<!-- --------------
-				  Camera ID
+				  Platform Camera ID
 				---------------- -->
 				<div class="setup-data-container">
 					<div>
-						<label class="labels-text" for="camera_id">Camera ID: </label>
+						<label class="labels-text" for="platform_camera_id">Platform camera ID: </label>
 					</div>
 					<div>
 						<div class="input-container" data-augmented-ui="br-clip both">
-							<input id="camera_id" type="text" value="0"/>
+							<input id="platform_camera_id" type="text" value="0"/>
 						</div>
 					</div>
+				</div>
+
+				<br>
+
+				<!-- --------------
+				  Drone Camera ID
+				---------------- -->
+				<div class="setup-data-container">
+					<div>
+						<label class="labels-text" for="drone_camera_id">Drone camera ID: </label>
+					</div>
+					<div>
+						<div class="input-container" data-augmented-ui="br-clip both">
+							<input id="drone_camera_id" type="text" value="1"/>
+						</div>
+					</div>
+
+				</div>
+
+				<!-- --------------
+				  Drone Camera ID hint
+				---------------- -->
+				<div class="setup-data-container">
+					<p class="labels-text">(Set "Drone camera ID" to -1 to not use it)</p>
 				</div>
 
 				<br>

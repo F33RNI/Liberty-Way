@@ -50,8 +50,7 @@ char tx_buffer[18];
 boolean tx_flag;
 #ifdef UDP_PORT
 byte Ethernet::buffer[500];
-uint8_t destination_ip[IP_LEN];
-uint16_t source_port, destination_port;
+boolean started;
 #endif
 
 // Data from Liberty-Way
@@ -64,10 +63,10 @@ uint8_t grips_command;
 // Light sensor
 uint16_t lux_raw_data;
 #ifndef LUX_METER
-float resistor_voltage, ldr_voltage;
+float resistor_divider_voltage;
 float ldr_resistance;
 #endif
-float converted_lux;
+float unfiltered_lux, filtered_lux, converted_lux;
 uint8_t lux_sqrt_data;
 uint64_t lux_cycle_timer;
 

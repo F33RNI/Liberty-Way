@@ -70,17 +70,14 @@ const uint8_t PACKET_SUFFIX_2 PROGMEM = 0xEF;
 // Comment if using analog LDR sensor
 //#define LUX_METER
 
-// LDR constants
-// Measure this for best results
-#ifndef LUX_METER
-#define ADC_REF_VOLTAGE 4.97
-#define REF_RESISTANCE 10020 
-#define LUX_CALC_SCALAR 37000000 //12518931
-#define LUX_CALC_EXPONENT -1.350 //-1.405
-#endif
-
-// Request LUX value every 100ms
+#ifdef LUX_METER
+// Request LUX data every 100ms
 const uint8_t LUX_REQUST_TIME PROGMEM = 100;
+#else
+// ADC voltage and reference resistance constants
+#define ADC_REF_VOLTAGE 4.89f
+#define REF_RESISTANCE 811.f
+#endif
 
 
 /******************************/
@@ -88,7 +85,9 @@ const uint8_t LUX_REQUST_TIME PROGMEM = 100;
 /******************************/
 // Analog LDR sensor
 #ifndef LUX_METER
-const uint8_t LDR_PIN PROGMEM = A1;
+const uint8_t LDR_VCC_PIN PROGMEM = A2;
+const uint8_t LDR_GND_PIN PROGMEM = A3;
+const uint8_t LDR_OUT_PIN PROGMEM = A1;
 #endif
 
 // LCD

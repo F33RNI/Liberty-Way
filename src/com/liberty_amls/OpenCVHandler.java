@@ -148,6 +148,9 @@ public class OpenCVHandler implements Runnable {
         DetectorParameters detectorParameters = DetectorParameters.create();
         detectorParameters.set_adaptiveThreshConstant(settingsContainer.adaptiveThreshConstant);
 
+        // Create local variable to calculate yaw angle
+        double yaw = 0;
+
         // Transfer the current frame to the OSDHandler class
         osdHandler.setSourceFrame(frame);
 
@@ -155,13 +158,6 @@ public class OpenCVHandler implements Runnable {
             // Wait for the frame to be read
             if (videoCapture.read(frame) && !frame.empty()) {
                 try {
-                    // Push frame to the OSD class
-                    osdFramesCounter++;
-                    if (osdFramesCounter > pushOSDAfterFrames) {
-                        osdFramesCounter = 0;
-                        osdHandler.setNewFrameFlag(true);
-                    }
-
                     // Convert current frame to grayscale
                     Imgproc.cvtColor(frame, gray, Imgproc.COLOR_RGB2GRAY);
 
@@ -192,7 +188,6 @@ public class OpenCVHandler implements Runnable {
 
                         // Calculate euler angles (only yaw) from rVec
                         Calib3d.Rodrigues(rVec, rMat);
-                        double yaw = 0;
                         if (Math.sqrt(rMat.get(0, 0)[0] * rMat.get(0, 0)[0] +
                                 rMat.get(1, 0)[0] * rMat.get(1, 0)[0]) >= 1e-6) {
                             yaw = toDegrees(Math.atan2(rMat.get(1, 0)[0], rMat.get(0, 0)[0]) +
@@ -240,6 +235,13 @@ public class OpenCVHandler implements Runnable {
                         // Restart timer
                         timeStart = System.currentTimeMillis();
                     }
+
+                    // Push frame to the OSD class
+                    osdFramesCounter++;
+                    if (osdFramesCounter > pushOSDAfterFrames) {
+                        osdFramesCounter = 0;
+                        osdHandler.proceedNewFrame();
+                    }
                 } catch (Exception e) {
                     positionContainer.isFrameNormal = false;
                     logger.error("Error processing the frame!", e);
@@ -278,16 +280,25 @@ public class OpenCVHandler implements Runnable {
             videoCapture.set(Videoio.CAP_PROP_EXPOSURE, platformContainer.cameraExposure);
         }
 
-        if ((platformContainer.illumination < settingsContainer.platformLightEnableThreshold
-                || positionContainer.status == 1
-                || positionContainer.status == 2
-                || positionContainer.status == 3)
-                && !platformContainer.backlight)
-            // Turn on backlight in low light or in modes 1, 2 and 3 (optical stabilization)
-            platformContainer.backlight = true;
-        else if (platformContainer.illumination > settingsContainer.platformLightDisableThreshold
-                && platformContainer.backlight)
+        // Turn on backlight if current mode is not IDLE or DONE
+        if (positionContainer.status != PositionContainer.STATUS_IDLE
+                && positionContainer.status != PositionContainer.STATUS_DONE) {
+            // Turn on backlight in low light or in modes STAB, STAB, PREV and LOST (optical stabilization)
+            if ((platformContainer.illumination < settingsContainer.platformLightEnableThreshold
+                    || positionContainer.status == PositionContainer.STATUS_STAB
+                    || positionContainer.status == PositionContainer.STATUS_LAND
+                    || positionContainer.status == PositionContainer.STATUS_PREV
+                    || positionContainer.status == PositionContainer.STATUS_LOST)
+                    && !platformContainer.backlight)
+                platformContainer.backlight = true;
+
             // Turn off backlight
+            else if (platformContainer.illumination > settingsContainer.platformLightDisableThreshold
+                    && platformContainer.backlight)
+                platformContainer.backlight = false;
+        }
+        // Turn off backlight if current mode is IDLE or DONE
+        else
             platformContainer.backlight = false;
     }
 

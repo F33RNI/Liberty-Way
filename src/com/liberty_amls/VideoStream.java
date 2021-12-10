@@ -46,8 +46,6 @@ public class VideoStream {
     private final Logger logger = Logger.getLogger(this.getClass().getSimpleName());
     private final InetAddress serverIP;
     private final int serverPort;
-    private final BufferedImage bufferedImage;
-    private final byte[] frameBytes;
     private ServerSocket serverSocket;
     private Socket socket;
     private volatile boolean serverRunning;
@@ -57,11 +55,9 @@ public class VideoStream {
      * @param serverIP InetAddress object (IP of the server)
      * @param serverPort Video stream port (ex. 8080 or 5000)
      */
-    public VideoStream(InetAddress serverIP, int serverPort, int frameWidth, int frameHeight) {
+    public VideoStream(InetAddress serverIP, int serverPort) {
         this.serverIP = serverIP;
         this.serverPort = serverPort;
-        bufferedImage = new BufferedImage(frameWidth, frameHeight, BufferedImage.TYPE_3BYTE_BGR);
-        frameBytes = new byte[frameWidth * frameHeight * 3];
     }
 
     /**
@@ -88,6 +84,10 @@ public class VideoStream {
         if (frame == null || !serverRunning)
             return;
         try {
+            // Create new temp objects
+            BufferedImage bufferedImage = new BufferedImage(frame.width(),frame.height(), BufferedImage.TYPE_3BYTE_BGR);
+            byte[] frameBytes = new byte[frame.width() * frame.height() * frame.channels()];
+
             OutputStream outputStream = socket.getOutputStream();
             ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
             frame.get(0, 0, frameBytes);

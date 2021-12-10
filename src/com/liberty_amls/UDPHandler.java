@@ -35,8 +35,7 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketTimeoutException;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 public class UDPHandler implements Runnable {
     private final Logger logger = Logger.getLogger(this.getClass().getSimpleName());
@@ -48,7 +47,7 @@ public class UDPHandler implements Runnable {
     private boolean udpPortOpened = false;
     private byte[] udpData;
     private final byte[] packetBuffer = new byte[1024];
-    private final BlockingQueue<Byte> receiveBuffer = new ArrayBlockingQueue<>(1024);
+    private final LinkedBlockingQueue<Byte> receiveBuffer = new LinkedBlockingQueue<>(1024);
     private volatile boolean handlerRunning = false;
 
     /**
@@ -106,13 +105,6 @@ public class UDPHandler implements Runnable {
         } catch (Exception e) {
             logger.error("Error pushing data to " + udpTxPort, e);
         }
-    }
-
-    /**
-     * @return size of buffer. If size > 0, it means that new data has arrived
-     */
-    public int getBufferSize() {
-        return receiveBuffer.size();
     }
 
     /**

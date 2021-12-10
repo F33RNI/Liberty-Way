@@ -33,8 +33,10 @@ import org.apache.log4j.Logger;
 
 public class LinkSender {
     private final Logger logger = Logger.getLogger(this.getClass().getSimpleName());
+
     private final SerialHandler serialHandler;
     private final UDPHandler udpHandler;
+
     private final byte[] linkBuffer;
 
     public static final int CMD_BITS_IDLE = 0b000;

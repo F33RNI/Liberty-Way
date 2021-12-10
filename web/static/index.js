@@ -62,7 +62,8 @@ function startController() {
 		const jsonRequest = {};
 
 		jsonRequest.action = "setup";
-		jsonRequest.camera_id = document.getElementById("camera_id").value;
+		jsonRequest.platform_camera_id = document.getElementById("platform_camera_id").value;
+		jsonRequest.drone_camera_id = document.getElementById("drone_camera_id").value;
 
 		if (document.getElementById("link_port_enabled").checked) {
 			jsonRequest.link_port = document.getElementById("link_ports").value;

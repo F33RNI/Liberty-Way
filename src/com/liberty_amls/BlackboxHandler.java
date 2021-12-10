@@ -39,18 +39,20 @@ import java.util.Date;
 
 public class BlackboxHandler implements Runnable {
     private final Logger logger = Logger.getLogger(this.getClass().getSimpleName());
+
     private final DecimalFormat decimalFormat = new DecimalFormat("#.#");
     private final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm:ss.SSS");
+
     private final PositionContainer positionContainer;
     private final PlatformContainer platformContainer;
     private final TelemetryContainer telemetryContainer;
     private final String blackboxDirectory;
+
     private boolean fileStarted = false;
     private BufferedWriter bufferedWriter;
     private FileOutputStream fileOutputStream;
     private OutputStreamWriter outputStreamWriter;
     private boolean blackboxEnabled = false;
-    private boolean newEntryFlag = false;
     private volatile boolean handlerRunning;
 
     /**
@@ -74,22 +76,49 @@ public class BlackboxHandler implements Runnable {
     @Override
     public void run() {
         handlerRunning = true;
-        while (handlerRunning)
-            proceedLogs();
+        while (handlerRunning) {
+            // Write new data to the file if file is started and blackbox enabled
+            if (fileStarted && blackboxEnabled)
+                pushBlackbox();
+
+            // Pause current thread
+            synchronized (this) {
+                try {
+                    wait();
+                } catch (Exception ignored) { }
+            }
+        }
     }
 
     /**
-     * Set to true if there is new data to log
+     * Executes a request to write new data to a file
      */
-    public void newEntryFlag() {
-        this.newEntryFlag = true;
+    public void requestNewEntry() {
+        if (blackboxEnabled) {
+            // Open new file
+            if (!fileStarted) {
+                startNewFile();
+            }
+
+            // Request new loop cycle
+            synchronized (this) {
+                notify();
+            }
+        }
+        else
+            logger.warn("Unable to write data. Blackbox not enabled");
     }
 
     /**
      * Enables or disables blackbox logs
      */
     public void setBlackboxEnabled(boolean blackboxEnabled) {
+        // Set/clear flag
         this.blackboxEnabled = blackboxEnabled;
+
+        // Close file
+        if (!blackboxEnabled)
+            closeFile();
     }
 
     /**
@@ -98,28 +127,6 @@ public class BlackboxHandler implements Runnable {
     public void stop() {
         handlerRunning = false;
         closeFile();
-    }
-
-    /**
-     * Checks current state and opens/closes file or pushes new data
-     */
-    private void proceedLogs() {
-        if (fileStarted && !blackboxEnabled) {
-            // Blackbox disabled
-            // Close file
-            closeFile();
-        }
-        if (!fileStarted && blackboxEnabled) {
-            // Blackbox enabled and stabilization enabled
-            // Open new file
-            startNewFile();
-        }
-        if (fileStarted && blackboxEnabled && newEntryFlag) {
-            // Continue pushing data
-            // If there is new entry, push it and uncheck the flag
-            pushPosition();
-            newEntryFlag = false;
-        }
     }
 
     /**
@@ -158,6 +165,8 @@ public class BlackboxHandler implements Runnable {
             }
             fileStarted = false;
         }
+        else
+            logger.warn("Unable to close file. The file was not open!");
     }
 
     /**
@@ -182,7 +191,7 @@ public class BlackboxHandler implements Runnable {
     /**
      * Writes all the data line by line with comma separator
      */
-    private void pushPosition() {
+    private void pushBlackbox() {
         try {
             bufferedWriter.write(simpleDateFormat.format(new Date()));
             bufferedWriter.write(",");
