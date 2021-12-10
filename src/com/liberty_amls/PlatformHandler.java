@@ -92,7 +92,7 @@ public class PlatformHandler implements Runnable {
                     if (!platformContainer.platformLost &&
                             System.currentTimeMillis() - platformContainer.platformLastPacketTime
                                     >= settingsContainer.platformLostTime) {
-                        logger.warn("Platform communication lost!");
+                        logger.error("Platform communication lost!");
                         platformContainer.platformLost = true;
                     }
 

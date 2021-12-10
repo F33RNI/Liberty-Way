@@ -69,7 +69,7 @@ public class TelemetryHandler implements Runnable {
                 if (!telemetryContainer.telemetryLost &&
                         System.currentTimeMillis() - telemetryContainer.telemetryLastPacketTime
                                 >= settingsContainer.telemetryLostTime) {
-                    logger.warn("Drone telemetry lost!");
+                    logger.error("Drone telemetry lost!");
                     telemetryContainer.telemetryLost = true;
                 }
             }

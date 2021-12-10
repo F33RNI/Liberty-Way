@@ -139,7 +139,7 @@ public class UDPHandler implements Runnable {
                 }
             }
         } catch (SocketTimeoutException e) {
-            logger.error("Timeout reading data from " + udpIPPortRx);
+            //logger.warn("Timeout reading data from " + udpIPPortRx);
         } catch (Exception e) {
             logger.error("Error reading data from " + udpIPPortRx, e);
         }
