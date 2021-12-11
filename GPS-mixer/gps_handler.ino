@@ -108,14 +108,14 @@ void combine_new_data(void) {
 #endif
 
         // Calculate average values
-        gps_container_avg.lat /= (float)working_receivers_num;
-        gps_container_avg.lon /= (float)working_receivers_num;
-        gps_container_avg.quality /= (float)working_receivers_num;
-        gps_container_avg.sats_num /= (float)working_receivers_num;
-        gps_container_avg.hdop /= (float)working_receivers_num;
-        gps_container_avg.altitude /= (float)working_receivers_num;
-        gps_container_avg.ground_heading /= (float)working_receivers_num;
-        gps_container_avg.ground_speed /= (float)working_receivers_num;
+        gps_container_avg.lat /= (double)working_receivers_num;
+        gps_container_avg.lon /= (double)working_receivers_num;
+        gps_container_avg.quality /= (double)working_receivers_num;
+        gps_container_avg.sats_num /= (double)working_receivers_num;
+        gps_container_avg.hdop /= (double)working_receivers_num;
+        gps_container_avg.altitude /= (double)working_receivers_num;
+        gps_container_avg.ground_heading /= (double)working_receivers_num;
+        gps_container_avg.ground_speed /= (double)working_receivers_num;
 
         // Calculate deviations if number of available receivers changed
         if (working_receivers_num_last > 0 && receivers_changed) {
@@ -139,7 +139,7 @@ void combine_new_data(void) {
         l_lat_avg = (int32_t)gps_container_avg.lat / 100;
         l_lon_avg = (int32_t)gps_container_avg.lon / 100;
 
-        // Remove degrees from float
+        // Remove degrees from double
         gps_container_avg.lat -= l_lat_avg * 100;
         gps_container_avg.lon -= l_lon_avg * 100;
 
