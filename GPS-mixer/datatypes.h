@@ -73,7 +73,7 @@ struct gps_container
     double lat, lon;
     uint8_t quality;
     uint8_t sats_num;
-    double hdop = 99.99f;
+    double hdop = 99.99;
     double altitude;
     double ground_heading;
     double ground_speed;
