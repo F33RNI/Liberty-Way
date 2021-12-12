@@ -107,6 +107,12 @@ public class PositionHandler {
      * @param yaw               estimated marker Yaw angle (if newMarkerPosition)
      */
     public void proceedPosition(boolean newMarkerPosition, double x, double y, double z, double yaw) {
+        // Set starting DDC values (1500 = no correction)
+        positionContainer.ddcX = 1500;
+        positionContainer.ddcY = 1500;
+        positionContainer.ddcZ = 1500;
+        positionContainer.ddcYaw = 1500;
+
         // Find distance between drone and platform
         if (!platformContainer.platformLost && platformContainer.gps.getSatellitesNum() > 0
                 && !telemetryContainer.telemetryLost && telemetryContainer.gps.getSatellitesNum() > 0)
@@ -222,7 +228,7 @@ public class PositionHandler {
                 } else {
                     if (positionContainer.z <= settingsContainer.motorsTurnOffHeight) {
                         // Landing done
-                        logger.warn("Landed successfully! Turning off the motors.");
+                        logger.warn("Landed successfully! Turning off the motors");
                         linkSender.sendMotorsOFF();
                         if (settingsContainer.isTelemetryNecessary && !telemetryContainer.telemetryLost) {
                             if (!telemetryContainer.takeoffDetected)
@@ -351,12 +357,6 @@ public class PositionHandler {
      * and sends Direct Control to the drone
      */
     private void opticalStabilization(double x, double y, double z, double yaw) {
-        // Set starting DDC values (1500 = no correction)
-        positionContainer.ddcX = 1500;
-        positionContainer.ddcY = 1500;
-        positionContainer.ddcZ = 1500;
-        positionContainer.ddcYaw = 1500;
-
         // Filter new coordinates
         this.positionContainer.x = this.positionContainer.x * settingsContainer.inputFilter +
                 x * (1 - settingsContainer.inputFilter);
@@ -490,6 +490,16 @@ public class PositionHandler {
                 != WaypointsContainer.WAYPOINT_LAND)
             checksPassed = preFlightError("The last waypoint does not provide a platform or landing. " +
                     "The drone will never land!");
+
+        else {
+            int platformCount = 0;
+            for (int i = 0; i < waypointsContainer.getWaypointsSize(); i++) {
+                if (waypointsContainer.getWaypointsAPI().get(i) == WaypointsContainer.WAYPOINT_PLATFORM)
+                    platformCount++;
+            }
+            if (platformCount > 1)
+                checksPassed = preFlightError("More than one platform waypoint specified!");
+        }
 
         // Checks passed
         if (checksPassed) {

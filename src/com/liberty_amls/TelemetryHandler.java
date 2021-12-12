@@ -206,7 +206,7 @@ public class TelemetryHandler implements Runnable {
                 telemetryContainer.telemetryLost = false;
                 telemetryContainer.telemetryLastPacketTime = System.currentTimeMillis();
             } else
-                logger.warn("Wrong telemetry checksum!");
+                logger.warn("Wrong telemetry checksum");
         } else {
             // Store data bytes
             telemetryBytePrevious = telemetryBuffer[telemetryBufferPosition];

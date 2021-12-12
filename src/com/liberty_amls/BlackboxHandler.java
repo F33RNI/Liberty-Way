@@ -229,7 +229,7 @@ public class BlackboxHandler implements Runnable {
             bufferedWriter.write(",");
             bufferedWriter.write(decimalFormat.format(platformContainer.cameraExposure));
             bufferedWriter.write(",");
-            bufferedWriter.write(String.valueOf(positionContainer.status));
+            bufferedWriter.write(String.valueOf(positionContainer.getStatusString()));
             bufferedWriter.write(",");
             bufferedWriter.write(String.valueOf(platformContainer.platformLost));
             bufferedWriter.write(",");

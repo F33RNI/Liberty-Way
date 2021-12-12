@@ -191,7 +191,7 @@ public class PlatformHandler implements Runnable {
                 platformContainer.platformLost = false;
                 platformContainer.platformLastPacketTime = System.currentTimeMillis();
             } else
-                logger.warn("Wrong platform checksum!");
+                logger.warn("Wrong platform checksum");
 
         } else {
             // Store data bytes

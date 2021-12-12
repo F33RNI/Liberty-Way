@@ -580,7 +580,7 @@ function updateMap() {
 						}
 
 						// Add line to the platform
-						else if (telemetry !== null
+						else if (telemetry !== null && !telemetry.platform_lost
 							&& (telemetry.platform_lat !== "0" || telemetry.platform_lon !== "0")
 							&& (parseFloat(telemetry.platform_lat) !== 0
 								|| parseFloat(telemetry.platform_lon) !== 0))
