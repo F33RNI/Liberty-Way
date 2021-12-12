@@ -216,6 +216,11 @@ public class SettingsHandler {
             if (settingsContainer.minSatellitesNum < 0)
                 exitWithError("Invalid minimum satellites number");
 
+            // Minimum battery voltage before start
+            settingsContainer.minBatteryVoltageStart = jsonSettings.get("min_battery_voltage_start").getAsDouble();
+            if (settingsContainer.minBatteryVoltageStart < 0)
+                exitWithError("Invalid minimum start battery voltage");
+
             // Setpoint X
             settingsContainer.setpointX = jsonSettings.get("setpoint_x").getAsDouble();
 
@@ -246,15 +251,6 @@ public class SettingsHandler {
             settingsContainer.planetRadius = jsonSettings.get("planet_radius").getAsDouble();
             if (settingsContainer.planetRadius <= 0)
                 exitWithError("Invalid planet radius");
-
-            // How many pascals will be added to pressure waypoint
-            settingsContainer.pressureTermAbovePlatform = jsonSettings.get("pressure_term_above_platform").getAsInt();
-            if (settingsContainer.pressureTermAbovePlatform < -200
-                    || settingsContainer.pressureTermAbovePlatform > 200)
-                exitWithError("Invalid pressure term");
-
-            // Is telemetry necessary for liberty-way sequence?
-            settingsContainer.isTelemetryNecessary = jsonSettings.get("is_telemetry_necessary").getAsBoolean();
 
             // Maximum platform speed
             settingsContainer.maxPlatformSpeed = jsonSettings.get("max_platform_speed").getAsInt();

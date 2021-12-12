@@ -89,7 +89,10 @@ public class OSDHandler implements Runnable {
             sourceFrame.copyTo(matWithOSD);
 
             // Draw OSD only in optical stabilization mode
-            if (positionContainer.status == PositionContainer.STATUS_STAB
+            if (droneCameraHandler.getFrame() == null
+                    || droneCameraHandler.getFrame().empty()
+                    || droneCameraHandler.getFrame().width() < 10
+                    || positionContainer.status == PositionContainer.STATUS_STAB
                     || positionContainer.status == PositionContainer.STATUS_LAND
                     || positionContainer.status == PositionContainer.STATUS_PREV
                     || positionContainer.status == PositionContainer.STATUS_LOST) {

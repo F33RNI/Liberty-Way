@@ -72,6 +72,7 @@ public class SettingsContainer {
     public double allowedLandingRangeYaw;
     public short minSatellitesNumStart;
     public short minSatellitesNum;
+    public double minBatteryVoltageStart;
     public double setpointX;
     public double setpointY;
     public double setpointYaw;
@@ -81,8 +82,6 @@ public class SettingsContainer {
     public byte platformDataSuffix2;
     public short pushOSDAfterFrames;
     public double planetRadius;
-    public int pressureTermAbovePlatform;
-    public boolean isTelemetryNecessary;
     public int maxPlatformSpeed;
     public boolean isGPSPredictionAllowed;
     public int stopPredictionOnDistance;

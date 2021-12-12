@@ -230,7 +230,7 @@ public class PositionHandler {
                         // Landing done
                         logger.warn("Landed successfully! Turning off the motors");
                         linkSender.sendMotorsOFF();
-                        if (settingsContainer.isTelemetryNecessary && !telemetryContainer.telemetryLost) {
+                        if ( !telemetryContainer.telemetryLost) {
                             if (!telemetryContainer.takeoffDetected)
                                 // Switch to DONE state if the drone has landed
                                 positionContainer.status = PositionContainer.STATUS_DONE;
@@ -464,10 +464,10 @@ public class PositionHandler {
         else if (platformContainer.errorStatus != 0)
             checksPassed = preFlightError("Platform error " + platformContainer.errorStatus);
 
-        else if (settingsContainer.isTelemetryNecessary && telemetryContainer.telemetryLost)
+        else if (telemetryContainer.telemetryLost)
             checksPassed = preFlightError("No drone telemetry");
 
-        else if (settingsContainer.isTelemetryNecessary && telemetryContainer.errorStatus != 0)
+        else if (telemetryContainer.errorStatus != 0)
             checksPassed = preFlightError("Drone error " + telemetryContainer.errorStatus);
 
         else if (platformContainer.gps.getSatellitesNum() < settingsContainer.minSatellitesNumStart)
@@ -477,9 +477,13 @@ public class PositionHandler {
             checksPassed = preFlightError("The platform moves faster than " +
                     settingsContainer.maxPlatformSpeed + " km/h");
 
-        else if (settingsContainer.isTelemetryNecessary
-                && telemetryContainer.gps.getSatellitesNum() < settingsContainer.minSatellitesNumStart)
+        else if (telemetryContainer.gps.getSatellitesNum() < settingsContainer.minSatellitesNumStart)
             checksPassed = preFlightError("Not enough GPS satellites on the drone");
+
+        else if (telemetryContainer.batteryVoltage > 6.0 &&
+                telemetryContainer.batteryVoltage < settingsContainer.minBatteryVoltageStart)
+            checksPassed = preFlightError("The drone battery voltage is below "
+                    + settingsContainer.minBatteryVoltageStart + " volts!");
 
         else if (waypointsContainer.getWaypointsSize() <= 0)
             checksPassed = preFlightError("No waypoints set!");
