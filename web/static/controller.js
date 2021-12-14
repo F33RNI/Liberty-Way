@@ -802,27 +802,28 @@ function timelineSetProgress() {
 						switch (telemetry.status) {
 							case "LAND":
 								timelineSetMappedProgress(timelinePlatform.length,
-									mapValue(telemetry.sonarus_distance_cm, 510., 0., 5., 6.));
+									mapValue(telemetry.sonarus_distance_cm, 510., 0.,
+										5., 6.), false);
 								break;
 							default:
-								timelineSetMappedProgress(timelinePlatform.length, 5);
+								timelineSetMappedProgress(timelinePlatform.length, 5, true);
 								break;
 						}
 					} else
 						switch (telemetry.link_waypoint_step) {
 							case LINK_STEP_TAKEOFF:
-								timelineSetMappedProgress(timelinePlatform.length, 1);
+								timelineSetMappedProgress(timelinePlatform.length, 1, true);
 								break;
 							case LINK_STEP_ASCENT:
-								timelineSetMappedProgress(timelinePlatform.length, 2);
+								timelineSetMappedProgress(timelinePlatform.length, 2, true);
 								break;
 							case LINK_STEP_WAYP_CALC:
 							case LINK_STEP_GPS_WAYP:
 							case LINK_STEP_GPS_SETP:
-								timelineSetMappedProgress(timelinePlatform.length, 3);
+								timelineSetMappedProgress(timelinePlatform.length, 3, true);
 								break;
 							default:
-								timelineSetMappedProgress(timelinePlatform.length, 4);
+								timelineSetMappedProgress(timelinePlatform.length, 4, true);
 								break;
 						}
 					break;
@@ -831,18 +832,18 @@ function timelineSetProgress() {
 					// Just fly
 					switch (telemetry.link_waypoint_step) {
 						case LINK_STEP_TAKEOFF:
-							timelineSetMappedProgress(timelineFlyNoDescend.length, 1);
+							timelineSetMappedProgress(timelineFlyNoDescend.length, 1, true);
 							break;
 						case LINK_STEP_ASCENT:
-							timelineSetMappedProgress(timelineFlyNoDescend.length, 2);
+							timelineSetMappedProgress(timelineFlyNoDescend.length, 2, true);
 							break;
 						case LINK_STEP_WAYP_CALC:
 						case LINK_STEP_GPS_WAYP:
 						case LINK_STEP_GPS_SETP:
-							timelineSetMappedProgress(timelineFlyNoDescend.length, 3);
+							timelineSetMappedProgress(timelineFlyNoDescend.length, 3, true);
 							break;
 						default:
-							timelineSetMappedProgress(timelineFlyNoDescend.length, 4);
+							timelineSetMappedProgress(timelineFlyNoDescend.length, 4, true);
 							break;
 					}
 					break;
@@ -851,25 +852,25 @@ function timelineSetProgress() {
 					// Descending
 					switch (telemetry.link_waypoint_step) {
 						case LINK_STEP_TAKEOFF:
-							timelineSetMappedProgress(timelineDescend.length, 1);
+							timelineSetMappedProgress(timelineDescend.length, 1, true);
 							break;
 						case LINK_STEP_ASCENT:
-							timelineSetMappedProgress(timelineDescend.length, 2);
+							timelineSetMappedProgress(timelineDescend.length, 2, true);
 							break;
 						case LINK_STEP_WAYP_CALC:
 						case LINK_STEP_GPS_WAYP:
 						case LINK_STEP_GPS_SETP:
-							timelineSetMappedProgress(timelineDescend.length, 3);
+							timelineSetMappedProgress(timelineDescend.length, 3, true);
 							break;
 						case LINK_STEP_DESCENT:
 						case LINK_STEP_SONARUS:
-							timelineSetMappedProgress(timelineDescend.length, 4);
+							timelineSetMappedProgress(timelineDescend.length, 4, true);
 							break;
 						case LINK_STEP_AFTER_SONARUS:
-							timelineSetMappedProgress(timelineDescend.length, 5);
+							timelineSetMappedProgress(timelineDescend.length, 5, true);
 							break;
 						default:
-							timelineSetMappedProgress(timelineDescend.length, 6);
+							timelineSetMappedProgress(timelineDescend.length, 6, true);
 							break;
 					}
 					break;
@@ -878,25 +879,25 @@ function timelineSetProgress() {
 					// Parcel
 					switch (telemetry.link_waypoint_step) {
 						case LINK_STEP_TAKEOFF:
-							timelineSetMappedProgress(timelineParcel.length, 1);
+							timelineSetMappedProgress(timelineParcel.length, 1, true);
 							break;
 						case LINK_STEP_ASCENT:
-							timelineSetMappedProgress(timelineParcel.length, 2);
+							timelineSetMappedProgress(timelineParcel.length, 2, true);
 							break;
 						case LINK_STEP_WAYP_CALC:
 						case LINK_STEP_GPS_WAYP:
 						case LINK_STEP_GPS_SETP:
-							timelineSetMappedProgress(timelineParcel.length, 3);
+							timelineSetMappedProgress(timelineParcel.length, 3, true);
 							break;
 						case LINK_STEP_DESCENT:
 						case LINK_STEP_SONARUS:
-							timelineSetMappedProgress(timelineParcel.length, 4);
+							timelineSetMappedProgress(timelineParcel.length, 4, true);
 							break;
 						case LINK_STEP_AFTER_SONARUS:
-							timelineSetMappedProgress(timelineParcel.length, 5);
+							timelineSetMappedProgress(timelineParcel.length, 5, true);
 							break;
 						default:
-							timelineSetMappedProgress(timelineParcel.length, 6);
+							timelineSetMappedProgress(timelineParcel.length, 6, true);
 							break;
 					}
 					break;
@@ -905,23 +906,23 @@ function timelineSetProgress() {
 					// Land
 					switch (telemetry.link_waypoint_step) {
 						case LINK_STEP_TAKEOFF:
-							timelineSetMappedProgress(timelineLand.length, 1);
+							timelineSetMappedProgress(timelineLand.length, 1, true);
 							break;
 						case LINK_STEP_ASCENT:
-							timelineSetMappedProgress(timelineLand.length, 2);
+							timelineSetMappedProgress(timelineLand.length, 2, true);
 							break;
 						case LINK_STEP_WAYP_CALC:
 						case LINK_STEP_GPS_WAYP:
 						case LINK_STEP_GPS_SETP:
-							timelineSetMappedProgress(timelineLand.length, 3);
+							timelineSetMappedProgress(timelineLand.length, 3, true);
 							break;
 						case LINK_STEP_DESCENT:
 						case LINK_STEP_SONARUS:
 						case LINK_STEP_AFTER_SONARUS:
-							timelineSetMappedProgress(timelineLand.length, 4);
+							timelineSetMappedProgress(timelineLand.length, 4, true);
 							break;
 						default:
-							timelineSetMappedProgress(timelineLand.length, 4);
+							timelineSetMappedProgress(timelineLand.length, 4, true);
 							break;
 					}
 					break;
@@ -945,15 +946,18 @@ function timelineSetProgress() {
  * Draws progress steps on the timeline
  * @param numOfIntervals number of intervals into which the timeline is divided
  * @param fillInterval how many of these steps need to be painted
+ * @param blink set to true to enable blinking with interval
  */
-function timelineSetMappedProgress(numOfIntervals, fillInterval) {
+function timelineSetMappedProgress(numOfIntervals, fillInterval, blink) {
 	// Calculate number of percents per one step
 	const percentsPerStep = 100 / numOfIntervals;
 
 	// Blinking timeline function
-	if (fillInterval > 0 && timelineTicker)
-		fillInterval -= 1;
-	timelineTicker = !timelineTicker;
+	if (blink) {
+		if (fillInterval > 0 && timelineTicker)
+			fillInterval -= 1;
+		timelineTicker = !timelineTicker;
+	}
 
 	// Set calculated width
 	document.getElementById("timeline-progress").style.width = (fillInterval * percentsPerStep) + "%";
