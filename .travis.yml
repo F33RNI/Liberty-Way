@@ -46,18 +46,27 @@ jobs:
       script:
         - mkdir $HOME/.arduino15
         - ino config init
+
         - ino core update-index
         - ino core install arduino:avr
+
         - ino core update-index --additional-urls http://dan.drown.org/stm32duino/package_STM32duino_index.json
         - ino core install stm32duino:STM32F1 --additional-urls http://dan.drown.org/stm32duino/package_STM32duino_index.json
+
+        - ino core update-index --additional-urls http://arduino.esp8266.com/stable/package_esp8266com_index.json
+        - ino core install esp8266:esp8266 --additional-urls http://arduino.esp8266.com/stable/package_esp8266com_index.json
+
         - ino core list
-        - ino lib install 'EtherCard' 'Adafruit NeoPixel'
+        - ino lib install 'EtherCard' 'Adafruit NeoPixel' 'WiFi'
         
         - cd Eitude
         - ino compile --fqbn arduino:avr:uno Eitude.ino
         
         - cd ../Sonarus
         - ino compile --fqbn arduino:avr:uno Sonarus.ino
-        
+
         - cd ../GPS-mixer
         - ino compile --fqbn stm32duino:STM32F1:genericSTM32F103C GPS-mixer.ino
+
+        - cd ../Liberty-Link_WiFi-Bridge
+        - ino compile --fqbn esp8266:esp8266:generic Liberty-Link_WiFi-Bridge.ino
