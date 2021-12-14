@@ -31,3 +31,11 @@ build
 /GPS-mixer/GPS-mixer.vcxproj.user
 /GPS-mixer/Release/
 !/GPS-mixer/Release/GPS-mixer.bin
+
+/Liberty-Link_WiFi-Bridge/.vs/
+/Liberty-Link_WiFi-Bridge/__vm/
+/Liberty-Link_WiFi-Bridge/Liberty-Link_WiFi-Bridge.sln
+/Liberty-Link_WiFi-Bridge/Liberty-Link_WiFi-Bridge.vcxproj
+/Liberty-Link_WiFi-Bridge/Liberty-Link_WiFi-Bridge.vcxproj.filters
+/Liberty-Link_WiFi-Bridge/Liberty-Link_WiFi-Bridge.vcxproj.user
+/Liberty-Link_WiFi-Bridge/Release/
