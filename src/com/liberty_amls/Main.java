@@ -37,7 +37,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class Main {
-    private static final String version = "beta_4.0.0";
+    private static final String version = "5.0.0";
     public static final Logger logger = Logger.getLogger(Main.class.getSimpleName());
 
     public static void main(String[] args) {
