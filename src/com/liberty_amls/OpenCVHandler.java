@@ -259,9 +259,6 @@ public class OpenCVHandler implements Runnable {
      * Dynamically adjusts camera exposure and managing backlight based on light levels
      */
     private void adaptiveExposure() {
-        // Default exposure
-        double newExposure = settingsContainer.maxExposure;
-
         // Current illumination value
         double illumination = -1.;
 
@@ -272,7 +269,7 @@ public class OpenCVHandler implements Runnable {
             illumination = platformContainer.illumination;
 
         // Calculate exposure correction
-        newExposure = Math.log((Math.pow(1. / settingsContainer.cameraAperture, 2) * 12.5)
+        double newExposure = Math.log((Math.pow(1. / settingsContainer.cameraAperture, 2) * 12.5)
                 / (illumination * settingsContainer.cameraISO) * 1000) / 0.30102999566;
 
         // Crop new value
