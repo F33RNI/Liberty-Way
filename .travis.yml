@@ -22,7 +22,7 @@ jobs:
       name: 'Documentation'
       language: node_js
       node_js:
-        - "10"
+        - "11"
       before_script:
         - npm install markdownlint-cli -g
         - markdownlint -V
