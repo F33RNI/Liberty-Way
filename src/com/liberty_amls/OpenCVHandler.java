@@ -262,13 +262,18 @@ public class OpenCVHandler implements Runnable {
         // Default exposure
         double newExposure = settingsContainer.maxExposure;
 
+        // Current illumination value
+        double illumination = -1.;
+
         // Telemetry has a higher priority than the platform
         if (!telemetryContainer.telemetryLost && telemetryContainer.illumination > 0)
-            //newExposure = (Math.log(telemetryContainer.illumination * 110 / 330.0) / Math.log(2));
-            newExposure = -3.83*Math.pow(telemetryContainer.illumination, 0.110);
+            illumination = telemetryContainer.illumination;
         else if (!platformContainer.platformLost && platformContainer.illumination > 0)
-            //newExposure = (Math.log(platformContainer.illumination * 110 / 330.0) / Math.log(2));
-            newExposure = -3.83*Math.pow(platformContainer.illumination, 0.110);
+            illumination = platformContainer.illumination;
+
+        // Calculate exposure correction
+        newExposure = Math.log((Math.pow(1. / settingsContainer.cameraAperture, 2) * 12.5)
+                / (illumination * settingsContainer.cameraISO) * 1000) / 0.30102999566;
 
         // Crop new value
         if (newExposure > settingsContainer.maxExposure)

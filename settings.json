@@ -1,6 +1,8 @@
 {
   "marker_size": 5.0,
   "max_exposure": -9,
+  "camera_aperture": 2.8,
+  "camera_iso": 200,
   "motors_turn_off_height": 25.0,
   "optical_landing_allowed": true,
   "max_marker_height": 200,

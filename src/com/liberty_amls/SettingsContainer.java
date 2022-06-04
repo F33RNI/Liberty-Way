@@ -34,6 +34,8 @@ import java.util.ArrayList;
 public class SettingsContainer {
     public float markerSize;
     public double maxExposure;
+    public double cameraAperture;
+    public double cameraISO;
     public double motorsTurnOffHeight;
     public boolean opticalLandingAllowed;
     public int maxMarkerHeight;

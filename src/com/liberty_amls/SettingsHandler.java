@@ -60,6 +60,12 @@ public class SettingsHandler {
             // Default camera exposure
             settingsContainer.maxExposure = jsonSettings.get("max_exposure").getAsDouble();
 
+            // Camera aperture
+            settingsContainer.cameraAperture = jsonSettings.get("camera_aperture").getAsDouble();
+
+            // Camera ISO
+            settingsContainer.cameraISO = jsonSettings.get("camera_iso").getAsDouble();
+
             // Landing altitude
             settingsContainer.motorsTurnOffHeight = jsonSettings.get("motors_turn_off_height").getAsDouble();
             if (settingsContainer.motorsTurnOffHeight < 0)
