@@ -224,7 +224,7 @@ public class PlatformHandler implements Runnable {
     }
 
     /**
-     * Sends system status, backlight state and grips command to the platforms
+     * Sends system status, backlight state and alignment system command to the platforms
      * and requests platform data
      */
     private void sendRequest() {
@@ -235,8 +235,8 @@ public class PlatformHandler implements Runnable {
         // Backlight state
         platformTxBuffer[1] = (byte) (platformContainer.backlight ? 1 : 0);
 
-        // Grips command
-        platformTxBuffer[2] = (byte) (platformContainer.gripsCommand & 0xFF);
+        // Alignment system command
+        platformTxBuffer[2] = (byte) (platformContainer.alignmentCommand & 0xFF);
 
         // Check byte
         byte checkByte = 0;
@@ -252,7 +252,7 @@ public class PlatformHandler implements Runnable {
     }
 
     /**
-     * Stops the main loop and disables platform lights and grips
+     * Stops the main loop and disables platform lights and opens alignment system
      */
     public void stop() {
         // Print warning
@@ -264,8 +264,8 @@ public class PlatformHandler implements Runnable {
         // Turn off backlight
         platformContainer.backlight = false;
 
-        // Turn off grips
-        platformContainer.gripsCommand = 0;
+        // Close alignment system
+        platformContainer.alignmentCommand = PlatformContainer.ALIGNMENT_COMMAND_CLOSE;
 
         // Send request
         sendRequest();

@@ -126,6 +126,9 @@ public class PositionHandler {
                 // ---------------------------------------------
                 // WAYP - Broadcasting waypoints array
                 // ---------------------------------------------
+                // Close alignment system
+                platformContainer.alignmentCommand = PlatformContainer.ALIGNMENT_COMMAND_CLOSE;
+
                 // Send waypoints array
                 sendWaypoints();
 
@@ -188,6 +191,9 @@ public class PositionHandler {
                 // ---------------------------------------------
                 // STAB - Optical stabilization
                 // ---------------------------------------------
+                // Open alignment system
+                platformContainer.alignmentCommand = PlatformContainer.ALIGNMENT_COMMAND_OPEN;
+
                 // Reset lost frames counter
                 lostCounter = 0;
 
@@ -219,6 +225,9 @@ public class PositionHandler {
                 // ---------------------------------------------
                 // LAND - Optical landing
                 // ---------------------------------------------
+                // Open alignment system
+                platformContainer.alignmentCommand = PlatformContainer.ALIGNMENT_COMMAND_OPEN;
+
                 // Switch to PREV mode if marker was lost
                 if (!newMarkerPosition || z > settingsContainer.maxMarkerHeight) {
                     logger.warn("The marker is lost! The previous position will be used for next " +
@@ -266,6 +275,9 @@ public class PositionHandler {
                 // ---------------------------------------------
                 // PREV - Optical stabilization with lost marker
                 // ---------------------------------------------
+                // Open alignment system
+                platformContainer.alignmentCommand = PlatformContainer.ALIGNMENT_COMMAND_OPEN;
+
                 // Proceed optical stabilization
                 opticalStabilization(x, y, z, yaw);
 
@@ -291,6 +303,9 @@ public class PositionHandler {
                 // ---------------------------------------------
                 // DONE - Landing finished
                 // ---------------------------------------------
+                // Close alignment system
+                platformContainer.alignmentCommand = PlatformContainer.ALIGNMENT_COMMAND_CLOSE;
+
                 // Print message
                 logger.info("DONE! Liberty-Way sequence finished");
 
@@ -310,6 +325,9 @@ public class PositionHandler {
                 // ---------------------------------------------
                 // IDLE - Waiting for execution (pre-start)
                 // ---------------------------------------------
+                // Close alignment system
+                platformContainer.alignmentCommand = PlatformContainer.ALIGNMENT_COMMAND_CLOSE;
+
                 // Send waypoints array
                 sendWaypoints();
                 break;

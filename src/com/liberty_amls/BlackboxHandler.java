@@ -177,7 +177,7 @@ public class BlackboxHandler implements Runnable {
             bufferedWriter.write("time,x,y,z,yaw,setpointX,setpointY,setpointZ,setpointYaw," +
                     "ddcX,ddcY,ddcZ,ddcRoll,ddcPitch,ddcYaw,frameX,frameY,exposure,status," +
                     "platformLost,platformErrorStatus,platformSatellitesNum,platformLat,platformLon," +
-                    "platformSpeed,platformHeading,platformIllumination,backlight,gripsCommand," +
+                    "platformSpeed,platformHeading,platformIllumination,backlight,alignmentCommand," +
                     "telemetryLost,droneErrorStatus,droneFlightMode,droneBatteryVoltage,droneSatellitesNum," +
                     "droneLat,droneLon,droneAltitude,droneSpeed,droneAngleRoll,droneAnglePitch,droneAngleYaw," +
                     "droneTemperature,droneIllumination,droneLinkWaypointStep,waypointIndex");
@@ -249,7 +249,7 @@ public class BlackboxHandler implements Runnable {
             bufferedWriter.write(",");
             bufferedWriter.write(String.valueOf(platformContainer.backlight));
             bufferedWriter.write(",");
-            bufferedWriter.write(String.valueOf(platformContainer.gripsCommand));
+            bufferedWriter.write(String.valueOf(platformContainer.alignmentCommand));
             bufferedWriter.write(",");
             bufferedWriter.write(String.valueOf(telemetryContainer.telemetryLost));
             bufferedWriter.write(",");

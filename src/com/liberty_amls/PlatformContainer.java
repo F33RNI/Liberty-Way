@@ -38,7 +38,10 @@ public class PlatformContainer {
     public double illumination;
     public double cameraExposure;
     public boolean backlight;
-    public int gripsCommand;
+    public int alignmentCommand;
+
+    public final static int ALIGNMENT_COMMAND_CLOSE = 0;
+    public final static int ALIGNMENT_COMMAND_OPEN = 1;
 
 
     /**
@@ -53,6 +56,6 @@ public class PlatformContainer {
         illumination = 0.0;
         cameraExposure = 0;
         backlight = false;
-        gripsCommand = 0;
+        alignmentCommand = ALIGNMENT_COMMAND_CLOSE;
     }
 }
