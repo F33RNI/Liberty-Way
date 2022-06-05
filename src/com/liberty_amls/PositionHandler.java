@@ -126,8 +126,8 @@ public class PositionHandler {
                 // ---------------------------------------------
                 // WAYP - Broadcasting waypoints array
                 // ---------------------------------------------
-                // Close alignment system
-                platformContainer.alignmentCommand = PlatformContainer.ALIGNMENT_COMMAND_CLOSE;
+                // Open alignment system
+                platformContainer.alignmentCommand = PlatformContainer.ALIGNMENT_COMMAND_OPEN;
 
                 // Send waypoints array
                 sendWaypoints();
