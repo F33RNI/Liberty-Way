@@ -44,8 +44,6 @@ jobs:
         - tar -xf arduino-cli_0.18.3_Linux_64bit.tar.gz
         - sudo mv arduino-cli /usr/bin/ino
       script:
-        - ls
-        
         - mkdir $HOME/.arduino15
         - ino config init
 
@@ -61,7 +59,7 @@ jobs:
         - ino core list
         - ino lib install 'Adafruit NeoPixel' 'WiFi'
         
-        - cd ../Sonarus
+        - cd Sonarus
         - ino compile --fqbn arduino:avr:uno Sonarus.ino
 
         - cd ../GPS-mixer
