@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Fern H. (aka Pavel Neshumov), Liberty Drones GPS mixer
+ * Copyright (C) 2022 Fern Lane, GPS-Mixer system
  *
  * Licensed under the GNU Affero General Public License, Version 3.0 (the "License");
  * you may not use this file except in compliance with the License.

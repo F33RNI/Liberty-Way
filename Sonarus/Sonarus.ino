@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Fern H. (aka Pavel Neshumov), Sonarus - I2C ultrasonic rangefinder
+ * Copyright (C) 2022 Fern Lane, Sonarus - I2C ultrasonic rangefinder
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.

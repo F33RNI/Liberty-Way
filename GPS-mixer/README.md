@@ -9,7 +9,7 @@ This project is currently part of the AMLS (Autonomous Multicopter Landing Syste
 
 ![Photo](PHOTO.png "Photo")
 
-GPS Mixer © 2021 Fern H. (aka Pavel Neshumov)
+GPS Mixer © 2022 Fern Lane
 
 GPS Mixer uses several low-cost GPS receivers (Ublox NEO-M8n) to improve the accuracy and reliability of GPS coordinates. Up to 3 receivers are currently in use.
 
