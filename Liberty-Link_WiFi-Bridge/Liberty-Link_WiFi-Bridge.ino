@@ -1,5 +1,5 @@
 /*
-* Copyright (C) 2021 Fern H. (aka Pavel Neshumov), Liberty-Link Wifi bridge
+* Copyright (C) 2021 Vladislav Yasnetsky, Liberty-Link Wifi bridge
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
