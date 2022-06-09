@@ -12,9 +12,9 @@
 
 This project is a part of project activity in Moscow Polytech University by students of group 181-311
 
-Liberty-Way AMLS Landing Controller © 2021 Pavel Neshumov (Fern H.)
+Liberty-Way AMLS Landing Controller © 2022 Fern Lane
 
-All the code excluding the dependencies block, was written by Pavel Neshumov (Fern H.)
+All the code excluding the dependencies block, was written by Fern Lane, Vladislav Yasnetsky and Andrey Kabalin
 
 ----------
 
@@ -89,9 +89,9 @@ Android app to send phone GPS coordinates via USB serial port
 
 ## Feedback
 
-- Fern H. (Pavel Neshumov) (Author and CEO of the project) E-Mail: xxoinvizionxx@gmail.com, Twitter: @fern_hertz
-- Andrey Kabalin (Project developer. GPS stabilization, hardware development) E-Mail: astik452@gmail.com
+- Fern Lane (Author and CEO of the project) E-Mail: xxoinvizionxx@gmail.com, Twitter: @fern_hertz
 - Vladislav Yasnetsky (Project developer. Video editing, PR, hardware development). E-Mail: vlad.yasn@gmail.com
+- Andrey Kabalin (Project developer. GPS stabilization, hardware development) E-Mail: astik452@gmail.com
 
 ## For project development
 
@@ -144,7 +144,7 @@ The dependencies are certificated by following licenses:
 
 ## Logotype
 
-AMLS and Liberty-X logo was designed by Fern H. aka Pavel Neshumov
+AMLS and Liberty-X (Liberty-Drones) logo was designed by Fern Lane
 
 ----------
 
@@ -301,11 +301,11 @@ cmake .. \
 
 These are the parameters presented in settings.json file that are used by the program and can be changed depending on of its application:
 
-`"marker_size": 5.0` - length of one side of the tracking marker (cm)
+`"marker_size": 6.0` - length of one side of the tracking marker (cm)
 
 `"max_exposure": -8` - default and maximum exposure value of the camera
 
-`"motors_turn_off_height": 25.0` - altitude of sending a packet to turn off the motors
+`"motors_turn_off_height": 32.0` - altitude of sending a packet to turn off the motors
 
 `"landing_allowed": true` - whether to lower the drone during optical stabilization. If set to false, the drone will never land
 
